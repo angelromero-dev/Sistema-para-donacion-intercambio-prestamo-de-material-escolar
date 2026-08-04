@@ -44,4 +44,35 @@ public class UsuarioService {
             return "Error: No se pudo registrar el usuario. Es posible que el correo o matrícula ya existan.";
         }
     }
+
+    // Handles the business logic for user authentication.
+    public String autenticarUsuario(String correo, String passwordPlana) {
+
+        if (correo == null || correo.isEmpty() || passwordPlana == null || passwordPlana.isEmpty()) {
+            return "Error: El correo y la contraseña son obligatorios.";
+        }
+
+        // 1. Fetch user from database.
+        Usuario usuario = usuarioDao.findByCorreo(correo);
+
+        if (usuario == null) {
+            System.out.println(">>> [DEBUG SERVICE] El usuario devuelto por el DAO es NULL.");
+            return "Error: Credenciales incorrectas o cuenta inexistente.";
+        }
+
+        if (!"ACTIVO".equals(usuario.getEstado())) {
+            return "Error: La cuenta se encuentra bloqueada o inactiva.";
+        }
+
+        // 2. Verify password using BCrypt.
+        System.out.println(">>> [DEBUG SERVICE] Comparando contraseña plana con el Hash usando BCrypt...");
+        boolean passwordValid = PasswordUtil.checkPassword(passwordPlana, usuario.getPasswordHash());
+        System.out.println(">>> [DEBUG SERVICE] Resultado de la validación BCrypt: " + passwordValid);
+
+        if (!passwordValid) {
+            return "Error: Credenciales incorrectas.";
+        }
+
+        return "EXITO";
+    }
 }
