@@ -1,7 +1,7 @@
-package org.utez.sdipme.dao;
+package com.utez.sdipme.dao;
 
-import org.utez.sdipme.model.Usuario;
-import org.utez.sdipme.util.DatabaseConnection;
+import com.utez.sdipme.model.Usuario;
+import com.utez.sdipme.util.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

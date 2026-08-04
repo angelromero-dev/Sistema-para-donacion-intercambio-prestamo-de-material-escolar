@@ -1,4 +1,4 @@
-package org.utez.sdipme.util;
+package com.utez.sdipme.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

@@ -1,4 +1,4 @@
-package org.utez.sdipme.model;
+package com.utez.sdipme.model;
 
 public class Usuario {
 
