@@ -54,6 +54,7 @@ public class AuthServlet extends HttpServlet {
 
         } catch (Exception e) {
             // Global exception handler for malformed requests.
+            e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             JsonObject error = new JsonObject();
             error.addProperty("status", "error");

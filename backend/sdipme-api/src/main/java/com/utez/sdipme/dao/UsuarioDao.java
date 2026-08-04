@@ -36,7 +36,8 @@ public class UsuarioDao {
             return false;
 
         } catch (SQLException e) {
-            System.err.println("Database error during user registration: " + e.getMessage());
+            System.err.println("Database error during user registration:");
+            e.printStackTrace();
             return false;
         }
     }
@@ -76,7 +77,9 @@ public class UsuarioDao {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Database error while fetching user by email: " + e.getMessage());
+            // Print the exact database error stack trace for professional debugging
+            System.err.println("Database error while fetching user by email:");
+            e.printStackTrace();
         }
         return null;
     }
