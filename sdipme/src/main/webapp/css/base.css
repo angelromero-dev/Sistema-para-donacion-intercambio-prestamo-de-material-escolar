@@ -1,0 +1,111 @@
+/**
+ * BASE STYLES
+ * Global reset, design tokens, and core typography.
+ */
+
+/* Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Design Tokens */
+:root {
+  /* Typography */
+  --font-heading: 'Montserrat', sans-serif;
+  --font-body: 'Roboto', sans-serif;
+
+  /* Color Palette: Brand */
+  --color-brand-primary: #004272;
+  --color-brand-secondary: #128970;
+  --color-brand-tertiary: #F77702;
+  --color-brand-accent: #F0A500;
+
+  /* Gradient Color Stops */
+  --color-grad-primary-start: #183451; 
+  --color-grad-primary-mid: #174156;   
+  --color-grad-primary-end: #156262;
+
+  /* Global Gradients */
+  --gradient-global-horizontal: linear-gradient(to right, var(--color-grad-primary-start) 0%, var(--color-grad-primary-mid) 37%, var(--color-grad-primary-end) 100%);
+  --gradient-global-diagonal: linear-gradient(135deg, var(--color-grad-primary-start) 0%, var(--color-grad-primary-mid) 37%, var(--color-grad-primary-end) 100%);
+  
+  /* Color Palette: UI Surfaces */
+  --color-surface-base: #E8E8E8;
+  --color-surface-base-card: #E8EEF2;
+  --color-surface-card: #0A2534;
+
+  /* Color Palette: Text */
+  --color-text-primary: #212126;
+  --color-text-secondary: #F0F0F0;
+  --color-text-tertiary: #004272;           
+  --color-text-quaternary: #FFBF33;           
+  --color-text-quinary: #E0E0E0;           
+  --color-text-hint: #6C7580;    
+  --color-text-inverse: #FFFFFF;
+
+
+  /* "On" Colors */
+  --color-text-on-primary: #1B3A6B;         
+  --color-text-on-secondary: #FFFFFF;      
+  --color-text-on-tertiary: #12746B;
+
+  /* Borders & Outlines */
+  --color-border-base: #1B3A6B;             
+  --color-border-hover: #4A90EE;            
+  --color-border-focus: var(--color-brand-primary); 
+
+  /* Semantic / Status*/
+  --color-status-success: #E6F9EF;          
+  --color-border-status-success: #A7E3C4;          
+  --color-text-status-success: #145A32;  
+
+  --color-status-error: #FDF0EE;            
+  --color-border-status-error: #E8B4B0;            
+  --color-text-status-error: #922B21;  
+
+  --color-status-warning: #FEF9E6;          
+  --color-border-status-warning: #F9CA75;          
+  --color-text-status-warning: #784212;    
+
+  --color-status-info: #E6F4F9;            
+  --color-border-status-info: #3DA0C8;            
+  --color-text-status-info: #2A7FA0;            
+
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, var(--color-brand-primary) 0%, #001a38 100%);
+  --gradient-accent: linear-gradient(90deg, var(--color-brand-secondary) 0%, #00b34f 100%);
+  --gradient-image-overlay: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%);
+
+}
+
+/* Document */
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-surface-base);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography Base */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+  color: var(--color-text-tertiary);
+}

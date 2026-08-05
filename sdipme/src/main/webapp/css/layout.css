@@ -1,0 +1,62 @@
+/**
+ * LAYOUT
+ * Structures and containers.
+ */
+
+ /**
+ * Header 
+ */
+.l-header {
+  width: 100%;
+  background-color: var(--color-surface-base);
+  height: 150px;
+  display: flex;
+  align-items: center; 
+}
+
+.l-container {
+  width: 100%;
+  max-width: 1512px;
+  margin: 0 auto;
+  padding: 0 50px;
+}
+
+/**
+* Navbar 
+*/
+.l-navbar {
+  width: 100%;
+  height: 56px;
+  background: var(--gradient-global-horizontal);
+  border-top: 1px solid var(--color-border-base);
+  border-bottom: 1px solid var(--color-border-base);
+  
+}
+
+/**
+* Hero container
+*/
+.l-hero {
+  position: relative;
+  width: 100%;
+  min-height: 435px;
+  padding: 96px 0;
+  overflow: hidden;
+}
+
+.l-hero--hidden {
+  opacity: 0;
+  transform: translateY(-30px) scale(0.95);
+  pointer-events: none;
+}
+
+/**
+* Footer
+*/
+.l-footer {
+  width: 100%;
+  min-height: 413px; /* Valor exacto de Figma */
+  background: var(--gradient-global-horizontal);
+  padding: 60px 0; /* Espaciado interno para dar respiro */
+  color: var(--color-text-inverse); /* Forzamos el texto blanco general */
+}
