@@ -7,16 +7,17 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PrototipoDAO {
 
     public boolean registrarPrototipo(Prototipo p) {
+        System.out.println(">>>   [DAO POST] Iniciando conexion a Oracle...");
         String sql = "INSERT INTO prototipos (id_usuario, titulo, descripcion_corta, descripcion_larga, url_imagen, id_carrera, id_categoria, tipo_transaccion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+
+            System.out.println(">>>   [DAO POST] Conexion exitosa. Preparando variables para el INSERT...");
 
             ps.setInt(1, p.getIdUsuario());
             ps.setString(2, p.getTitulo());
@@ -27,14 +28,22 @@ public class PrototipoDAO {
             ps.setInt(7, p.getIdCategoria());
             ps.setString(8, p.getTipoTransaccion());
 
-            return ps.executeUpdate() > 0;
+            System.out.println(">>>   [DAO POST] Ejecutando Query...");
+            int filasAfectadas = ps.executeUpdate();
+
+            System.out.println(">>>   [DAO POST] Query finalizado. Filas afectadas: " + filasAfectadas);
+            return filasAfectadas > 0;
+
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println(">>>   [DAO POST ERROR SQL] Oracle ha rechazado la insercion.");
+            System.err.println(">>>   [CODIGO DE ERROR ORACLE]: " + e.getErrorCode());
+            System.err.println(">>>   [MENSAJE EXACTO]: " + e.getMessage());
             return false;
         }
     }
 
     public String obtenerPrototiposParaTarjetasJSON() {
+        System.out.println(">>>   [DAO GET] Ejecutando SELECT con INNER JOINs...");
         StringBuilder json = new StringBuilder("[");
 
         String sql = "SELECT p.id_prototipo, p.titulo, p.descripcion_corta, p.url_imagen, p.tipo_transaccion, " +
@@ -51,6 +60,7 @@ public class PrototipoDAO {
              ResultSet rs = ps.executeQuery()) {
 
             boolean first = true;
+            int contador = 0;
             while (rs.next()) {
                 if (!first) json.append(",");
                 json.append("{")
@@ -67,9 +77,11 @@ public class PrototipoDAO {
                         .append("]")
                         .append("}");
                 first = false;
+                contador++;
             }
+            System.out.println(">>>   [DAO GET] Lectura exitosa. Prototipos encontrados: " + contador);
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println(">>>   [DAO GET ERROR SQL] Fallo al consultar prototipos: " + e.getMessage());
         }
         json.append("]");
         return json.toString();

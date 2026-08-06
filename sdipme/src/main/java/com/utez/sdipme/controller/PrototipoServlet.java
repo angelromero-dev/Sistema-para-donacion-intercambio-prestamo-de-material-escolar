@@ -1,60 +1,90 @@
 package com.utez.sdipme.controller;
 
-
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.utez.sdipme.dao.PrototipoDAO;
 import com.utez.sdipme.model.Prototipo;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
 
 @WebServlet("/api/prototipos")
 public class PrototipoServlet extends HttpServlet {
 
-    private PrototipoDAO prototipoDAO = new PrototipoDAO();
-    private Gson gson = new Gson();
+    private final PrototipoDAO prototipoDAO = new PrototipoDAO();
+    private final Gson gson = new Gson();
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println(">>> [DEBUG] Entrando a GET /api/prototipos");
 
+        request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String jsonTarjetas = prototipoDAO.obtenerPrototiposParaTarjetasJSON();
-        response.getWriter().write(jsonTarjetas);
+        try {
+            String jsonTarjetas = prototipoDAO.obtenerPrototiposParaTarjetasJSON();
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().write(jsonTarjetas);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            JsonObject error = new JsonObject();
+            error.addProperty("status", "error");
+            error.addProperty("message", "Error interno generando las tarjetas.");
+            response.getWriter().write(error.toString());
+        }
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println(">>> [DEBUG] Entrando a POST /api/prototipos");
 
+        request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        StringBuilder sb = new StringBuilder();
-        BufferedReader reader = request.getReader();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line);
-        }
+        JsonObject jsonResponse = new JsonObject();
 
-        Prototipo nuevoPrototipo = gson.fromJson(sb.toString(), Prototipo.class);
+        try {
+            // 1. Leer el JSON entrante de la misma forma exacta que en LoginServlet
+            JsonObject jsonRequest = gson.fromJson(request.getReader(), JsonObject.class);
 
+            // 2. Extraer los datos manualmente (Evita colapsos silenciosos de Gson)
+            Prototipo nuevoPrototipo = new Prototipo();
+            nuevoPrototipo.setIdUsuario(jsonRequest.get("idUsuario").getAsInt());
+            nuevoPrototipo.setTitulo(jsonRequest.get("titulo").getAsString());
+            nuevoPrototipo.setDescripcionCorta(jsonRequest.get("descripcionCorta").getAsString());
+            nuevoPrototipo.setDescripcionLarga(jsonRequest.get("descripcionLarga").getAsString());
+            nuevoPrototipo.setUrlImagen(jsonRequest.get("urlImagen").getAsString());
+            nuevoPrototipo.setIdCarrera(jsonRequest.get("idCarrera").getAsInt());
+            nuevoPrototipo.setIdCategoria(jsonRequest.get("idCategoria").getAsInt());
+            nuevoPrototipo.setTipoTransaccion(jsonRequest.get("tipoTransaccion").getAsString());
 
-        boolean exito = prototipoDAO.registrarPrototipo(nuevoPrototipo);
+            // 3. Enviar a base de datos
+            boolean exito = prototipoDAO.registrarPrototipo(nuevoPrototipo);
 
-        if (exito) {
-            response.setStatus(HttpServletResponse.SC_CREATED); // 201 Created
-            response.getWriter().write("{\"mensaje\": \"Prototipo publicado con éxito\"}");
-        } else {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); // 500 Error
-            response.getWriter().write("{\"mensaje\": \"Error al guardar en la base de datos\"}");
+            if (exito) {
+                response.setStatus(HttpServletResponse.SC_CREATED);
+                jsonResponse.addProperty("status", "success");
+                jsonResponse.addProperty("message", "Prototipo publicado con éxito.");
+            } else {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                jsonResponse.addProperty("status", "error");
+                jsonResponse.addProperty("message", "Error al guardar en la BD. Verifica que el ID de usuario exista.");
+            }
+
+            response.getWriter().write(jsonResponse.toString());
+
+        } catch (Exception e) {
+            e.printStackTrace(); // Esto escupirá cualquier error en la consola de IntelliJ
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            jsonResponse.addProperty("status", "error");
+            jsonResponse.addProperty("message", "Error interno en el servidor: " + e.getMessage());
+            response.getWriter().write(jsonResponse.toString());
         }
     }
 }
