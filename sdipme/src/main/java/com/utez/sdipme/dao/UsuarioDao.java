@@ -89,7 +89,7 @@ public class UsuarioDao {
 
     // Retrieves a user by their email for authentication purposes.
     public Usuario findByCorreo(String correo) {
-        String sql = "SELECT u.id_usuario, u.matricula, u.correo, u.intentos_fallidos, u.estado, h.hash_password " +
+        String sql = "SELECT u.id_usuario, u.matricula, u.correo, u.intentos_fallidos, u.estado_cuenta, h.hash_password " +
                 "FROM usuarios u " +
                 "INNER JOIN historial_contrasenas h ON u.id_usuario = h.id_usuario " +
                 "WHERE u.correo = ? AND h.es_actual = 1";
@@ -107,7 +107,10 @@ public class UsuarioDao {
                     user.setMatricula(rs.getString("matricula"));
                     user.setCorreo(rs.getString("correo"));
                     user.setIntentosFallidos(rs.getInt("intentos_fallidos"));
-                    user.setEstado(rs.getString("estado"));
+
+                    // [CORRECCIÓN TECH LEAD]: Leemos la columna correcta de la BD
+                    user.setEstado(rs.getString("estado_cuenta"));
+
                     user.setPasswordHash(rs.getString("hash_password"));
 
                     return user;

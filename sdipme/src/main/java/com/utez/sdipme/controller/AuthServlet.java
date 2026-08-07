@@ -3,7 +3,7 @@ package com.utez.sdipme.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.utez.sdipme.service.UsuarioService;
-import com.utez.sdipme.util.EmailService; // Importar tu servicio de correos
+import com.utez.sdipme.service.EmailService; // Importar tu servicio de correos
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
