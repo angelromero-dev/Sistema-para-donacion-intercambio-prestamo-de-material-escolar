@@ -20,7 +20,6 @@ public class SolicitudDao {
             ps.setInt(2, s.getIdSolicitante());
             ps.setString(3, s.getMensajeJustificacion());
 
-            // Manejo seguro de nulos para los días de préstamo
             if (s.getDiasPrestamo() != null) {
                 ps.setInt(4, s.getDiasPrestamo());
             } else {
@@ -32,7 +31,7 @@ public class SolicitudDao {
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println(">>> [DAO ERROR] Fallo al registrar solicitud: " + e.getMessage());
+            System.err.println(">>> [DAO ERROR - SolicitudDao.java] Fallo al registrar solicitud: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -51,9 +50,26 @@ public class SolicitudDao {
                 }
             }
         } catch (SQLException e) {
-            System.err.println(">>> [DAO ERROR] Fallo al verificar disponibilidad: " + e.getMessage());
+            System.err.println(">>> [DAO ERROR - SolicitudDao.java] Fallo al verificar disponibilidad: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
+    }
+
+    public boolean actualizarEstado(int idSolicitud, String nuevoEstado) {
+        String sql = "UPDATE solicitudes SET estado = ? WHERE id_solicitud = ?";
+
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, nuevoEstado);
+            ps.setInt(2, idSolicitud);
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println(">>> [DAO ERROR - SolicitudDao.java] Fallo al actualizar estado: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 }
