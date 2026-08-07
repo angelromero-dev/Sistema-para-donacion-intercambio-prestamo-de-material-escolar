@@ -17,6 +17,9 @@ public class SolicitudServlet extends HttpServlet {
     private final SolicitudService solicitudService = new SolicitudService();
     private final Gson gson = new Gson();
 
+    // =========================================================
+    // MÉTODO POST: Para CREAR una nueva solicitud (El alumno pide)
+    // =========================================================
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         System.out.println("\n=========================================");
@@ -47,8 +50,6 @@ public class SolicitudServlet extends HttpServlet {
                 nuevaSolicitud.setFotoIntercambio(jsonRequest.get("fotoIntercambio").getAsString());
             }
 
-            System.out.println(">>> [CONTROLLER - controller/SolicitudServlet.java] Mapeo de JSON a Objeto exitoso. Llamando al Servicio...");
-
             String resultado = solicitudService.procesarNuevaSolicitud(nuevaSolicitud);
 
             if ("EXITO".equals(resultado)) {
@@ -68,13 +69,55 @@ public class SolicitudServlet extends HttpServlet {
             response.getWriter().write(jsonResponse.toString());
 
         } catch (Exception e) {
-            System.err.println(">>> [CONTROLLER FATAL - controller/SolicitudServlet.java] El Servlet colapsó leyendo el JSON.");
-            System.err.println(">>> [MENSAJE EXACTO]: " + e.getMessage());
-            e.printStackTrace();
-
+            System.err.println(">>> [CONTROLLER FATAL - controller/SolicitudServlet.java] El Servlet colapsó leyendo el JSON: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             jsonResponse.addProperty("status", "error");
-            jsonResponse.addProperty("message", "Datos mal formados en la petición: " + e.getMessage());
+            jsonResponse.addProperty("message", "Datos mal formados en la petición.");
+            response.getWriter().write(jsonResponse.toString());
+        }
+    }
+
+    // =========================================================
+    // MÉTODO PUT: Para ACTUALIZAR el estado (El dueño acepta/rechaza)
+    // =========================================================
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("\n=========================================");
+        System.out.println(">>> [CONTROLLER - controller/SolicitudServlet.java] Petición PUT (Actualización) recibida en /api/solicitudes");
+
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        JsonObject jsonResponse = new JsonObject();
+
+        try {
+            JsonObject jsonRequest = gson.fromJson(request.getReader(), JsonObject.class);
+
+            int idSolicitud = jsonRequest.get("idSolicitud").getAsInt();
+            String nuevoEstado = jsonRequest.get("estado").getAsString().toUpperCase();
+
+            System.out.println(">>> [CONTROLLER] Orden de cambiar solicitud " + idSolicitud + " a estado: " + nuevoEstado);
+
+            boolean exito = solicitudService.cambiarEstadoSolicitud(idSolicitud, nuevoEstado);
+
+            if (exito) {
+                response.setStatus(HttpServletResponse.SC_OK);
+                jsonResponse.addProperty("status", "success");
+                jsonResponse.addProperty("message", "Estado de la solicitud actualizado a " + nuevoEstado);
+            } else {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                jsonResponse.addProperty("status", "error");
+                jsonResponse.addProperty("message", "No se pudo actualizar. Verifica que el ID de la solicitud exista.");
+            }
+
+            response.getWriter().write(jsonResponse.toString());
+
+        } catch (Exception e) {
+            System.err.println(">>> [CONTROLLER FATAL - SolicitudServlet.java] Error procesando el PUT: " + e.getMessage());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            jsonResponse.addProperty("status", "error");
+            jsonResponse.addProperty("message", "Error de formato en los datos enviados.");
             response.getWriter().write(jsonResponse.toString());
         }
     }
