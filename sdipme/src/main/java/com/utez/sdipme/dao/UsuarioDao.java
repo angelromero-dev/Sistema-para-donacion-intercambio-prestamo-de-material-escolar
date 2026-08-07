@@ -12,8 +12,8 @@ import java.sql.SQLException;
 public class UsuarioDao {
 
     // Persists a new user in the database safely for Oracle JDBC.
-    public boolean insert(Usuario usuario) {
-        String sqlUsuario = "INSERT INTO usuarios (matricula, correo) VALUES (?, ?)";
+    public boolean insert(Usuario usuario, String tokenActivacion) {
+        String sqlUsuario = "INSERT INTO usuarios (matricula, correo, estado_cuenta, token_verificacion) VALUES (?, ?, 'INACTIVO', ?)";
         String sqlId = "SELECT id_usuario FROM usuarios WHERE correo = ?";
         String sqlPass = "INSERT INTO historial_contrasenas (id_usuario, hash_password, es_actual) VALUES (?, ?, 1)";
 
@@ -23,6 +23,8 @@ public class UsuarioDao {
             try (PreparedStatement psUser = con.prepareStatement(sqlUsuario)) {
                 psUser.setString(1, usuario.getMatricula());
                 psUser.setString(2, usuario.getCorreo());
+                psUser.setString(3, tokenActivacion); // [NUEVO] Guardamos el token
+
                 int affectedRows = psUser.executeUpdate();
                 if (affectedRows == 0) {
                     return false;
@@ -76,7 +78,6 @@ public class UsuarioDao {
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, token);
-
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
@@ -109,11 +110,7 @@ public class UsuarioDao {
                     user.setEstado(rs.getString("estado"));
                     user.setPasswordHash(rs.getString("hash_password"));
 
-                    System.out.println(">>> [DEBUG DAO] ¡Usuario encontrado con éxito!");
-                    System.out.println(">>> [DEBUG DAO] Hash en BD: " + user.getPasswordHash());
                     return user;
-                } else {
-                    System.out.println(">>> [DEBUG DAO] ADVERTENCIA: La consulta no devolvió registros para este correo (es_actual = 1 o correo no existe).");
                 }
             }
         } catch (SQLException e) {
