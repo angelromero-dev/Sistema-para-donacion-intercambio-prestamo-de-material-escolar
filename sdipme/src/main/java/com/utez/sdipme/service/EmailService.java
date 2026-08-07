@@ -1,4 +1,4 @@
-package com.utez.sdipme.util;
+package com.utez.sdipme.service;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
