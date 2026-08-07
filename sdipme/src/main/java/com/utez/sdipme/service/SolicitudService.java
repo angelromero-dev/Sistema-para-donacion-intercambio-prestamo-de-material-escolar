@@ -34,4 +34,18 @@ public class SolicitudService {
             return "ERROR_INTERNO";
         }
     }
+
+    public boolean cambiarEstadoSolicitud(int idSolicitud, String nuevoEstado) {
+        System.out.println(">>> [SERVICE - service/SolicitudService.java] Intentando cambiar solicitud ID " + idSolicitud + " a estado: " + nuevoEstado);
+
+        boolean exito = solicitudDao.actualizarEstado(idSolicitud, nuevoEstado);
+
+        if (exito) {
+            System.out.println(">>> [SERVICE OK - service/SolicitudService.java] Máquina de estados actualizada exitosamente.");
+        } else {
+            System.err.println(">>> [SERVICE ERROR - service/SolicitudService.java] No se pudo cambiar el estado. ¿El ID existe?");
+        }
+
+        return exito;
+    }
 }
