@@ -68,6 +68,24 @@ public class UsuarioDao {
         }
     }
 
+    // Token Email
+    public boolean activarCuenta(String token) {
+        String sql = "UPDATE usuarios SET estado_cuenta = 'ACTIVO', token_verificacion = NULL WHERE token_verificacion = ?";
+
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, token);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.err.println(">>> [DAO ERROR] Fallo al intentar activar cuenta con token: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // Retrieves a user by their email for authentication purposes.
     public Usuario findByCorreo(String correo) {
         String sql = "SELECT u.id_usuario, u.matricula, u.correo, u.intentos_fallidos, u.estado, h.hash_password " +
