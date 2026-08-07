@@ -15,7 +15,7 @@ public class UsuarioService {
     }
 
     // Handles the business logic for registering a new student.
-    public String registrarUsuario(String matricula, String correo, String passwordPlana) {
+    public String registrarUsuario(String matricula, String correo, String passwordPlana, String tokenActivacion) {
 
         // 1. Business Rule Validation: Password constraints.
         if (passwordPlana == null || passwordPlana.length() < 6 || passwordPlana.length() > 20) {
@@ -36,7 +36,7 @@ public class UsuarioService {
         Usuario nuevoUsuario = new Usuario(matricula, correo, hash);
 
         // 4. Persistence: Delegate to DAO.
-        boolean exito = usuarioDao.insert(nuevoUsuario);
+        boolean exito = usuarioDao.insert(nuevoUsuario, tokenActivacion);
 
         if (exito) {
             return "EXITO";
@@ -61,7 +61,7 @@ public class UsuarioService {
         }
 
         if (!"ACTIVO".equals(usuario.getEstado())) {
-            return "Error: La cuenta se encuentra bloqueada o inactiva.";
+            return "Error: La cuenta se encuentra bloqueada o no ha sido activada (Revisa tu correo).";
         }
 
         // 2. Verify password using BCrypt.
