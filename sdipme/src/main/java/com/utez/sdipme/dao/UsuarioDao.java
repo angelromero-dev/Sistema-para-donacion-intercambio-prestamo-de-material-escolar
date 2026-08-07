@@ -87,6 +87,26 @@ public class UsuarioDao {
         }
     }
 
+    // Updates the activation token for an inactive user
+    public boolean actualizarTokenActivacion(String correo, String nuevoToken) {
+        String sql = "UPDATE usuarios SET token_verificacion = ? WHERE correo = ? AND estado_cuenta = 'INACTIVO'";
+
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, nuevoToken);
+            ps.setString(2, correo);
+
+            int filasAfectadas = ps.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Database error while updating activation token:");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // Retrieves a user by their email for authentication purposes.
     public Usuario findByCorreo(String correo) {
         String sql = "SELECT u.id_usuario, u.matricula, u.correo, u.intentos_fallidos, u.estado_cuenta, h.hash_password " +
@@ -108,7 +128,6 @@ public class UsuarioDao {
                     user.setCorreo(rs.getString("correo"));
                     user.setIntentosFallidos(rs.getInt("intentos_fallidos"));
 
-                    // [CORRECCIÓN TECH LEAD]: Leemos la columna correcta de la BD
                     user.setEstado(rs.getString("estado_cuenta"));
 
                     user.setPasswordHash(rs.getString("hash_password"));
