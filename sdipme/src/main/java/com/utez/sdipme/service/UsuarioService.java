@@ -2,6 +2,7 @@ package com.utez.sdipme.service;
 
 import com.utez.sdipme.dao.UsuarioDao;
 import com.utez.sdipme.model.Usuario;
+import com.utez.sdipme.service.EmailService;
 import com.utez.sdipme.util.PasswordUtil;
 
 // Business logic layer for User operations.
@@ -43,6 +44,29 @@ public class UsuarioService {
         } else {
             return "Error: No se pudo registrar el usuario. Es posible que el correo o matrícula ya existan.";
         }
+    }
+
+    // Generates a new activation token and resends the email to an inactive user
+    public String reenviarTokenActivacion(String correo) {
+        if (correo == null || correo.trim().isEmpty()) {
+            return "El correo electrónico es obligatorio.";
+        }
+
+        String nuevoToken = java.util.UUID.randomUUID().toString();
+
+        boolean actualizado = usuarioDao.actualizarTokenActivacion(correo, nuevoToken);
+
+        if (!actualizado) {
+            return "El correo no está registrado o la cuenta ya se encuentra activa.";
+        }
+
+        boolean correoEnviado = EmailService.enviarCorreoVerificacion(correo, nuevoToken);
+
+        if (!correoEnviado) {
+            return "Error al enviar el correo electrónico. Intenta nuevamente.";
+        }
+
+        return "EXITO";
     }
 
     // Handles the business logic for user authentication.
