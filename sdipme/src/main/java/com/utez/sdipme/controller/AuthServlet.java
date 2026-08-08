@@ -32,7 +32,8 @@ public class AuthServlet extends HttpServlet {
             JsonObject jsonRequest = gson.fromJson(request.getReader(), JsonObject.class);
 
             String matricula = jsonRequest.get("matricula").getAsString();
-            String correo = jsonRequest.get("correo").getAsString().toLowerCase().trim(); // Limpiamos el correo
+            String correo = jsonRequest.get("correo").getAsString().toLowerCase().trim();
+            String carrera = jsonRequest.get("carrera").getAsString(); // [NUEVO] Leemos la carrera del JSON
             String password = jsonRequest.get("password").getAsString();
 
             if (!correo.endsWith("@utez.edu.mx")) {
@@ -46,9 +47,8 @@ public class AuthServlet extends HttpServlet {
 
             String tokenActivacion = UUID.randomUUID().toString();
 
-            // Delegate to Service layer (Enviando el token)
-            String resultado = usuarioService.registrarUsuario(matricula, correo, password, tokenActivacion);
-
+            // Delegate to Service layer
+            String resultado = usuarioService.registrarUsuario(matricula, correo, carrera, password, tokenActivacion);
             JsonObject jsonResponse = new JsonObject();
 
             if ("EXITO".equals(resultado)) {

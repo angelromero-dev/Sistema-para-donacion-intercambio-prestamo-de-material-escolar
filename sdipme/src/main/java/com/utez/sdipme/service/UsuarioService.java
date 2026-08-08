@@ -16,9 +16,8 @@ public class UsuarioService {
     }
 
     // Handles the business logic for registering a new student.
-    public String registrarUsuario(String matricula, String correo, String passwordPlana, String tokenActivacion) {
+    public String registrarUsuario(String matricula, String correo, String carrera, String passwordPlana, String tokenActivacion) {
 
-        // 1. Business Rule Validation: Password constraints.
         if (passwordPlana == null || passwordPlana.length() < 6 || passwordPlana.length() > 20) {
             return "Error: La contraseña debe tener entre 6 y 20 caracteres.";
         }
@@ -27,16 +26,14 @@ public class UsuarioService {
             return "Error: La contraseña debe contener al menos una letra mayúscula.";
         }
 
-        // 2. Business Rule Validation: Identity constraints.
-        if (matricula == null || matricula.isEmpty() || correo == null || correo.isEmpty()) {
-            return "Error: La matrícula y el correo son obligatorios.";
+        if (matricula == null || matricula.isEmpty() || correo == null || correo.isEmpty() || carrera == null || carrera.isEmpty()) {
+            return "Error: Matrícula, correo y carrera son obligatorios.";
         }
 
-        // 3. Security: Hash the password before creating the model.
         String hash = PasswordUtil.hashPassword(passwordPlana);
-        Usuario nuevoUsuario = new Usuario(matricula, correo, hash);
 
-        // 4. Persistence: Delegate to DAO.
+        Usuario nuevoUsuario = new Usuario(matricula, correo, carrera, hash);
+
         boolean exito = usuarioDao.insert(nuevoUsuario, tokenActivacion);
 
         if (exito) {

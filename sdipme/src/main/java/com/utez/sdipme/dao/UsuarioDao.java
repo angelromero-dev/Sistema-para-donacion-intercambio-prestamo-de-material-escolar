@@ -13,17 +13,17 @@ public class UsuarioDao {
 
     // Persists a new user in the database safely for Oracle JDBC.
     public boolean insert(Usuario usuario, String tokenActivacion) {
-        String sqlUsuario = "INSERT INTO usuarios (matricula, correo, estado_cuenta, token_verificacion) VALUES (?, ?, 'INACTIVO', ?)";
+        String sqlUsuario = "INSERT INTO usuarios (matricula, correo, carrera, estado_cuenta, token_verificacion) VALUES (?, ?, ?, 'INACTIVO', ?)";
         String sqlId = "SELECT id_usuario FROM usuarios WHERE correo = ?";
         String sqlPass = "INSERT INTO historial_contrasenas (id_usuario, hash_password, es_actual) VALUES (?, ?, 1)";
 
         try (Connection con = DatabaseConnection.getConnection()) {
 
-            // 1. Insert the basic user record
             try (PreparedStatement psUser = con.prepareStatement(sqlUsuario)) {
                 psUser.setString(1, usuario.getMatricula());
                 psUser.setString(2, usuario.getCorreo());
-                psUser.setString(3, tokenActivacion); // [NUEVO] Guardamos el token
+                psUser.setString(3, usuario.getCarrera());
+                psUser.setString(4, tokenActivacion);
 
                 int affectedRows = psUser.executeUpdate();
                 if (affectedRows == 0) {
@@ -109,7 +109,7 @@ public class UsuarioDao {
 
     // Retrieves a user by their email for authentication purposes.
     public Usuario findByCorreo(String correo) {
-        String sql = "SELECT u.id_usuario, u.matricula, u.correo, u.intentos_fallidos, u.estado_cuenta, h.hash_password " +
+        String sql = "SELECT u.id_usuario, u.matricula, u.correo, u.carrera, u.intentos_fallidos, u.estado_cuenta, h.hash_password " +
                 "FROM usuarios u " +
                 "INNER JOIN historial_contrasenas h ON u.id_usuario = h.id_usuario " +
                 "WHERE u.correo = ? AND h.es_actual = 1";
@@ -126,10 +126,10 @@ public class UsuarioDao {
                     user.setIdUsuario(rs.getInt("id_usuario"));
                     user.setMatricula(rs.getString("matricula"));
                     user.setCorreo(rs.getString("correo"));
+                    user.setCarrera(rs.getString("carrera"));
+
                     user.setIntentosFallidos(rs.getInt("intentos_fallidos"));
-
                     user.setEstado(rs.getString("estado_cuenta"));
-
                     user.setPasswordHash(rs.getString("hash_password"));
 
                     return user;

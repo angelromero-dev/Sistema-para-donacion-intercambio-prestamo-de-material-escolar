@@ -5,20 +5,18 @@ public class Usuario {
     private int idUsuario;
     private String matricula;
     private String correo;
+    private String carrera;
     private String passwordHash;
 
-    // Security fields
     private int intentosFallidos;
     private String estado;
 
-    // Default constructor required by JavaBean conventions
-    public Usuario() {
-    }
+    public Usuario() {}
 
-    // Parameterized constructor for registration
-    public Usuario(String matricula, String correo, String passwordHash) {
+    public Usuario(String matricula, String correo, String carrera, String passwordHash) {
         this.matricula = matricula;
         this.correo = correo;
+        this.carrera = carrera;
         this.passwordHash = passwordHash;
         this.estado = "ACTIVO";
         this.intentosFallidos = 0;
@@ -33,6 +31,10 @@ public class Usuario {
 
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
+
+    // ESTOS SON LOS MÉTODOS QUE TU DAO ESTÁ BUSCANDO:
+    public String getCarrera() { return carrera; }
+    public void setCarrera(String carrera) { this.carrera = carrera; }
 
     public String getPasswordHash() { return passwordHash; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
