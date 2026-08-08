@@ -11,45 +11,41 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 
-// Endpoint exposed to the Frontend for authentication processes.
+/**
+ * Endpoint exposed to the Frontend for authentication and user registration processes.
+ */
 @WebServlet("/api/auth/registro")
 public class AuthServlet extends HttpServlet {
 
     private final UsuarioService usuarioService = new UsuarioService();
     private final Gson gson = new Gson();
 
-    // Handles POST HTTP requests for user registration.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        // Ensure proper character encoding for request and response.
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
+        JsonObject jsonResponse = new JsonObject();
+
         try {
-            // Parse incoming JSON payload from the Frontend.
+            // Parse incoming JSON payload from the Frontend containing profile data
             JsonObject jsonRequest = gson.fromJson(request.getReader(), JsonObject.class);
 
-            String matricula = jsonRequest.get("matricula").getAsString();
-            String correo = jsonRequest.get("correo").getAsString().toLowerCase().trim();
-            String carrera = jsonRequest.get("carrera").getAsString(); // [NUEVO] Leemos la carrera del JSON
-            String password = jsonRequest.get("password").getAsString();
+            String matricula = jsonRequest.has("matricula") ? jsonRequest.get("matricula").getAsString() : "";
+            String correo = jsonRequest.has("correo") ? jsonRequest.get("correo").getAsString().toLowerCase().trim() : "";
+            String nombre = jsonRequest.has("nombre") ? jsonRequest.get("nombre").getAsString() : "";
+            String apellidos = jsonRequest.has("apellidos") ? jsonRequest.get("apellidos").getAsString() : "";
+            String telefono = jsonRequest.has("telefono") ? jsonRequest.get("telefono").getAsString() : "";
+            int idCarrera = jsonRequest.has("idCarrera") ? jsonRequest.get("idCarrera").getAsInt() : 0;
+            String password = jsonRequest.has("password") ? jsonRequest.get("password").getAsString() : "";
 
-            if (!correo.endsWith("@utez.edu.mx")) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                JsonObject err = new JsonObject();
-                err.addProperty("status", "error");
-                err.addProperty("message", "Solo se permiten correos institucionales (@utez.edu.mx)");
-                response.getWriter().write(err.toString());
-                return;
-            }
-
+            // Generate a secure unique token for email verification
             String tokenActivacion = UUID.randomUUID().toString();
 
-            // Delegate to Service layer
-            String resultado = usuarioService.registrarUsuario(matricula, correo, carrera, password, tokenActivacion);
-            JsonObject jsonResponse = new JsonObject();
+            // Delegate registration logic to Service layer
+            String resultado = usuarioService.registrarUsuario(matricula, correo, nombre, apellidos, telefono, idCarrera, password, tokenActivacion);
 
             if ("EXITO".equals(resultado)) {
                 boolean correoEnviado = EmailService.enviarCorreoVerificacion(correo, tokenActivacion);
@@ -63,7 +59,6 @@ public class AuthServlet extends HttpServlet {
                     jsonResponse.addProperty("message", "Usuario registrado, pero hubo un problema al enviar el correo de activación. Contacta soporte.");
                 }
             } else {
-                // Return 400 Bad Request status with business logic error.
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 jsonResponse.addProperty("status", "error");
                 jsonResponse.addProperty("message", resultado);
@@ -72,12 +67,11 @@ public class AuthServlet extends HttpServlet {
             response.getWriter().write(jsonResponse.toString());
 
         } catch (Exception e) {
-            // Global exception handler for malformed requests.
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             JsonObject error = new JsonObject();
             error.addProperty("status", "error");
-            error.addProperty("message", "Error procesando la solicitud.");
+            error.addProperty("message", "Error procesando la solicitud de registro.");
             response.getWriter().write(error.toString());
         }
     }
