@@ -57,4 +57,18 @@ public class EmailService {
             return false;
         }
     }
+
+    // Sends a secure link for password reset or account unlock.
+    public static boolean enviarCorreoRecuperacion(String destinatario, String token) {
+        String enlaceRecuperacion = "http://localhost:8080/sdipme_war_exploded/restablecer-password.html?token=" + token;
+
+        String asunto = "SDIPME - Recuperacion de Contraseña o Desbloqueo";
+        String contenidoHtml = "<html><body style='font-family: Arial; padding: 20px;'>"
+                + "<h2>Atención de Seguridad - SDIPME UTEZ</h2>"
+                + "<p>Has solicitado restablecer tu contraseña o tu cuenta fue bloqueada por intentos fallidos.</p>"
+                + "<a href='" + enlaceRecuperacion + "' style='display:inline-block; padding:10px 20px; background:#00875A; color:white; text-decoration:none;'>Restablecer Contraseña</a>"
+                + "</body></html>";
+
+        return enviarCorreo(destinatario, asunto, contenidoHtml);
+    }
 }
