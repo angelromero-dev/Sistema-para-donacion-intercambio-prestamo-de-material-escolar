@@ -41,38 +41,58 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            // 1. DETENEMOS LA RECARGA DE LA PÁGINA
+            e.preventDefault(); 
             
-            const pass = document.getElementById('password').value;
-            const confirmPass = document.getElementById('confirmPassword').value;
+            try {
+                // 2. VALIDAMOS EL CORREO
+                const correoInput = document.getElementById('correo').value;
+                if (!correoInput.toLowerCase().endsWith('@utez.edu.mx')) {
+                    alert("Por políticas de la plataforma, solo puedes registrarte usando tu correo institucional (@utez.edu.mx).");
+                    return;
+                }
 
-            if (pass !== confirmPass) {
-                alert("Las contraseñas no coinciden. Verifica e intenta de nuevo.");
-                return;
+                // 3. VALIDAMOS CONTRASEÑAS
+                const pass = document.getElementById('password').value;
+                const confirmPass = document.getElementById('confirmPassword').value;
+
+                if (pass !== confirmPass) {
+                    alert("Las contraseñas no coinciden. Verifica e intenta de nuevo.");
+                    return;
+                }
+
+                // 4. BLOQUEAMOS EL BOTÓN PARA EVITAR DOBLE CLIC
+                const btnRegister = document.getElementById('btn-register');
+                btnRegister.disabled = true;
+                btnRegister.innerText = 'Registrando...';
+
+                // 5. ARMAMOS EL JSON EXACTO QUE ESPERA EL BACKEND
+                const alumnoData = {
+                    nombre: document.getElementById('nombre').value,
+                    apellidos: document.getElementById('apellidos').value,
+                    telefono: document.getElementById('telefono').value,
+                    matricula: document.getElementById('matricula').value,
+                    correo: correoInput,
+                    idCarrera: parseInt(document.getElementById('idCarrera').value), 
+                    password: pass
+                };
+                
+                // 6. ENVIAMOS A LA API
+                const response = await api.registro(alumnoData);
+
+                if (response.ok) {
+                    alert("Cuenta creada con éxito. Revisa tu correo para activarla.");
+                    window.location.href = "login.jsp";
+                } else {
+                    alert(response.data.message || "Error al registrar la cuenta");
+                    btnRegister.disabled = false;
+                    btnRegister.innerText = 'Crear Cuenta';
+                }
+
+            } catch (error) {
+                console.error(">>> [JS ERROR] Fallo en el script de registro:", error);
+                alert("Ocurrió un error en el navegador. Revisa la consola.");
             }
-
-            const btnRegister = document.getElementById('btn-register');
-            btnRegister.disabled = true;
-            btnRegister.innerText = 'Registrando...';
-
-            // DTO
-            const alumnoData = {
-                matricula: document.getElementById('matricula').value,
-                correo: document.getElementById('correo').value,
-                password: pass
-            };
-            
-            const response = await api.registro(alumnoData);
-
-            if (response.ok) {
-                alert("Cuenta creada con éxito. Ya puedes iniciar sesión.");
-                window.location.href = "login.jsp";
-            } else {
-                alert(response.data.message || "Error al registrar la cuenta");
-            }
-
-            btnRegister.disabled = false;
-            btnRegister.innerText = 'Crear Cuenta';
         });
     }
 });

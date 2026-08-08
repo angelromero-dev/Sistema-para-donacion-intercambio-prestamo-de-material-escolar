@@ -63,6 +63,57 @@
         <h1 class="auth-card__title mb-4">Crear cuenta</h1>
 
         <form id="form-register">
+          <div class="row mb-3">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <label for="nombre" class="auth-label">Nombre(s)</label>
+              <input
+                type="text"
+                id="nombre"
+                class="form-control auth-input"
+                placeholder="Tu nombre"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="apellidos" class="auth-label">Apellidos</label>
+              <input
+                type="text"
+                id="apellidos"
+                class="form-control auth-input"
+                placeholder="Tus apellidos"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <label for="telefono" class="auth-label">Teléfono Celular</label>
+              <input
+                type="tel"
+                id="telefono"
+                class="form-control auth-input"
+                placeholder="10 dígitos"
+                pattern="[0-9]{10}"
+                maxlength="10"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="idCarrera" class="auth-label">Carrera</label>
+              <select id="idCarrera" class="form-control auth-input" required>
+                <option value="" disabled selected>
+                  Selecciona tu carrera...
+                </option>
+                <option value="1">
+                  Desarrollo de Software Multiplataforma
+                </option>
+                <option value="2">Infraestructura de Redes Digitales</option>
+                <option value="3">Mantenimiento Industrial</option>
+                <option value="4">Mecatrónica</option>
+              </select>
+            </div>
+          </div>
           <!-- Section: Academic Data -->
           <h2 class="auth-section-title">Datos Académicos</h2>
           <div class="row">
@@ -84,7 +135,9 @@
                 type="email"
                 id="correo"
                 class="form-control auth-input"
-                placeholder="tunombre@utez.edu.mx"
+                placeholder="ejemplo@utez.edu.mx"
+                pattern="^[a-zA-Z0-9._%+-]+@utez\.edu\.mx$"
+                title="Debes ingresar un correo que termine en @utez.edu.mx"
                 required
               />
               <div class="auth-hint">Solo se admiten correos @utez.edu.mx</div>

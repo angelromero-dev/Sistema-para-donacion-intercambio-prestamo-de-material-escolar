@@ -16,28 +16,30 @@ public class UsuarioService {
 
     // Handles user registration and business rules validation.
     public String registrarUsuario(String matricula, String correo, String nombre, String apellidos, String telefono, int idCarrera, String passwordPlana, String tokenActivacion) {
-        // Validate password length constraints
-        if (passwordPlana == null || passwordPlana.length() < 6 || passwordPlana.length() > 20) {
-            return "Error: La contraseña debe tener entre 6 y 20 caracteres.";
-        }
-        // Validate password security complexity
-        if (!passwordPlana.matches(".*[A-Z].*")) {
-            return "Error: La contraseña debe contener al menos una letra mayúscula.";
-        }
-        // Validate mandatory fields existence
+
         if (matricula == null || matricula.isEmpty() || correo == null || correo.isEmpty() || nombre == null || nombre.isEmpty() || apellidos == null || apellidos.isEmpty() || telefono == null || telefono.isEmpty() || idCarrera <= 0) {
             return "Error: Todos los campos del perfil y la carrera son obligatorios.";
         }
 
-        // Hash password securely using BCrypt
-        String hash = PasswordUtil.hashPassword(passwordPlana);
+        if (!correo.toLowerCase().endsWith("@utez.edu.mx")) {
+            return "Error: Solo se permiten correos institucionales de la UTEZ (@utez.edu.mx).";
+        }
 
-        // Create user object with new schema attributes
+        if (passwordPlana == null || passwordPlana.length() < 6 || passwordPlana.length() > 20) {
+            return "Error: La contraseña debe tener entre 6 y 20 caracteres.";
+        }
+        if (!passwordPlana.matches(".*[A-Z].*")) {
+            return "Error: La contraseña debe contener al menos una letra mayúscula.";
+        }
+        if (telefono == null || !telefono.matches("\\d{10}")) {
+            return "Error: El número de teléfono debe contener exactamente 10 dígitos.";
+        }
+
+        String hash = PasswordUtil.hashPassword(passwordPlana);
         Usuario nuevoUsuario = new Usuario(matricula, correo, nombre, apellidos, telefono, idCarrera, hash);
 
         boolean exito = usuarioDao.insert(nuevoUsuario, tokenActivacion);
-
-        return exito ? "EXITO" : "Error al registrar el usuario en la base de datos.";
+        return exito ? "EXITO" : "Error al registrar el usuario. El correo o matrícula ya existen.";
     }
 
     // Generates a new token and resends the activation email.

@@ -22,7 +22,7 @@ public class ActivacionServlet extends HttpServlet {
 
         if (token == null || token.trim().isEmpty()) {
             System.err.println(">>> [CONTROLLER ERROR] Se intentó acceder sin token.");
-            response.sendRedirect(request.getContextPath() + "/login.html?activacion=error_token");
+            response.sendRedirect(request.getContextPath() + "/login.jsp?activacion=error_token");
             return;
         }
 
@@ -31,10 +31,10 @@ public class ActivacionServlet extends HttpServlet {
 
         if (exito) {
             System.out.println(">>> [CONTROLLER OK] Cuenta activada con éxito.");
-            response.sendRedirect(request.getContextPath() + "/login.html?activacion=exitosa");
+            response.sendRedirect(request.getContextPath() + "/login.jsp?activacion=exitosa");
         } else {
             System.err.println(">>> [CONTROLLER WARN] Token inválido o ya usado.");
-            response.sendRedirect(request.getContextPath() + "/login.html?activacion=invalido");
+            response.sendRedirect(request.getContextPath() + "/login.jsp?activacion=invalido");
         }
     }
 }
