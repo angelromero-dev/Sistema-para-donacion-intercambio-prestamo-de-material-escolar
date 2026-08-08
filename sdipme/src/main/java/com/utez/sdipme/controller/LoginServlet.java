@@ -3,10 +3,14 @@ package com.utez.sdipme.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.utez.sdipme.service.UsuarioService;
+import com.utez.sdipme.dao.UsuarioDao;
+import com.utez.sdipme.model.Usuario;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 
 // Endpoint exposed for user login authentication.
@@ -31,7 +35,7 @@ public class LoginServlet extends HttpServlet {
             if (jsonRequest == null || !jsonRequest.has("correo") || !jsonRequest.has("password")) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 jsonResponse.addProperty("status", "error");
-                jsonResponse.addProperty("message", "Estructura JSON inválida o faltan parámetros (correo/password).");
+                jsonResponse.addProperty("message", "Estructura JSON inválida o faltan parámetros.");
                 response.getWriter().write(jsonResponse.toString());
                 return;
             }
@@ -39,13 +43,25 @@ public class LoginServlet extends HttpServlet {
             String correo = jsonRequest.get("correo").getAsString();
             String password = jsonRequest.get("password").getAsString();
 
-            // Delegate authentication to Service layer.
             String resultado = usuarioService.autenticarUsuario(correo, password);
 
             if ("EXITO".equals(resultado)) {
+
+                UsuarioDao dao = new UsuarioDao();
+                Usuario usuarioLogueado = dao.findByCorreo(correo);
+
+                HttpSession sesion = request.getSession(true);
+
+                sesion.setAttribute("idUsuario", usuarioLogueado.getIdUsuario());
+                sesion.setAttribute("correoUsuario", usuarioLogueado.getCorreo());
+                sesion.setAttribute("carreraUsuario", usuarioLogueado.getCarrera());
+
                 response.setStatus(HttpServletResponse.SC_OK);
                 jsonResponse.addProperty("status", "success");
                 jsonResponse.addProperty("message", "Inicio de sesión exitoso.");
+
+                jsonResponse.addProperty("idUsuario", usuarioLogueado.getIdUsuario());
+
             } else {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 jsonResponse.addProperty("status", "error");
