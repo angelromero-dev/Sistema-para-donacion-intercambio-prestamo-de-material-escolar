@@ -43,11 +43,12 @@ public class PrototipoDAO {
     }
 
     public String obtenerPrototiposParaTarjetasJSON() {
-        System.out.println(">>>   [DAO GET] Ejecutando SELECT con INNER JOINs...");
+        System.out.println(">>>   [DAO GET] Ejecutando SELECT con INNER JOINs ampliado...");
         StringBuilder json = new StringBuilder("[");
 
-        String sql = "SELECT p.id_prototipo, p.titulo, p.descripcion_corta, p.url_imagen, p.tipo_transaccion, " +
-                "u.matricula, div.acronimo AS division, cat.nombre AS categoria, car.nombre AS carrera " +
+        // Añadimos u.reputacion y p.descripcion_larga a la consulta
+        String sql = "SELECT p.id_prototipo, p.titulo, p.descripcion_corta, p.descripcion_larga, p.url_imagen, p.tipo_transaccion, " +
+                "u.matricula, u.reputacion, div.acronimo AS division, cat.nombre AS categoria, car.nombre AS carrera " +
                 "FROM prototipos p " +
                 "INNER JOIN usuarios u ON p.id_usuario = u.id_usuario " +
                 "INNER JOIN cat_carreras car ON p.id_carrera = car.id_carrera " +
@@ -67,7 +68,9 @@ public class PrototipoDAO {
                         .append("\"id\":").append(rs.getInt("id_prototipo")).append(",")
                         .append("\"titulo\":\"").append(rs.getString("titulo")).append("\",")
                         .append("\"matriculaOferente\":\"").append(rs.getString("matricula")).append("\",")
+                        .append("\"reputacion\":").append(rs.getDouble("reputacion")).append(",")
                         .append("\"descripcionCorta\":\"").append(rs.getString("descripcion_corta")).append("\",")
+                        .append("\"descripcionLarga\":\"").append(rs.getString("descripcion_larga")).append("\",")
                         .append("\"urlImagen\":\"").append(rs.getString("url_imagen")).append("\",")
                         .append("\"tipoTransaccion\":\"").append(rs.getString("tipo_transaccion")).append("\",")
                         .append("\"etiquetas\":[")
