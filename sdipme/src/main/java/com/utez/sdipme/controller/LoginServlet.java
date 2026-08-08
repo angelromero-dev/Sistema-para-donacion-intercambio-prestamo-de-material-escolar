@@ -13,13 +13,16 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
-// Endpoint exposed for user login authentication.
+/**
+ * Endpoint exposed for user login authentication and session creation.
+ */
 @WebServlet("/api/auth/login")
 public class LoginServlet extends HttpServlet {
 
     private final UsuarioService usuarioService = new UsuarioService();
     private final Gson gson = new Gson();
 
+    // Handles POST HTTP requests for user authentication.
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
@@ -30,6 +33,7 @@ public class LoginServlet extends HttpServlet {
         JsonObject jsonResponse = new JsonObject();
 
         try {
+            // Parse incoming JSON payload containing credentials.
             JsonObject jsonRequest = gson.fromJson(request.getReader(), JsonObject.class);
 
             if (jsonRequest == null || !jsonRequest.has("correo") || !jsonRequest.has("password")) {
@@ -43,6 +47,7 @@ public class LoginServlet extends HttpServlet {
             String correo = jsonRequest.get("correo").getAsString();
             String password = jsonRequest.get("password").getAsString();
 
+            // Delegate authentication logic to Service layer.
             String resultado = usuarioService.autenticarUsuario(correo, password);
 
             if ("EXITO".equals(resultado)) {
@@ -50,16 +55,18 @@ public class LoginServlet extends HttpServlet {
                 UsuarioDao dao = new UsuarioDao();
                 Usuario usuarioLogueado = dao.findByCorreo(correo);
 
+                // Create HTTP session and bind user attributes.
                 HttpSession sesion = request.getSession(true);
 
                 sesion.setAttribute("idUsuario", usuarioLogueado.getIdUsuario());
                 sesion.setAttribute("correoUsuario", usuarioLogueado.getCorreo());
-                sesion.setAttribute("carreraUsuario", usuarioLogueado.getCarrera());
+
+                // Updated to match the new normalized career foreign key attribute.
+                sesion.setAttribute("idCarreraUsuario", usuarioLogueado.getIdCarrera());
 
                 response.setStatus(HttpServletResponse.SC_OK);
                 jsonResponse.addProperty("status", "success");
                 jsonResponse.addProperty("message", "Inicio de sesión exitoso.");
-
                 jsonResponse.addProperty("idUsuario", usuarioLogueado.getIdUsuario());
 
             } else {

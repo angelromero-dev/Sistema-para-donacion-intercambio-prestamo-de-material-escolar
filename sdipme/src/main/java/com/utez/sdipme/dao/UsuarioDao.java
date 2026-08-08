@@ -92,31 +92,38 @@ public class UsuarioDao {
 
     // Retrieves a user by their email for authentication purposes.
     public Usuario findByCorreo(String correo) {
-        String sql = "SELECT u.id_usuario, u.matricula, u.correo, u.carrera, u.intentos_fallidos, u.estado_cuenta, h.hash_password " +
+        // Updated SQL query: replaced obsolete 'carrera' column with 'id_carrera'
+        String sql = "SELECT u.id_usuario, u.matricula, u.correo, u.nombre, u.apellidos, u.telefono, u.id_carrera, u.intentos_fallidos, u.estado_cuenta, h.hash_password " +
                 "FROM usuarios u " +
                 "INNER JOIN historial_contrasenas h ON u.id_usuario = h.id_usuario " +
                 "WHERE u.correo = ? AND h.es_actual = 1";
 
+        Usuario usuario = null;
+
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setString(1, correo);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Usuario user = new Usuario();
-                    user.setIdUsuario(rs.getInt("id_usuario"));
-                    user.setMatricula(rs.getString("matricula"));
-                    user.setCorreo(rs.getString("correo"));
-                    user.setCarrera(rs.getString("carrera"));
-                    user.setIntentosFallidos(rs.getInt("intentos_fallidos"));
-                    user.setEstado(rs.getString("estado_cuenta"));
-                    user.setPasswordHash(rs.getString("hash_password"));
-                    return user;
+                    usuario = new Usuario();
+                    usuario.setIdUsuario(rs.getInt("id_usuario"));
+                    usuario.setMatricula(rs.getString("matricula"));
+                    usuario.setCorreo(rs.getString("correo"));
+                    usuario.setNombre(rs.getString("nombre"));
+                    usuario.setApellidos(rs.getString("apellidos"));
+                    usuario.setTelefono(rs.getString("telefono"));
+                    usuario.setIdCarrera(rs.getInt("id_carrera")); // Mapped to integer foreign key
+                    usuario.setIntentosFallidos(rs.getInt("intentos_fallidos"));
+                    usuario.setEstado(rs.getString("estado_cuenta"));
+                    usuario.setPasswordHash(rs.getString("hash_password"));
                 }
             }
         } catch (SQLException e) {
+            System.err.println(">>> [DAO ERROR - UsuarioDao.java] Failed to find user by email: " + e.getMessage());
             e.printStackTrace();
         }
-        return null;
+        return usuario;
     }
 
     // --- SECURITY METHODS ---
