@@ -13,7 +13,7 @@ public class UsuarioDao {
 
     // Persists a new user in the database safely for Oracle JDBC.
     public boolean insert(Usuario usuario, String tokenActivacion) {
-        String sqlUsuario = "INSERT INTO usuarios (matricula, correo, carrera, estado_cuenta, token_verificacion) VALUES (?, ?, ?, 'INACTIVO', ?)";
+        String sqlUsuario = "INSERT INTO usuarios (matricula, correo, carrera, estado_cuenta, token_verificacion, intentos_fallidos) VALUES (?, ?, ?, 'INACTIVO', ?, 0)";
         String sqlId = "SELECT id_usuario FROM usuarios WHERE correo = ?";
         String sqlPass = "INSERT INTO historial_contrasenas (id_usuario, hash_password, es_actual) VALUES (?, ?, 1)";
 
@@ -26,27 +26,21 @@ public class UsuarioDao {
                 psUser.setString(4, tokenActivacion);
 
                 int affectedRows = psUser.executeUpdate();
-                if (affectedRows == 0) {
-                    return false;
-                }
+                if (affectedRows == 0) return false;
             }
 
-            // 2. Safely retrieve the generated ID by querying the unique email
+            // Safely retrieve the generated ID by querying the unique email
             int userId = -1;
             try (PreparedStatement psId = con.prepareStatement(sqlId)) {
                 psId.setString(1, usuario.getCorreo());
                 try (ResultSet rs = psId.executeQuery()) {
-                    if (rs.next()) {
-                        userId = rs.getInt("id_usuario");
-                    }
+                    if (rs.next()) userId = rs.getInt("id_usuario");
                 }
             }
 
-            if (userId == -1) {
-                return false;
-            }
+            if (userId == -1) return false;
 
-            // 3. Insert the hashed password into the history table
+            // Insert the hashed password into the history table
             try (PreparedStatement psPass = con.prepareStatement(sqlPass)) {
                 psPass.setInt(1, userId);
                 psPass.setString(2, usuario.getPasswordHash());
@@ -60,48 +54,30 @@ public class UsuarioDao {
         }
     }
 
-    // Inserts the hashed password into the history table.
-    private boolean insertPasswordHistory(int idUsuario, String hashPassword, Connection con) throws SQLException {
-        String sql = "INSERT INTO historial_contrasenas (id_usuario, hash_password, es_actual) VALUES (?, ?, 1)";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idUsuario);
-            ps.setString(2, hashPassword);
-            return ps.executeUpdate() > 0;
-        }
-    }
-
-    // Token Email
+    // Activates user account and clears token.
     public boolean activarCuenta(String token) {
-        String sql = "UPDATE usuarios SET estado_cuenta = 'ACTIVO', token_verificacion = NULL WHERE token_verificacion = ?";
+        String sql = "UPDATE usuarios SET estado_cuenta = 'ACTIVO', token_verificacion = NULL, intentos_fallidos = 0 WHERE token_verificacion = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setString(1, token);
             return ps.executeUpdate() > 0;
-
         } catch (SQLException e) {
-            System.err.println(">>> [DAO ERROR] Fallo al intentar activar cuenta con token: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
-    // Updates the activation token for an inactive user
+    // Updates the activation token for an inactive user.
     public boolean actualizarTokenActivacion(String correo, String nuevoToken) {
         String sql = "UPDATE usuarios SET token_verificacion = ? WHERE correo = ? AND estado_cuenta = 'INACTIVO'";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setString(1, nuevoToken);
             ps.setString(2, correo);
-
-            int filasAfectadas = ps.executeUpdate();
-            return filasAfectadas > 0;
-
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Database error while updating activation token:");
             e.printStackTrace();
             return false;
         }
@@ -116,10 +92,7 @@ public class UsuarioDao {
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setString(1, correo);
-            System.out.println(">>> [DEBUG DAO] Buscando en BD el correo: " + correo);
-
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Usuario user = new Usuario();
@@ -127,18 +100,114 @@ public class UsuarioDao {
                     user.setMatricula(rs.getString("matricula"));
                     user.setCorreo(rs.getString("correo"));
                     user.setCarrera(rs.getString("carrera"));
-
                     user.setIntentosFallidos(rs.getInt("intentos_fallidos"));
                     user.setEstado(rs.getString("estado_cuenta"));
                     user.setPasswordHash(rs.getString("hash_password"));
-
                     return user;
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Database error while fetching user by email:");
             e.printStackTrace();
         }
         return null;
+    }
+
+    // --- SECURITY METHODS ---
+
+    // Increments failed attempts and blocks account if limit is reached.
+    public int registrarIntentoFallido(String correo) {
+        String sqlIncrementar = "UPDATE usuarios SET intentos_fallidos = intentos_fallidos + 1 WHERE correo = ?";
+        String sqlBloquear = "UPDATE usuarios SET estado_cuenta = 'BLOQUEADO' WHERE correo = ? AND intentos_fallidos >= 3";
+        String sqlConsultar = "SELECT intentos_fallidos FROM usuarios WHERE correo = ?";
+
+        try (Connection con = DatabaseConnection.getConnection()) {
+            try (PreparedStatement ps1 = con.prepareStatement(sqlIncrementar)) {
+                ps1.setString(1, correo);
+                ps1.executeUpdate();
+            }
+            try (PreparedStatement ps2 = con.prepareStatement(sqlBloquear)) {
+                ps2.setString(1, correo);
+                ps2.executeUpdate();
+            }
+            try (PreparedStatement ps3 = con.prepareStatement(sqlConsultar)) {
+                ps3.setString(1, correo);
+                try (ResultSet rs = ps3.executeQuery()) {
+                    if (rs.next()) return rs.getInt("intentos_fallidos");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // Resets failed attempts counter upon successful login.
+    public void resetearIntentosFallidos(String correo) {
+        String sql = "UPDATE usuarios SET intentos_fallidos = 0 WHERE correo = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, correo);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Saves recovery token for password reset.
+    public boolean guardarTokenRecuperacion(String correo, String token) {
+        String sql = "UPDATE usuarios SET token_verificacion = ? WHERE correo = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, token);
+            ps.setString(2, correo);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Resets password, clears token, and unblocks account via transaction.
+    public boolean restablecerPasswordConToken(String token, String nuevoPasswordHash) {
+        String sqlUserId = "SELECT id_usuario FROM usuarios WHERE token_verificacion = ?";
+        String sqlUpdateHistorialOld = "UPDATE historial_contrasenas SET es_actual = 0 WHERE id_usuario = ?";
+        String sqlInsertHistorialNew = "INSERT INTO historial_contrasenas (id_usuario, hash_password, es_actual) VALUES (?, ?, 1)";
+        String sqlActivarUsuario = "UPDATE usuarios SET estado_cuenta = 'ACTIVO', intentos_fallidos = 0, token_verificacion = NULL WHERE id_usuario = ?";
+
+        try (Connection con = DatabaseConnection.getConnection()) {
+            con.setAutoCommit(false);
+            int userId = -1;
+
+            try (PreparedStatement ps1 = con.prepareStatement(sqlUserId)) {
+                ps1.setString(1, token);
+                try (ResultSet rs = ps1.executeQuery()) {
+                    if (rs.next()) userId = rs.getInt("id_usuario");
+                }
+            }
+
+            if (userId == -1) return false;
+
+            try (PreparedStatement ps2 = con.prepareStatement(sqlUpdateHistorialOld)) {
+                ps2.setInt(1, userId);
+                ps2.executeUpdate();
+            }
+
+            try (PreparedStatement ps3 = con.prepareStatement(sqlInsertHistorialNew)) {
+                ps3.setInt(1, userId);
+                ps3.setString(2, nuevoPasswordHash);
+                ps3.executeUpdate();
+            }
+
+            try (PreparedStatement ps4 = con.prepareStatement(sqlActivarUsuario)) {
+                ps4.setInt(1, userId);
+                ps4.executeUpdate();
+            }
+
+            con.commit();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
