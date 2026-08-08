@@ -2,7 +2,7 @@ package com.utez.sdipme.service;
 
 import com.utez.sdipme.dao.UsuarioDao;
 import com.utez.sdipme.model.Usuario;
-import com.utez.sdipme.util.EmailService;
+import com.utez.sdipme.service.EmailService;
 import com.utez.sdipme.util.PasswordUtil;
 
 // Business logic layer for User operations.
