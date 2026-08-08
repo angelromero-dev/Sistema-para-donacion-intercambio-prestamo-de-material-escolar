@@ -26,8 +26,15 @@ public class LoginServlet extends HttpServlet {
         JsonObject jsonResponse = new JsonObject();
 
         try {
-            // Parse incoming JSON request.
             JsonObject jsonRequest = gson.fromJson(request.getReader(), JsonObject.class);
+
+            if (jsonRequest == null || !jsonRequest.has("correo") || !jsonRequest.has("password")) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                jsonResponse.addProperty("status", "error");
+                jsonResponse.addProperty("message", "Estructura JSON inválida o faltan parámetros (correo/password).");
+                response.getWriter().write(jsonResponse.toString());
+                return;
+            }
 
             String correo = jsonRequest.get("correo").getAsString();
             String password = jsonRequest.get("password").getAsString();
@@ -36,12 +43,10 @@ public class LoginServlet extends HttpServlet {
             String resultado = usuarioService.autenticarUsuario(correo, password);
 
             if ("EXITO".equals(resultado)) {
-                // Return 200 OK status on successful login.
                 response.setStatus(HttpServletResponse.SC_OK);
                 jsonResponse.addProperty("status", "success");
                 jsonResponse.addProperty("message", "Inicio de sesión exitoso.");
             } else {
-                // Return 401 Unauthorized status on invalid credentials.
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 jsonResponse.addProperty("status", "error");
                 jsonResponse.addProperty("message", resultado);
