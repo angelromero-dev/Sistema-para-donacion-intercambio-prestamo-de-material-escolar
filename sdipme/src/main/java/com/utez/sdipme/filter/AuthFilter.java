@@ -32,7 +32,7 @@ public class AuthFilter implements Filter {
         } else {
             // Block and redirect to the public index/login page
             System.err.println(">>> [SECURITY FILTER] Acceso denegado a ruta protegida. Redirigiendo a login.");
-            httpResponse.sendRedirect(httpRequest.getContextPath() + "/index.html");
+            httpResponse.sendRedirect(httpRequest.getContextPath() + "/index.jsp");
         }
     }
 }
