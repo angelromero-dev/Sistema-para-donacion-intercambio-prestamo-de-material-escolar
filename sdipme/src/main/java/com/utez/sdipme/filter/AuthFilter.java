@@ -8,9 +8,9 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
- * Security filter to protect restricted routes from unauthorized access.
+ * Security filter to protect restricted routes while allowing public access to auth pages and static assets.
  */
-@WebFilter("/pages/*")
+@WebFilter("/*")
 public class AuthFilter implements Filter {
 
     @Override
@@ -20,19 +20,32 @@ public class AuthFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        // Obtain session without creating a new one if it doesn't exist
-        HttpSession session = httpRequest.getSession(false);
+        String path = httpRequest.getRequestURI().substring(httpRequest.getContextPath().length());
 
-        // Check if session exists and user is logged in
+        // Define public routes that do not require authentication
+        boolean isPublicPage = path.endsWith("index.jsp") ||
+                path.endsWith("login.jsp") ||
+                path.endsWith("registro.jsp") ||
+                path.equals("/");
+
+        // Define static assets and public API endpoints
+        boolean isStaticResource = path.startsWith("/css/") ||
+                path.startsWith("/js/") ||
+                path.startsWith("/assets/") ||
+                path.startsWith("/api/auth/") ||
+                path.startsWith("/api/activar");
+
+        // Verify session existence
+        HttpSession session = httpRequest.getSession(false);
         boolean isLoggedIn = (session != null && session.getAttribute("idUsuario") != null);
 
-        if (isLoggedIn) {
-            // Allow request to proceed to the destination
+        // Allow request if resource is public, or if user is authenticated
+        if (isPublicPage || isStaticResource || isLoggedIn) {
             chain.doFilter(request, response);
         } else {
-            // Block and redirect to the public index/login page
-            System.err.println(">>> [SECURITY FILTER] Acceso denegado a ruta protegida. Redirigiendo a login.");
-            httpResponse.sendRedirect(httpRequest.getContextPath() + "/index.jsp");
+            // Block unauthorized access to private pages (e.g. /pages/dashboard.jsp) and redirect
+            System.err.println(">>> [SECURITY FILTER] Acceso denegado a ruta protegida: " + path + ". Redirigiendo a login.");
+            httpResponse.sendRedirect(httpRequest.getContextPath() + "/pages/login.jsp");
         }
     }
 }
