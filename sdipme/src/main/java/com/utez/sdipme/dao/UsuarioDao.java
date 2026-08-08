@@ -13,42 +13,49 @@ public class UsuarioDao {
 
     // Persists a new user in the database safely for Oracle JDBC.
     public boolean insert(Usuario usuario, String tokenActivacion) {
-        String sqlUsuario = "INSERT INTO usuarios (matricula, correo, carrera, estado_cuenta, token_verificacion, intentos_fallidos) VALUES (?, ?, ?, 'INACTIVO', ?, 0)";
+        String sqlUsuario = "INSERT INTO usuarios (matricula, correo, nombre, apellidos, telefono, id_carrera, estado_cuenta, token_verificacion, intentos_fallidos) VALUES (?, ?, ?, ?, ?, ?, 'INACTIVO', ?, 0)";
         String sqlId = "SELECT id_usuario FROM usuarios WHERE correo = ?";
         String sqlPass = "INSERT INTO historial_contrasenas (id_usuario, hash_password, es_actual) VALUES (?, ?, 1)";
 
         try (Connection con = DatabaseConnection.getConnection()) {
 
+            // Execute user insertion with profile details and career foreign key
             try (PreparedStatement psUser = con.prepareStatement(sqlUsuario)) {
                 psUser.setString(1, usuario.getMatricula());
                 psUser.setString(2, usuario.getCorreo());
-                psUser.setString(3, usuario.getCarrera());
-                psUser.setString(4, tokenActivacion);
+                psUser.setString(3, usuario.getNombre());
+                psUser.setString(4, usuario.getApellidos());
+                psUser.setString(5, usuario.getTelefono());
+                psUser.setInt(6, usuario.getIdCarrera());
+                psUser.setString(7, tokenActivacion);
 
                 int affectedRows = psUser.executeUpdate();
                 if (affectedRows == 0) return false;
             }
 
-            // Safely retrieve the generated ID by querying the unique email
+            // Safely retrieve the generated ID to insert initial password hash
             int userId = -1;
             try (PreparedStatement psId = con.prepareStatement(sqlId)) {
                 psId.setString(1, usuario.getCorreo());
                 try (ResultSet rs = psId.executeQuery()) {
-                    if (rs.next()) userId = rs.getInt("id_usuario");
+                    if (rs.next()) {
+                        userId = rs.getInt("id_usuario");
+                    }
                 }
             }
 
             if (userId == -1) return false;
 
-            // Insert the hashed password into the history table
             try (PreparedStatement psPass = con.prepareStatement(sqlPass)) {
                 psPass.setInt(1, userId);
                 psPass.setString(2, usuario.getPasswordHash());
-                return psPass.executeUpdate() > 0;
+                psPass.executeUpdate();
             }
 
+            return true;
+
         } catch (SQLException e) {
-            System.err.println("Database error during user registration:");
+            System.err.println(">>> [DAO ERROR - UsuarioDao.java] Error inserting user: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
