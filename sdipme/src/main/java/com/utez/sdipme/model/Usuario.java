@@ -5,24 +5,30 @@ public class Usuario {
     private int idUsuario;
     private String matricula;
     private String correo;
-    private String carrera;
+    private String nombre;
+    private String apellidos;
+    private String telefono;
+    private int idCarrera;
     private String passwordHash;
-
     private int intentosFallidos;
     private String estado;
 
     public Usuario() {}
 
-    public Usuario(String matricula, String correo, String carrera, String passwordHash) {
+    // Parameterized constructor for new user registration
+    public Usuario(String matricula, String correo, String nombre, String apellidos, String telefono, int idCarrera, String passwordHash) {
         this.matricula = matricula;
         this.correo = correo;
-        this.carrera = carrera;
+        this.nombre = nombre;
+        this.apellidos = apellidos;
+        this.telefono = telefono;
+        this.idCarrera = idCarrera;
         this.passwordHash = passwordHash;
-        this.estado = "ACTIVO";
+        this.estado = "INACTIVO";
         this.intentosFallidos = 0;
     }
 
-    // --- Getters and Setters ---
+
     public int getIdUsuario() { return idUsuario; }
     public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
 
@@ -32,9 +38,17 @@ public class Usuario {
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
 
-    // ESTOS SON LOS MÉTODOS QUE TU DAO ESTÁ BUSCANDO:
-    public String getCarrera() { return carrera; }
-    public void setCarrera(String carrera) { this.carrera = carrera; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public String getApellidos() { return apellidos; }
+    public void setApellidos(String apellidos) { this.apellidos = apellidos; }
+
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
+
+    public int getIdCarrera() { return idCarrera; }
+    public void setIdCarrera(int idCarrera) { this.idCarrera = idCarrera; }
 
     public String getPasswordHash() { return passwordHash; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
