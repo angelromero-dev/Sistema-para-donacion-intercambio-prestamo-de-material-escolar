@@ -9,6 +9,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
 @WebServlet("/api/prototipos")
@@ -49,13 +50,30 @@ public class PrototipoServlet extends HttpServlet {
 
         JsonObject jsonResponse = new JsonObject();
 
+
+        HttpSession sesion = request.getSession(false);
+        System.out.println("\n>>> [SEGURIDAD] Petición entrante a /api/prototipos");
+        if (sesion == null) {
+            System.err.println(">>> [SEGURIDAD] ALERTA: Tomcat dice que la sesión es NULL. Postman NO mandó la cookie JSESSIONID.");
+        } else {
+            System.out.println(">>> [SEGURIDAD] JSESSIONID recibido: " + sesion.getId());
+            System.out.println(">>> [SEGURIDAD] idUsuario en memoria: " + sesion.getAttribute("idUsuario"));
+        }
+        if (sesion == null || sesion.getAttribute("idUsuario") == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            jsonResponse.addProperty("status", "error");
+            jsonResponse.addProperty("message", "Acceso denegado. Debes iniciar sesión para publicar.");
+            response.getWriter().write(jsonResponse.toString());
+            return;
+        }
+
         try {
-            // 1. Leer el JSON entrante de la misma forma exacta que en LoginServlet
             JsonObject jsonRequest = gson.fromJson(request.getReader(), JsonObject.class);
 
-            // 2. Extraer los datos manualmente (Evita colapsos silenciosos de Gson)
+            int idUsuarioSeguro = (Integer) sesion.getAttribute("idUsuario");
+
             Prototipo nuevoPrototipo = new Prototipo();
-            nuevoPrototipo.setIdUsuario(jsonRequest.get("idUsuario").getAsInt());
+            nuevoPrototipo.setIdUsuario(idUsuarioSeguro);
             nuevoPrototipo.setTitulo(jsonRequest.get("titulo").getAsString());
             nuevoPrototipo.setDescripcionCorta(jsonRequest.get("descripcionCorta").getAsString());
             nuevoPrototipo.setDescripcionLarga(jsonRequest.get("descripcionLarga").getAsString());
@@ -64,26 +82,25 @@ public class PrototipoServlet extends HttpServlet {
             nuevoPrototipo.setIdCategoria(jsonRequest.get("idCategoria").getAsInt());
             nuevoPrototipo.setTipoTransaccion(jsonRequest.get("tipoTransaccion").getAsString());
 
-            // 3. Enviar a base de datos
             boolean exito = prototipoDAO.registrarPrototipo(nuevoPrototipo);
 
             if (exito) {
                 response.setStatus(HttpServletResponse.SC_CREATED);
                 jsonResponse.addProperty("status", "success");
-                jsonResponse.addProperty("message", "Prototipo publicado con éxito.");
+                jsonResponse.addProperty("message", "¡Prototipo publicado con éxito!");
             } else {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 jsonResponse.addProperty("status", "error");
-                jsonResponse.addProperty("message", "Error al guardar en la BD. Verifica que el ID de usuario exista.");
+                jsonResponse.addProperty("message", "Error al guardar en la BD.");
             }
 
             response.getWriter().write(jsonResponse.toString());
 
         } catch (Exception e) {
-            e.printStackTrace(); // Esto escupirá cualquier error en la consola de IntelliJ
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             jsonResponse.addProperty("status", "error");
-            jsonResponse.addProperty("message", "Error interno en el servidor: " + e.getMessage());
+            jsonResponse.addProperty("message", "Error leyendo los datos JSON.");
             response.getWriter().write(jsonResponse.toString());
         }
     }
