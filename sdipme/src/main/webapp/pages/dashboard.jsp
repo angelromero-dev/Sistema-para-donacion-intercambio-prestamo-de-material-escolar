@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!doctype html>
 <html lang="es">
   <head>
@@ -54,7 +55,7 @@
         <!-- Brand logo -->
         <div class="header-brand">
           <img
-            src="assets/images/logo-light-txt.png"
+            src="../assets/images/logo-light-txt.png"
             alt="Logo SDIPME"
             class="header-brand__img"
           />
