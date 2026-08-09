@@ -45,6 +45,7 @@ const api = {
 
     // Fetch prototypes catalog
     getPrototipos: async () => {
+        console.log(">>> [API GET] Iniciando petición a /api/prototipos...");
         try {
             const response = await fetch(`${API_BASE_URL}/prototipos`, {
                 method: 'GET',
@@ -53,10 +54,19 @@ const api = {
                 }
             });
 
+            console.log(`>>> [API GET] Respuesta del Servidor - HTTP Status: ${response.status}`);
+            
             const data = await response.json();
+            
+            if (response.ok) {
+                console.log(">>> [API GET OK] Datos parseados exitosamente:", data);
+            } else {
+                console.warn(">>> [API GET WARN] El servidor devolvió un error:", data);
+            }
+
             return { ok: response.ok, data };
         } catch (error) {
-            console.error(">>> [API ERROR] Fallo al obtener prototipos:", error);
+            console.error(">>> [API GET FATAL] Fallo crítico al comunicarse con el backend:", error);
             return { ok: false, data: [] };
         }
     }
