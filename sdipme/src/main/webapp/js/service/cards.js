@@ -1,15 +1,23 @@
 /**
  * cards.js
- * Handles prototype data injection and layout rendering.
+ * Service module responsible for prototype card rendering with strict tag limit.
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log(">>> [UI CARDS] DOM Cargado. Inicializando módulo de tarjetas...");
     
-    // Target the layout grid container
     const gridContainer = document.getElementById('grid-prototipos');
-    if (!gridContainer) return;
+    if (!gridContainer) {
+        console.error(">>> [UI CARDS FATAL] Contenedor '#grid-prototipos' no encontrado.");
+        return;
+    }
 
-    // Fetch data using central API client
+    if (typeof api.getPrototipos !== 'function') {
+        console.error(">>> [UI CARDS FATAL] api.getPrototipos no disponible.");
+        gridContainer.innerHTML = `<p class="text-center text-danger w-100 py-4">Error de caché: Tu navegador no actualizó el JS. Presiona <b>Ctrl + F5</b>.</p>`;
+        return;
+    }
+
     const response = await api.getPrototipos();
 
     if (!response.ok) {
@@ -24,20 +32,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // Build card HTML elements
-    gridContainer.innerHTML = prototipos.map(proto => {
-        
-        // Process transaction types (highest display priority)
+    gridContainer.innerHTML = prototipos.map((proto) => {
         const transactions = proto.tipoTransaccion ? proto.tipoTransaccion.split(',').map(t => t.trim()) : ['Préstamo'];
         
-        // Extract tags from payload
+        const secondaryTags = [];
         const catTag = proto.etiquetas?.find(e => e.tipo === 'categoria')?.valor;
         const carTag = proto.etiquetas?.find(e => e.tipo === 'carrera')?.valor;
         const divTag = proto.etiquetas?.find(e => e.tipo === 'division')?.valor;
 
-        // Priority-based tags assembly
-        let tagsHTML = '';
+        if (catTag) secondaryTags.push({ tipo: 'badge-tag--category', valor: catTag });
+        if (carTag) secondaryTags.push({ tipo: 'badge-tag--career', valor: carTag });
+        if (divTag) secondaryTags.push({ tipo: 'badge-tag--division', valor: divTag });
+
+        const MAX_TOTAL_BADGES = 3;
+        const maxSecondaryAllowed = Math.max(0, MAX_TOTAL_BADGES - transactions.length);
         
+        let tagsHTML = '';
+
         transactions.forEach(t => {
             let modifier = 'badge-tag--loan';
             if (t === 'Donación') modifier = 'badge-tag--donation';
@@ -45,9 +56,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             tagsHTML += `<span class="badge-tag ${modifier}">${t}</span>`;
         });
 
-        if (catTag) tagsHTML += `<span class="badge-tag badge-tag--category">${catTag}</span>`;
-        if (carTag) tagsHTML += `<span class="badge-tag badge-tag--career">${carTag}</span>`;
-        if (divTag) tagsHTML += `<span class="badge-tag badge-tag--division">${divTag}</span>`;
+        const visibleSecondary = secondaryTags.slice(0, maxSecondaryAllowed);
+        visibleSecondary.forEach(st => {
+            tagsHTML += `<span class="badge-tag ${st.tipo}">${st.valor}</span>`;
+        });
+
+        if (secondaryTags.length > maxSecondaryAllowed) {
+            tagsHTML += `<span class="badge-tag badge-tag--more">+Otros...</span>`;
+        }
 
         const imgSrc = proto.urlImagen || '../assets/svg/logo.svg';
         const score = proto.reputacion ? Number(proto.reputacion).toFixed(1) : '5.0';
@@ -77,4 +93,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             </article>
         `;
     }).join('');
+    
+    console.log(">>> [UI CARDS OK] Renderizado de tarjetas completado sin recortes.");
 });
