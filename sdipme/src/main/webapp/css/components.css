@@ -1395,3 +1395,27 @@
   color: #ffffff;
   border-color: var(--color-brand-primary);
 }
+
+.form-disabled-overlay {
+  opacity: 0.25;
+  pointer-events: none;
+  filter: grayscale(100%);
+  transition: all 0.3s ease;
+}
+
+.form-disabled-msg {
+  display: none;
+  color: var(--color-status-error);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  background-color: var(--color-status-error-light, #fef2f2);
+  padding: 0.3rem;
+  border-radius: 4px;
+}
+
+.form-disabled-overlay + .form-disabled-msg {
+  display: block;
+}
