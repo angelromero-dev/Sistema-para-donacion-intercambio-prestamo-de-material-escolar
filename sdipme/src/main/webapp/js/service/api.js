@@ -43,6 +43,26 @@ const api = {
         }
     },
 
+    // Solicitar un prototipo
+    solicitarPrototipo: async (solicitudData) => {
+        console.log(">>> [API POST] Enviando nueva solicitud a Java:", solicitudData);
+        try {
+            const response = await fetch(`${API_BASE_URL}/solicitudes`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(solicitudData)
+            });
+
+            const data = await response.json();
+            return { ok: response.ok, data };
+        } catch (error) {
+            console.error(">>> [API POST FATAL] Fallo al crear solicitud:", error);
+            return { ok: false, data: { message: "Error de red al comunicarse con el servidor." } };
+        }
+    },
+
     // Fetch prototypes catalog
 getPrototipos: async () => {
         console.log(">>> [API GET] Iniciando petición a /api/prototipos...");
