@@ -23,56 +23,70 @@ public class SolicitudServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         System.out.println("\n=========================================");
-        System.out.println(">>> [CONTROLLER - controller/SolicitudServlet.java] Petición POST recibida en /api/solicitudes");
+        System.out.println(">>> [CONTROLLER] Petición POST recibida en /api/solicitudes");
 
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-
         JsonObject jsonResponse = new JsonObject();
 
-        try {
-            System.out.println(">>> [CONTROLLER - controller/SolicitudServlet.java] Leyendo cuerpo JSON...");
-            JsonObject jsonRequest = gson.fromJson(request.getReader(), JsonObject.class);
+        // 1. VALIDAR LA SESIÓN DE TOMCAT (Seguridad)
+        jakarta.servlet.http.HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("idUsuario") == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            jsonResponse.addProperty("status", "error");
+            jsonResponse.addProperty("message", "Sesión no válida o expirada.");
+            response.getWriter().write(jsonResponse.toString());
+            return;
+        }
+        int idSolicitante = (int) session.getAttribute("idUsuario");
 
+        try {
+            JsonObject jsonRequest = gson.fromJson(request.getReader(), JsonObject.class);
             Solicitud nuevaSolicitud = new Solicitud();
+
+            // 2. CAMPOS OBLIGATORIOS
+            nuevaSolicitud.setIdSolicitante(idSolicitante);
             nuevaSolicitud.setIdPrototipo(jsonRequest.get("idPrototipo").getAsInt());
-            nuevaSolicitud.setIdSolicitante(jsonRequest.get("idSolicitante").getAsInt());
             nuevaSolicitud.setMensajeJustificacion(jsonRequest.get("mensajeJustificacion").getAsString());
 
+            // 3. CAMPOS OPCIONALES (Lectura Segura a prueba de NullPointerException)
             if (jsonRequest.has("diasPrestamo") && !jsonRequest.get("diasPrestamo").isJsonNull()) {
                 nuevaSolicitud.setDiasPrestamo(jsonRequest.get("diasPrestamo").getAsInt());
             }
+
             if (jsonRequest.has("ofertaIntercambio") && !jsonRequest.get("ofertaIntercambio").isJsonNull()) {
                 nuevaSolicitud.setOfertaIntercambio(jsonRequest.get("ofertaIntercambio").getAsString());
             }
+
             if (jsonRequest.has("fotoIntercambio") && !jsonRequest.get("fotoIntercambio").isJsonNull()) {
                 nuevaSolicitud.setFotoIntercambio(jsonRequest.get("fotoIntercambio").getAsString());
             }
 
+            // 4. GUARDAR EN BD
             String resultado = solicitudService.procesarNuevaSolicitud(nuevaSolicitud);
 
             if ("EXITO".equals(resultado)) {
                 response.setStatus(HttpServletResponse.SC_CREATED);
                 jsonResponse.addProperty("status", "success");
-                jsonResponse.addProperty("message", "Solicitud enviada correctamente. El estado ahora es PENDIENTE.");
+                jsonResponse.addProperty("message", "Solicitud creada con éxito.");
             } else if ("ERROR_OCUPADO".equals(resultado)) {
                 response.setStatus(HttpServletResponse.SC_CONFLICT);
                 jsonResponse.addProperty("status", "error");
-                jsonResponse.addProperty("message", "Este prototipo ya fue solicitado o entregado a alguien más.");
+                jsonResponse.addProperty("message", "El prototipo ya no está disponible.");
             } else {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 jsonResponse.addProperty("status", "error");
-                jsonResponse.addProperty("message", "Error al registrar la solicitud en la base de datos.");
+                jsonResponse.addProperty("message", "Error al guardar en base de datos.");
             }
-
             response.getWriter().write(jsonResponse.toString());
 
         } catch (Exception e) {
-            System.err.println(">>> [CONTROLLER FATAL - controller/SolicitudServlet.java] El Servlet colapsó leyendo el JSON: " + e.getMessage());
+            System.err.println(">>> [CONTROLLER FATAL] El Servlet colapsó leyendo el JSON: " + e.getMessage());
+            e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             jsonResponse.addProperty("status", "error");
-            jsonResponse.addProperty("message", "Datos mal formados en la petición.");
+            jsonResponse.addProperty("message", "Estructura JSON inválida.");
             response.getWriter().write(jsonResponse.toString());
         }
     }
