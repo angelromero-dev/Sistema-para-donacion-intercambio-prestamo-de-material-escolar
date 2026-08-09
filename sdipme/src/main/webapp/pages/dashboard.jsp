@@ -116,8 +116,8 @@
 
           <!-- Items -->
           <li class="nav-menu__item">
-            <a href="pages/login.jsp" class="nav-menu__link">
-              <i class="bx bx-log-in"></i> Iniciar Sesión
+            <a href="pages/mis-actividades.jsp" class="nav-menu__link">
+              Mi actividad
             </a>
           </li>
           <li class="nav-menu__item">
