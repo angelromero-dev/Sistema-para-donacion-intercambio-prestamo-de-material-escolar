@@ -461,28 +461,27 @@
 /* Horizontal tags container */
 .prototype-card__tags {
   display: flex;
-  flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 6px; 
-  max-height: 48px;
-  overflow: hidden;
-  margin-bottom: 0.65rem;
+  gap: 6px; 
+  min-height: 28px; 
+  margin-bottom: 0.75rem;
 }
 
 /* tags */
 .badge-tag {
   font-family: var(--font-body);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 500;
-  padding: 2px 8px;
+  padding: 3px 9px;
   border-radius: 50px;
   white-space: nowrap;
-  line-height: 1.3;
+  line-height: 1.2;
   display: inline-flex;
   align-items: center;
 }
 
+/* Colores de Transacciones */
 .badge-tag--loan {
   background-color: var(--color-brand-primary);
   color: #ffffff;
@@ -498,6 +497,7 @@
   color: #ffffff;
 }
 
+/* Colores Secundarios */
 .badge-tag--category {
   background-color: var(--color-status-info, #e6f4f9);
   color: var(--color-text-status-info, #2a7fa0);
@@ -514,6 +514,7 @@
   color: #334155;
 }
 
+/* Badge especial "+Otros..." */
 .badge-tag--more {
   background-color: #f1f5f9;
   color: var(--color-text-hint, #64748b);
