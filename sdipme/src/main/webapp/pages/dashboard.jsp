@@ -492,6 +492,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script src="../js/service/cards.js"></script>
+    <script src="../js/ui/prototipo-detalle-ui.js"></script>
     <script src="../js/main.js"></script>
     <script src="../js/service/api.js"></script>
   </body>
