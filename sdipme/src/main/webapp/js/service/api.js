@@ -85,7 +85,6 @@ getPrototipos: async () => {
                 console.log(">>> [API CLOUDINARY OK] Imagen subida. URL:", data.secure_url);
                 return { ok: true, url: data.secure_url };
             } else {
-                // AHORA IMPRIMIMOS EL MENSAJE EXACTO DE ERROR, NO EL OBJETO
                 console.error(">>> [API CLOUDINARY ERROR DETALLE]:", data.error.message);
                 return { ok: false, error: data.error.message };
             }
@@ -95,7 +94,6 @@ getPrototipos: async () => {
         }
     },
 
-    // Publicar un nuevo prototipo (Guardar en Oracle vía Java)
     publicarPrototipo: async (prototipoData) => {
         console.log(">>> [API POST] Enviando prototipo a Java:", prototipoData);
         try {
@@ -115,7 +113,6 @@ getPrototipos: async () => {
         }
     },
 
-    // Obtener los catálogos reales de Categorías y Carreras desde el backend
     getCatalogos: async () => {
         console.log(">>> [API GET] Solicitando catálogos reales al servidor...");
         try {

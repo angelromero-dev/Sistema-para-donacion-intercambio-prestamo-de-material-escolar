@@ -35,17 +35,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const previewMatricula = document.getElementById('prevMatricula');
     const previewScore = document.getElementById('prevScore');
 
-    const DEFAULT_IMG = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758';
+    const DEFAULT_IMG = '../assets/images/NoImage.png';
 
-    // --- 1. CARGA REAL DE CATÁLOGOS Y SESIÓN DEL USUARIO ---
 async function inicializarDatosReales() {
         console.log(">>> Solicitando catálogos al Backend...");
         
-        // Obtenemos los catálogos reales desde el Backend Java
         const resCat = await api.getCatalogos();
         
         if (resCat.ok && resCat.data) {
-            // Llenar el <select> de Categorías
             if (selectCategoria && resCat.data.categorias) {
                 selectCategoria.innerHTML = '<option value="" disabled selected>Selecciona una categoría...</option>';
                 resCat.data.categorias.forEach(cat => {
@@ -53,7 +50,6 @@ async function inicializarDatosReales() {
                 });
             }
             
-            // Llenar el <select> de Carreras
             if (selectCarrera && resCat.data.carreras) {
                 selectCarrera.innerHTML = '<option value="" disabled selected>Selecciona tu carrera...</option>';
                 resCat.data.carreras.forEach(car => {
@@ -66,10 +62,8 @@ async function inicializarDatosReales() {
         }
     }
 
-    // Ejecutar la carga real
     inicializarDatosReales();
 
-    // --- 2. SISTEMA DE ALERTAS (TOAST) ---
     function showValidationToast(message, type = 'error') {
         let toastEl = document.getElementById('actionToast');
         if (!toastEl) return;
@@ -85,7 +79,6 @@ async function inicializarDatosReales() {
         setTimeout(() => toastEl.classList.remove('show'), 3500);
     }
 
-    // --- 3. ACTUALIZACIÓN EN VIVO (LIVE PREVIEW) ---
     function updateCounters() {
         if (counterTitulo) counterTitulo.innerText = `${inputTitulo.value.length}/100`;
         if (counterDescCorta) counterDescCorta.innerText = `${inputDescCorta.value.length}/100`;
@@ -120,7 +113,6 @@ async function inicializarDatosReales() {
         }
     }
 
-    // Bindings reactivos
     [inputTitulo, inputDescCorta, inputDescLarga].forEach(input => {
         if (input) input.addEventListener('input', () => { updateCounters(); updateLivePreview(); });
     });
@@ -131,7 +123,6 @@ async function inicializarDatosReales() {
         cb.addEventListener('change', updateLivePreview);
     });
 
-    // --- 4. DRAG AND DROP (IMAGEN) ---
     if (dropZone && fileInput) {
         fileInput.addEventListener('dragenter', () => dropZone.classList.add('dragover'));
         fileInput.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
@@ -158,7 +149,6 @@ async function inicializarDatosReales() {
         });
     }
 
-    // --- 5. BLOQUEO DEL TECLADO ENTER ---
     form.addEventListener('keydown', function(event) {
         if (event.key === "Enter" && event.target.tagName !== "TEXTAREA") {
             event.preventDefault();
@@ -166,7 +156,6 @@ async function inicializarDatosReales() {
         }
     });
 
-    // --- 6. VALIDACIÓN PREVIA Y MODAL DE CONFIRMACIÓN ---
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
@@ -186,26 +175,22 @@ async function inicializarDatosReales() {
         if (!inputDescCorta.value.trim()) { showValidationToast("Falta la descripción corta.", "error"); inputDescCorta.focus(); return; }
         if (!inputDescLarga.value.trim()) { showValidationToast("Falta la descripción detallada.", "error"); inputDescLarga.focus(); return; }
 
-        // Muestra el modal de confirmación antes de procesar
         const confirmModal = new bootstrap.Modal(document.getElementById('modalConfirmPublicar'));
         confirmModal.show();
     });
 
-    // --- 7. ENVÍO DEFINITIVO A CLOUDINARY Y TOMCAT ---
     btnConfirmFinal.addEventListener('click', async () => {
         const originalBtnText = btnConfirmFinal.innerHTML;
         btnConfirmFinal.disabled = true;
         btnConfirmFinal.innerHTML = `<i class='bx bx-loader-alt bx-spin'></i> Subiendo...`;
 
         try {
-            // A) Subida de imagen a Cloudinary
             const cloudResponse = await api.uploadImageToCloudinary(selectedImageFile);
             if (!cloudResponse.ok) {
                 showValidationToast("Error al subir la imagen a Cloudinary.", "error");
                 btnConfirmFinal.disabled = false; btnConfirmFinal.innerHTML = originalBtnText; return;
             }
 
-            // B) Armado de payload
             const prototipoData = {
                 titulo: inputTitulo.value.trim(),
                 descripcionCorta: inputDescCorta.value.trim(),
@@ -216,7 +201,6 @@ async function inicializarDatosReales() {
                 tipoTransaccion: Array.from(checkboxesTransaccion).filter(cb => cb.checked).map(cb => cb.value).join(', ')
             };
 
-            // C) Inserción directa en Oracle vía Servlet
             const javaResponse = await api.publicarPrototipo(prototipoData);
 
             if (javaResponse.ok) {

@@ -41,18 +41,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
-            // 1. DETENEMOS LA RECARGA DE LA PÁGINA
             e.preventDefault(); 
             
             try {
-                // 2. VALIDAMOS EL CORREO
                 const correoInput = document.getElementById('correo').value;
                 if (!correoInput.toLowerCase().endsWith('@utez.edu.mx')) {
                     alert("Por políticas de la plataforma, solo puedes registrarte usando tu correo institucional (@utez.edu.mx).");
                     return;
                 }
 
-                // 3. VALIDAMOS CONTRASEÑAS
                 const pass = document.getElementById('password').value;
                 const confirmPass = document.getElementById('confirmPassword').value;
 
@@ -61,12 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // 4. BLOQUEAMOS EL BOTÓN PARA EVITAR DOBLE CLIC
                 const btnRegister = document.getElementById('btn-register');
                 btnRegister.disabled = true;
                 btnRegister.innerText = 'Registrando...';
 
-                // 5. ARMAMOS EL JSON EXACTO QUE ESPERA EL BACKEND
                 const alumnoData = {
                     nombre: document.getElementById('nombre').value,
                     apellidos: document.getElementById('apellidos').value,
@@ -77,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     password: pass
                 };
                 
-                // 6. ENVIAMOS A LA API
                 const response = await api.registro(alumnoData);
 
                 if (response.ok) {

@@ -42,38 +42,28 @@ public class PrototipoServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println(">>> [DEBUG] Entrando a POST /api/prototipos");
-
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-
         JsonObject jsonResponse = new JsonObject();
 
-
-        HttpSession sesion = request.getSession(false);
-        System.out.println("\n>>> [SEGURIDAD] Petición entrante a /api/prototipos");
-        if (sesion == null) {
-            System.err.println(">>> [SEGURIDAD] ALERTA: Tomcat dice que la sesión es NULL. Postman NO mandó la cookie JSESSIONID.");
-        } else {
-            System.out.println(">>> [SEGURIDAD] JSESSIONID recibido: " + sesion.getId());
-            System.out.println(">>> [SEGURIDAD] idUsuario en memoria: " + sesion.getAttribute("idUsuario"));
-        }
-        if (sesion == null || sesion.getAttribute("idUsuario") == null) {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("idUsuario") == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             jsonResponse.addProperty("status", "error");
-            jsonResponse.addProperty("message", "Acceso denegado. Debes iniciar sesión para publicar.");
+            jsonResponse.addProperty("message", "Sesión no válida o expirada.");
             response.getWriter().write(jsonResponse.toString());
             return;
         }
 
+        int idUsuarioSesion = (int) session.getAttribute("idUsuario");
+
         try {
             JsonObject jsonRequest = gson.fromJson(request.getReader(), JsonObject.class);
 
-            int idUsuarioSeguro = (Integer) sesion.getAttribute("idUsuario");
-
             Prototipo nuevoPrototipo = new Prototipo();
-            nuevoPrototipo.setIdUsuario(idUsuarioSeguro);
+            nuevoPrototipo.setIdUsuario(idUsuarioSesion);
+
             nuevoPrototipo.setTitulo(jsonRequest.get("titulo").getAsString());
             nuevoPrototipo.setDescripcionCorta(jsonRequest.get("descripcionCorta").getAsString());
             nuevoPrototipo.setDescripcionLarga(jsonRequest.get("descripcionLarga").getAsString());
@@ -83,7 +73,6 @@ public class PrototipoServlet extends HttpServlet {
             nuevoPrototipo.setTipoTransaccion(jsonRequest.get("tipoTransaccion").getAsString());
 
             boolean exito = prototipoDAO.registrarPrototipo(nuevoPrototipo);
-
             if (exito) {
                 response.setStatus(HttpServletResponse.SC_CREATED);
                 jsonResponse.addProperty("status", "success");

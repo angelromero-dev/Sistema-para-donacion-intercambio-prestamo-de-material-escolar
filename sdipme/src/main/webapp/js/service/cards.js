@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tagsHTML += `<span class="badge-tag badge-tag--more">+Otros...</span>`;
         }
 
-        const imgSrc = proto.urlImagen || '../assets/svg/logo.svg';
+        const imgSrc = proto.urlImagen || '../assets/images/NoImage.png';
         const score = proto.reputacion ? Number(proto.reputacion).toFixed(1) : '5.0';
 
         const MAX_DESC_LENGTH = 85;
