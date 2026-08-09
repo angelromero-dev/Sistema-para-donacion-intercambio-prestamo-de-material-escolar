@@ -415,169 +415,130 @@
 */
 
 .prototype-card {
-  background-color: var(--color-surface-base, #ffffff);
-  border: 1px solid var(--color-border-base, #e2e8f0);
-  border-radius: 12px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  cursor: pointer;
+    background-color: var(--color-surface-base, #ffffff);
+    border: 1px solid var(--color-border-base, #e2e8f0);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 340px; 
+    width: 100%;
+    margin: 0 auto;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: pointer;
 }
 
 .prototype-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 20px rgba(0, 66, 114, 0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 66, 114, 0.12);
 }
 
-/* Image section & clipping */
+/* Image section */
 .prototype-card__media {
-  position: relative;
-  width: 100%;
-  height: 190px; 
-  overflow: hidden;
-  background-color: #f1f5f9;
+    width: 100%;
+    height: 190px;
+    overflow: hidden;
+    background-color: #f1f5f9;
 }
 
 .prototype-card__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; 
-  object-position: center;
-  transition: transform 0.3s ease;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-.prototype-card:hover .prototype-card__img {
-  transform: scale(1.04);
-}
-
-/* Transaction badges overlayed on top right */
-.prototype-card__badges {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  align-items: flex-end;
-  z-index: 2;
-}
-
-/* Card Body Content */
+/* Card Body */
 .prototype-card__body {
-  padding: 1rem 1.25rem;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 0.5rem;
 }
 
+/* Horizontal Tags (Below Image) */
 .prototype-card__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 0.75rem;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    gap: 6px;
+    margin-bottom: 0.5rem;
 }
 
-/* Badge System */
 .badge-tag {
-  font-family: var(--font-body);
-  font-size: 0.72rem;
-  font-weight: 500;
-  padding: 3px 10px;
-  border-radius: 20px;
-  display: inline-block;
-  line-height: 1.2;
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
 }
 
-.badge-tag--loan {
-  background-color: var(--color-brand-primary);
-  color: #ffffff;
-}
+/* Colors from base.css */
+.badge-tag--loan { background-color: var(--color-brand-primary); color: #fff; }
+.badge-tag--exchange { background-color: var(--color-brand-tertiary); color: #fff; }
+.badge-tag--donation { background-color: var(--color-brand-secondary); color: #fff; }
+.badge-tag--category { background-color: #f8fafc; color: var(--color-brand-primary); border: 1px solid #cbd5e1; }
+.badge-tag--career { background-color: #f1f5f9; color: #475569; }
+.badge-tag--division { background-color: #e2e8f0; color: #334155; }
 
-.badge-tag--exchange {
-  background-color: var(--color-brand-tertiary);
-  color: #ffffff;
-}
-
-.badge-tag--donation {
-  background-color: var(--color-brand-secondary);
-  color: #ffffff;
-}
-
-.badge-tag--category {
-  background-color: #f8fafc;
-  color: var(--color-brand-primary);
-  border: 1px solid #cbd5e1;
-}
-
-.badge-tag--career,
-.badge-tag--division {
-  background-color: #f1f5f9;
-  color: #475569;
-}
-
-/* Titles and Text */
+/* Texts */
 .prototype-card__title {
-  font-family: var(--font-heading);
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--color-brand-primary);
-  margin-bottom: 0.5rem;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-brand-primary);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .prototype-card__description {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  color: #64748b;
-  margin-bottom: 1rem;
-  flex-grow: 1;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 3; 
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex-grow: 1;
 }
 
-/* Card Footer */
+/* Footer (Matricula & Rating) */
 .prototype-card__footer {
-  padding-top: 0.75rem;
-  border-top: 1px solid #f1f5f9;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
 }
 
 .prototype-card__matricula {
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: #64748b;
-  letter-spacing: 0.5px;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
 }
 
 .prototype-card__rating {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .prototype-card__star-icon {
-  color: var(--color-brand-accent);
-  font-size: 1.1rem;
+    color: var(--color-brand-accent);
+    font-size: 1.2rem;
 }
 
 .prototype-card__score {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #1e293b;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
 }
 
 
