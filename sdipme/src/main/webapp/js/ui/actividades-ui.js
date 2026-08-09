@@ -3,71 +3,130 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // 1. Tab Switching Logic
-    const tabContainer = document.querySelector('.l-tabs-wrapper');
-    const contentPanels = document.querySelectorAll('.tab-panel');
+    console.log(">>> [UI ACTIVIDADES] Inicializando controlador de eventos...");
 
-    if (tabContainer) {
-        tabContainer.addEventListener('click', (e) => {
-            const clickedTab = e.target.closest('.activity-tab');
-            if (!clickedTab) return;
+    let targetCardPending = null;
+    let pendingActionType = null;
 
-            // Remove active from all tabs
-            tabContainer.querySelectorAll('.activity-tab').forEach(t => t.classList.remove('active'));
-            // Add active to clicked tab
-            clickedTab.classList.add('active');
+    // Bootstrap Modals Instances
+    const approveModalEl = document.getElementById('modalConfirmApprove');
+    const rejectModalEl = document.getElementById('modalConfirmReject');
+    const prototypeModalEl = document.getElementById('modalPrototypeDetail');
 
-            // Toggle Content Panels
-            const targetPanelId = clickedTab.dataset.target;
-            contentPanels.forEach(p => {
-                if(p.id === targetPanelId) {
-                    p.style.display = 'block';
-                } else {
-                    p.style.display = 'none';
-                }
+    const approveModal = approveModalEl ? new bootstrap.Modal(approveModalEl) : null;
+    const rejectModal = rejectModalEl ? new bootstrap.Modal(rejectModalEl) : null;
+    const prototypeModal = prototypeModalEl ? new bootstrap.Modal(prototypeModalEl) : null;
+
+    // Toast Element
+    const toastEl = document.getElementById('actionToast');
+    const toastMessageEl = document.getElementById('toastMessage');
+
+    /**
+     * Shows a temporary floating toast legend that fades out after 2.5 seconds.
+     * @param {string} msg 
+     */
+    function showToast(msg) {
+        if (!toastEl || !toastMessageEl) return;
+        toastMessageEl.innerText = msg;
+        toastEl.classList.add('show');
+        setTimeout(() => {
+            toastEl.classList.remove('show');
+        }, 2500);
+    }
+
+    // 1. Tab Switching (Water fill effect)
+    const tabsContainer = document.getElementById('notifTabs');
+    const tabPanels = document.querySelectorAll('.notif-panel');
+
+    if (tabsContainer) {
+        tabsContainer.addEventListener('click', (e) => {
+            const tab = e.target.closest('.notif-tab');
+            if (!tab) return;
+
+            tabsContainer.querySelectorAll('.notif-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            const targetId = tab.dataset.target;
+            tabPanels.forEach(panel => {
+                panel.style.display = (panel.id === targetId) ? 'block' : 'none';
             });
         });
     }
 
-    // 2. Event Delegation for Approve / Reject
-    const notificationsPanel = document.getElementById('panel-notificaciones');
-    if (notificationsPanel) {
-        notificationsPanel.addEventListener('click', (e) => {
-            const btnApprove = e.target.closest('.btn-action--approve');
-            const btnReject = e.target.closest('.btn-action--reject');
-            
-            if (btnApprove) {
-                const card = btnApprove.closest('.activity-card');
-                card.classList.add('slide-right-out');
-                card.addEventListener('animationend', () => card.remove(), { once: true });
-            }
-
-            if (btnReject) {
-                const card = btnReject.closest('.activity-card');
-                card.classList.add('slide-left-out');
-                card.addEventListener('animationend', () => card.remove(), { once: true });
-            }
-        });
-    }
-
-    // 3. Small Modal Logic 
-    const modalOverlay = document.getElementById('exchange-overlay');
-    const btnCloseModal = document.getElementById('btn-close-modal');
-
+    // 2. Open Confirmation Modal on Button Click
     document.addEventListener('click', (e) => {
-        const btnOpen = e.target.closest('.btn-view-exchange');
-        if (btnOpen && modalOverlay) {
-            modalOverlay.classList.add('active');
+        const btnApprove = e.target.closest('.btn-approve-custom');
+        const btnReject = e.target.closest('.btn-reject-custom');
+        const btnDetail = e.target.closest('.btn-detail-link');
+
+        if (btnApprove) {
+            targetCardPending = btnApprove.closest('.notif-card');
+            pendingActionType = 'APPROVE';
+            approveModal?.show();
+        } else if (btnReject) {
+            targetCardPending = btnReject.closest('.notif-card');
+            pendingActionType = 'REJECT';
+            rejectModal?.show();
+        } else if (btnDetail) {
+            // Open prototype details modal
+            prototypeModal?.show();
         }
     });
 
-    // Close Modal Logic
-    if (btnCloseModal && modalOverlay) {
-        btnCloseModal.addEventListener('click', () => modalOverlay.classList.remove('active'));
-        // Close on clicking outside the modal box
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) modalOverlay.classList.remove('active');
+    // 3. Confirm Approve Button Click inside Modal
+    const btnConfirmApprove = document.getElementById('btnConfirmApprove');
+    if (btnConfirmApprove) {
+        btnConfirmApprove.addEventListener('click', () => {
+            if (targetCardPending) {
+                targetCardPending.classList.add('slide-right');
+                targetCardPending.addEventListener('animationend', () => targetCardPending.remove(), { once: true });
+                showToast("¡Solicitud aprobada con éxito!");
+            }
+            approveModal?.hide();
+            targetCardPending = null;
         });
     }
+
+    // 4. Confirm Reject Button Click inside Modal
+    const btnConfirmReject = document.getElementById('btnConfirmReject');
+    if (btnConfirmReject) {
+        btnConfirmReject.addEventListener('click', () => {
+            if (targetCardPending) {
+                targetCardPending.classList.add('slide-left');
+                targetCardPending.addEventListener('animationend', () => targetCardPending.remove(), { once: true });
+                showToast("Solicitud rechazada.");
+            }
+            rejectModal?.hide();
+            targetCardPending = null;
+        });
+    }
+
+    // 5. Swipe Gesture Detection (Touch / Mouse Drag)
+    let startX = 0;
+    let currentCard = null;
+
+    document.addEventListener('touchstart', (e) => {
+        const card = e.target.closest('.notif-card');
+        if (!card) return;
+        startX = e.touches[0].clientX;
+        currentCard = card;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+        if (!currentCard) return;
+        const endX = e.changedTouches[0].clientX;
+        const diffX = endX - startX;
+
+        // Swipe Right (Approve)
+        if (diffX > 80) {
+            targetCardPending = currentCard;
+            approveModal?.show();
+        } 
+        // Swipe Left (Reject)
+        else if (diffX < -80) {
+            targetCardPending = currentCard;
+            rejectModal?.show();
+        }
+        currentCard = null;
+    });
 });

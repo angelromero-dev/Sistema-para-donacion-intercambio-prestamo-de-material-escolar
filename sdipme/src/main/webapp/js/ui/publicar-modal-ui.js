@@ -2,8 +2,7 @@
  * publicar-modal-ui.js
  * UI Controller for Prototype Publishing Modal with Real-time Card Live Preview.
  */
-
-ddocument.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     console.log(">>> [UI PUBLICAR] Inicializando controlador del modal de publicación...");
 
     const form = document.getElementById('formPublicarPrototipo');
@@ -21,20 +20,45 @@ ddocument.addEventListener('DOMContentLoaded', () => {
     const dropZone = document.getElementById('dragDropZone');
     const fileInput = document.getElementById('pubImagenArchivo');
     const dragDropText = document.getElementById('dragDropText');
-    let selectedImageFile = null; // Guardará el archivo real para enviarlo al backend
+    const dropZoneIcon = document.querySelector('.drag-drop-zone__icon');
+    let selectedImageFile = null; 
 
-    // Counters
+    // Counters & Live Preview
     const counterTitulo = document.getElementById('counterTitulo');
     const counterDescCorta = document.getElementById('counterDescCorta');
     const counterDescLarga = document.getElementById('counterDescLarga');
-
-    // Live Preview Elements
     const previewImg = document.getElementById('prevImg');
     const previewTitle = document.getElementById('prevTitle');
     const previewDesc = document.getElementById('prevDesc');
     const previewTags = document.getElementById('prevTags');
 
-    const DEFAULT_IMG = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758';
+    const DEFAULT_IMG = '../assets/images/logo-light.png';
+
+    function showValidationToast(message, type = 'error') {
+        const toastEl = document.getElementById('actionToast');
+        const toastMessageEl = document.getElementById('toastMessage');
+        const toastIcon = toastEl.querySelector('i');
+
+        if (!toastEl || !toastMessageEl) return;
+
+        toastMessageEl.innerText = message;
+        
+        // Reset classes
+        toastEl.className = 'toast-alert show';
+        toastIcon.className = 'bx fs-5 me-2';
+
+        if (type === 'error') {
+            toastEl.classList.add('toast-alert--error');
+            toastIcon.classList.add('bx-error-circle');
+        } else if (type === 'success') {
+            toastEl.classList.add('toast-alert--success');
+            toastIcon.classList.add('bx-check-circle');
+        }
+
+        setTimeout(() => {
+            toastEl.classList.remove('show');
+        }, 3500);
+    }
 
     /**
      * Updates character counter text indicators
@@ -46,7 +70,7 @@ ddocument.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Updates the Live Preview Card dynamically (Text and Tags)
+     * Updates the Live Preview Card dynamically
      */
     function updateLivePreview() {
         if (previewTitle) previewTitle.innerText = inputTitulo.value.trim() || 'Título del Prototipo';
@@ -77,15 +101,9 @@ ddocument.addEventListener('DOMContentLoaded', () => {
     // --- MANEJO DEL DRAG AND DROP Y FILE READER ---
     if (dropZone && fileInput) {
         
-        // Efectos visuales al arrastrar
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
+            dropZone.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
         });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
 
         ['dragenter', 'dragover'].forEach(eventName => {
             dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
@@ -95,45 +113,31 @@ ddocument.addEventListener('DOMContentLoaded', () => {
             dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
         });
 
-        // Capturar archivo al soltar
-        dropZone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        });
-
-        // Capturar archivo por click (explorador)
-        fileInput.addEventListener('change', function() {
-            handleFiles(this.files);
-        });
+        dropZone.addEventListener('drop', (e) => handleFiles(e.dataTransfer.files));
+        fileInput.addEventListener('change', function() { handleFiles(this.files); });
 
         function handleFiles(files) {
             if (files.length > 0) {
                 const file = files[0];
                 
-                // Validar que sea imagen
                 if (!file.type.startsWith('image/')) {
-                    alert('Por favor, sube solo archivos de imagen (JPG, PNG, WEBP).');
+                    showValidationToast('Formato no válido. Sube solo imágenes JPG, PNG o WEBP.', 'error');
                     return;
                 }
 
-                // Guardar para el submit
                 selectedImageFile = file;
                 
-                // Cambiar el texto de la zona
-                dragDropText.innerHTML = `Imagen seleccionada: <br><b>${file.name}</b>`;
+                dropZone.classList.add('success');
+                dragDropText.innerHTML = `Imagen cargada con éxito:<br><b>${file.name}</b>`;
+                if(dropZoneIcon) dropZoneIcon.className = 'bx bx-check-circle drag-drop-zone__icon';
                 
-                // Usar FileReader para mostrarla en el Live Preview al instante
                 const reader = new FileReader();
-                reader.onload = (e) => {
-                    previewImg.src = e.target.result;
-                }
+                reader.onload = (e) => { previewImg.src = e.target.result; }
                 reader.readAsDataURL(file);
             }
         }
     }
 
-    // Attach Event Listeners for Live Binding
     [inputTitulo, inputDescCorta, inputDescLarga].forEach(input => {
         if (input) input.addEventListener('input', () => { updateCounters(); updateLivePreview(); });
     });
@@ -146,23 +150,30 @@ ddocument.addEventListener('DOMContentLoaded', () => {
         cb.addEventListener('change', updateLivePreview);
     });
 
-    // Form Submission 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
+        if (!form.checkValidity()) {
+            form.reportValidity(); 
+            return;
+        }
+
         const selectedTransactions = Array.from(checkboxesTransaccion).filter(cb => cb.checked);
         if (selectedTransactions.length === 0) {
-            alert("Debes seleccionar al menos un tipo de transacción.");
+            showValidationToast("Selecciona Préstamo, Intercambio o Donación.", "error");
             return;
         }
 
         if (!selectedImageFile) {
-            alert("Por favor, selecciona o arrastra una imagen para el prototipo.");
+            showValidationToast("La imagen del prototipo es obligatoria.", "error");
+            dropZone.style.borderColor = '#991b1b';
+            setTimeout(() => dropZone.style.borderColor = '', 2000);
             return;
         }
 
-        console.log(">>> [UI PUBLICAR] Formulario validado. Preparando FormData para el Backend...");
-        alert("¡Prototipo listo! En la siguiente fase, el Backend tomará esta imagen, la enviará a Cloudinary y guardará la URL en Oracle.");
+        console.log(">>> [UI PUBLICAR] Formulario 100% válido. Archivo en memoria listo para subir.");
+        
+        showValidationToast("¡Formulario validado! (Listo para API)", "success");
         
         const modalEl = document.getElementById('modalPublicarPrototipo');
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
