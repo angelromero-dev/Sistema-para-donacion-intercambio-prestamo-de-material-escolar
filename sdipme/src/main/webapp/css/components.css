@@ -462,22 +462,25 @@
 .prototype-card__tags {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
-  flex-wrap: nowrap;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  gap: 4px 6px; 
+  max-height: 48px;
   overflow: hidden;
+  margin-bottom: 0.65rem;
 }
 
-/* Badges typography and token colors */
+/* tags */
 .badge-tag {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   font-weight: 500;
-  padding: 0.25rem 0.65rem;
+  padding: 2px 8px;
   border-radius: 50px;
   white-space: nowrap;
-  line-height: 1.2;
+  line-height: 1.3;
+  display: inline-flex;
+  align-items: center;
 }
 
 .badge-tag--loan {
@@ -509,6 +512,13 @@
 .badge-tag--division {
   background-color: #e2e8f0;
   color: #334155;
+}
+
+.badge-tag--more {
+  background-color: #f1f5f9;
+  color: var(--color-text-hint, #64748b);
+  border: 1px dashed #cbd5e1;
+  font-weight: 600;
 }
 
 /* Card Typography */
