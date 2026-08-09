@@ -2,7 +2,6 @@
  * cards.js
  * Service module responsible for prototype card rendering with strict tag limit.
  */
-
 document.addEventListener('DOMContentLoaded', async () => {
     console.log(">>> [UI CARDS] DOM Cargado. Inicializando módulo de tarjetas...");
     
@@ -68,6 +67,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const imgSrc = proto.urlImagen || '../assets/svg/logo.svg';
         const score = proto.reputacion ? Number(proto.reputacion).toFixed(1) : '5.0';
 
+        const MAX_DESC_LENGTH = 85;
+        let descTexto = proto.descripcionCorta || '';
+
+        if (descTexto.length > MAX_DESC_LENGTH && !descTexto.endsWith('...')) {
+            descTexto = descTexto.substring(0, MAX_DESC_LENGTH).trim() + '...';
+        }
+
         return `
             <article class="prototype-card" data-id="${proto.id}">
                 <div class="prototype-card__media">
@@ -80,7 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                     
                     <h3 class="prototype-card__title">${proto.titulo}</h3>
-                    <p class="prototype-card__description">${proto.descripcionCorta}</p>
+                    <p class="prototype-card__description">${descTexto}</p>
                     
                     <div class="prototype-card__footer">
                         <span class="prototype-card__matricula">${proto.matriculaOferente}</span>
