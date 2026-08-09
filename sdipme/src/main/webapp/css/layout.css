@@ -55,8 +55,37 @@
 */
 .l-footer {
   width: 100%;
-  min-height: 413px; /* Valor exacto de Figma */
+  min-height: 413px;
   background: var(--gradient-global-horizontal);
-  padding: 60px 0; /* Espaciado interno para dar respiro */
-  color: var(--color-text-inverse); /* Forzamos el texto blanco general */
+  padding: 60px 0; 
+  color: var(--color-text-inverse); 
+}
+
+/**
+ * CATALOG GRID LAYOUT
+ */
+
+/* Responsive catalog grid container */
+.l-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.75rem;
+  width: 100%;
+  padding: 1.5rem 0;
+  justify-items: center;
+}
+
+/* Screen adjustments */
+@media (min-width: 768px) {
+  .l-catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .l-catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2.25rem;
+  }
 }
