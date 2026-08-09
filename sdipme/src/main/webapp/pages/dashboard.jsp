@@ -136,48 +136,9 @@
     <!-- Searcher -->
 
     <!-- Cards section -->
-    <div class="row g-4" id="grid-prototipos">
-      <div class="col-12 col-md-6 col-lg-4">
-        <article class="prototype-card" data-id="1">
-          <div class="prototype-card__media">
-            <img
-              src="https://images.unsplash.com/photo-1553406830-ef2513450d76"
-              alt="Kit Arduino Uno Rev3"
-              class="prototype-card__img"
-            />
-            <div class="prototype-card__badges">
-              <span class="badge-tag badge-tag--loan">Préstamo</span>
-              <span class="badge-tag badge-tag--exchange">Intercambio</span>
-            </div>
-          </div>
-
-          <div class="prototype-card__body">
-            <div class="prototype-card__tags">
-              <span class="badge-tag badge-tag--category">Electrónica</span>
-              <span class="badge-tag badge-tag--career">DSM</span>
-              <span class="badge-tag badge-tag--division">DATID</span>
-            </div>
-
-            <h3 class="prototype-card__title">
-              Kit Arduino Uno Rev3 con Sensores
-            </h3>
-
-            <p class="prototype-card__description">
-              Kit completo de electrónica con protoboard, cables puente y
-              paquete de sensores varios para prácticas de laboratorio.
-            </p>
-
-            <div class="prototype-card__footer">
-              <span class="prototype-card__matricula">20233001</span>
-              <div class="prototype-card__rating">
-                <i class="bx bxs-star prototype-card__star-icon"></i>
-                <span class="prototype-card__score">5.0</span>
-              </div>
-            </div>
-          </div>
-        </article>
-      </div>
-    </div>
+    <main class="l-container my-4">
+      <div class="l-catalog-grid" id="grid-prototipos"></div>
+    </main>
 
     <!-- FOOTER -->
     <footer class="l-footer">
@@ -275,8 +236,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script src="../js/components/hero.js"></script>
+    <script src="../js/service/cards.js"></script>
     <script src="../js/main.js"></script>
-    <script src="../js/api.js"></script>
+    <script src="../js/service/api.js"></script>
   </body>
 </html>
