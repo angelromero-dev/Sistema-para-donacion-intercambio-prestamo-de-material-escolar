@@ -595,3 +595,251 @@
 /*
 * COMPONENT: SmartTable Filters
 */
+
+
+
+/**
+ * COMPONENT: Activity & Notification 
+ */
+
+/* --- TABS --- */
+.activity-tab {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-text-hint);
+  cursor: pointer;
+  overflow: hidden;
+  transition: color 0.3s ease;
+  outline: none;
+  white-space: nowrap;
+}
+
+.activity-tab.active {
+  color: var(--color-brand-primary);
+}
+
+.activity-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--color-brand-primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.activity-tab.active::after {
+  transform: scaleX(1);
+}
+
+.activity-tab::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 66, 114, 0.06);
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.activity-tab.active::before {
+  transform: translateY(0);
+}
+
+/* --- ACTIVITY CARD --- */
+.activity-card {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  background-color: var(--color-surface-base);
+  border: 1px solid var(--color-border-base);
+  border-radius: 12px;
+  padding: 1.25rem;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.2s ease;
+}
+
+.activity-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 66, 114, 0.08);
+}
+
+.activity-card__icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--color-brand-primary);
+}
+
+.activity-card__content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.activity-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.activity-card__title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.activity-card__time {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--color-text-hint);
+}
+
+.activity-card__message {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: #475569;
+  margin: 0;
+}
+
+.activity-card__details {
+  background-color: #f8fafc;
+  border-left: 3px solid var(--color-brand-secondary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0 6px 6px 0;
+  margin-top: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: #334155;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.activity-card__details--exchange {
+  border-left-color: var(--color-brand-tertiary);
+}
+
+.activity-card__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* (Aprobar/Rechazar) */
+.btn-action {
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.btn-action--approve {
+  background-color: var(--color-status-success);
+  color: var(--color-text-status-success);
+}
+
+.btn-action--approve:hover { background-color: #ccebda; }
+
+.btn-action--reject {
+  background-color: var(--color-status-error);
+  color: var(--color-text-status-error);
+}
+
+.btn-action--reject:hover { background-color: #f8d7d3; }
+
+.btn-link-action {
+  color: var(--color-brand-primary);
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.slide-right-out {
+  animation: slideRightOut 0.4s forwards;
+}
+
+.slide-left-out {
+  animation: slideLeftOut 0.4s forwards;
+}
+
+@keyframes slideRightOut {
+  to { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes slideLeftOut {
+  to { transform: translateX(-100%); opacity: 0; }
+}
+
+/* --- SMALL EXCHANGE MODAL --- */
+.exchange-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.exchange-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.exchange-modal {
+  background: var(--color-surface-base);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 380px;
+  padding: 1.5rem;
+  transform: scale(0.9);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.exchange-overlay.active .exchange-modal {
+  transform: scale(1);
+}
+
+.exchange-modal__img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
