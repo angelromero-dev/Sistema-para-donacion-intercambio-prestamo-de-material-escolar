@@ -89,3 +89,39 @@
     gap: 2.25rem;
   }
 }
+
+
+/**
+ * Activity Dashboard Layout
+ */
+
+.l-activity-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  padding: 2rem 0;
+}
+
+/* Scrollable tabs container for mobile devices */
+.l-tabs-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  border-bottom: 2px solid var(--color-border-base);
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  gap: 1rem;
+}
+
+/* Activity cards list */
+.l-activity-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 992px) {
+  .l-activity-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
