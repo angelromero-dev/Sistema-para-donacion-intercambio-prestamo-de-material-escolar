@@ -297,54 +297,35 @@
                 </div>
               </div>
 
-              <div class="proto-detail-action p-3 bg-light rounded-3">
+              <div
+                class="proto-detail-action p-3 bg-light rounded-3 d-flex flex-column"
+              >
                 <h6 class="fw-bold mb-2 text-primary">Solicitar o Ofertar</h6>
                 <p class="text-muted small mb-3">
-                  Selecciona la modalidad deseada para iniciar la transacción.
+                  Selecciona la modalidad para ver los requisitos.
                 </p>
 
                 <div
-                  class="nav nav-pills nav-fill mb-3 gap-1"
-                  id="pills-tab-solicitud"
-                  role="tablist"
+                  class="notif-tabs mb-3"
+                  id="tabs-solicitud"
+                  style="border-bottom: 2px solid var(--color-border-base)"
                 >
-                  <button
-                    class="nav-link btn-sm active"
-                    id="pill-prestamo-tab"
-                    data-bs-toggle="pill"
-                    data-bs-target="#pill-prestamo"
-                    type="button"
-                    style="display: none"
-                  >
+                  <button class="notif-tab active" data-target="pill-prestamo">
                     Préstamo
                   </button>
-                  <button
-                    class="nav-link btn-sm"
-                    id="pill-intercambio-tab"
-                    data-bs-toggle="pill"
-                    data-bs-target="#pill-intercambio"
-                    type="button"
-                    style="display: none"
-                  >
+                  <button class="notif-tab" data-target="pill-intercambio">
                     Intercambio
                   </button>
-                  <button
-                    class="nav-link btn-sm"
-                    id="pill-donacion-tab"
-                    data-bs-toggle="pill"
-                    data-bs-target="#pill-donacion"
-                    type="button"
-                    style="display: none"
-                  >
+                  <button class="notif-tab" data-target="pill-donacion">
                     Donación
                   </button>
                 </div>
 
-                <div class="tab-content" id="pills-tabContent">
+                <div id="pills-tabContent">
                   <div
-                    class="tab-pane fade show active"
+                    class="tab-pane-solicitud"
                     id="pill-prestamo"
-                    role="tabpanel"
+                    style="display: block"
                   >
                     <form
                       id="formSolicitudPrestamo"
@@ -361,7 +342,6 @@
                           min="1"
                           max="20"
                           value="3"
-                          required
                         />
                       </div>
                       <div>
@@ -372,25 +352,27 @@
                           id="solMsgPrestamo"
                           class="form-control form-control-sm"
                           rows="3"
-                          placeholder="Explica brevemente para qué proyecto o práctica necesitas el material..."
+                          placeholder="Explica brevemente para qué necesitas el material..."
                           maxlength="256"
-                          required
                         ></textarea>
                       </div>
                       <button
                         type="submit"
                         class="btn auth-btn btn-sm w-100 mt-2"
                       >
-                        <i class="bx bx-send me-1"></i> Enviar Solicitud de
-                        Préstamo
+                        <i class="bx bx-send me-1"></i> Enviar Solicitud
                       </button>
                     </form>
+                    <div class="form-disabled-msg mt-2">
+                      <i class="bx bx-x-circle"></i> El dueño no habilitó
+                      préstamos.
+                    </div>
                   </div>
 
                   <div
-                    class="tab-pane fade"
+                    class="tab-pane-solicitud"
                     id="pill-intercambio"
-                    role="tabpanel"
+                    style="display: none"
                   >
                     <form
                       id="formSolicitudIntercambio"
@@ -406,7 +388,6 @@
                           class="form-control form-control-sm"
                           placeholder="Ej. Cautín digital Weller 60W"
                           maxlength="100"
-                          required
                         />
                       </div>
                       <div>
@@ -419,13 +400,12 @@
                             id="solImagenOfertaFile"
                             class="drag-drop-zone__input"
                             accept="image/png, image/jpeg, image/jpg, image/webp"
-                            required
                           />
                           <p
                             class="drag-drop-zone__text mb-0 small"
                             id="dragDropOfertaText"
                           >
-                            Haz clic o arrastra la foto de tu artículo
+                            Arrastra la foto de tu artículo
                           </p>
                         </div>
                       </div>
@@ -437,9 +417,8 @@
                           id="solMsgIntercambio"
                           class="form-control form-control-sm"
                           rows="2"
-                          placeholder="Describe las condiciones de tu artículo..."
+                          placeholder="Describe tu artículo..."
                           maxlength="256"
-                          required
                         ></textarea>
                       </div>
                       <button
@@ -450,9 +429,17 @@
                         Intercambio
                       </button>
                     </form>
+                    <div class="form-disabled-msg mt-2">
+                      <i class="bx bx-x-circle"></i> El dueño no aceptará
+                      intercambios.
+                    </div>
                   </div>
 
-                  <div class="tab-pane fade" id="pill-donacion" role="tabpanel">
+                  <div
+                    class="tab-pane-solicitud"
+                    id="pill-donacion"
+                    style="display: none"
+                  >
                     <form
                       id="formSolicitudDonacion"
                       class="d-flex flex-column gap-2"
@@ -465,9 +452,8 @@
                           id="solMsgDonacion"
                           class="form-control form-control-sm"
                           rows="4"
-                          placeholder="Cuéntale al donador por qué te sería de gran ayuda recibir este material..."
+                          placeholder="¿Por qué te sería de gran ayuda recibir este material?"
                           maxlength="256"
-                          required
                         ></textarea>
                       </div>
                       <button
@@ -477,9 +463,55 @@
                         <i class="bx bx-gift me-1"></i> Solicitar Donación
                       </button>
                     </form>
+                    <div class="form-disabled-msg mt-2">
+                      <i class="bx bx-x-circle"></i> Este material no está en
+                      donación.
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modalConfirmSolicitud"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div
+        class="modal-dialog modal-dialog-centered modal-sm"
+        style="z-index: 1060"
+      >
+        <div class="modal-content border-0 shadow">
+          <div class="modal-body text-center p-4">
+            <i
+              class="bx bx-paper-plane text-primary"
+              style="font-size: 3.5rem"
+            ></i>
+            <h5 class="fw-bold mt-2">¿Enviar solicitud?</h5>
+            <p class="text-muted small">
+              El dueño del material recibirá tu petición y podrá contactarte si
+              la acepta.
+            </p>
+            <div class="d-flex gap-2 justify-content-center mt-3">
+              <button
+                type="button"
+                class="btn btn-light btn-sm px-3"
+                data-bs-dismiss="modal"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm px-3"
+                id="btnConfirmSendSolicitud"
+              >
+                Sí, enviar
+              </button>
             </div>
           </div>
         </div>
