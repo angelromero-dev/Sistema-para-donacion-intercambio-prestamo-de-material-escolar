@@ -232,6 +232,260 @@
       </div>
     </footer>
 
+    <!-- details modal -->
+    <div
+      class="modal fade modal-publish"
+      id="modalDetallePrototipo"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content modal-publish__content">
+          <div class="modal-header modal-publish__header">
+            <h5 class="modal-publish__title" id="modalProtoTitulo">
+              Detalles del Prototipo
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body p-0">
+            <div class="modal-publish__grid">
+              <div class="proto-detail-info">
+                <div class="proto-detail-info__media">
+                  <img
+                    src="../assets/svg/logo.svg"
+                    id="modalProtoImg"
+                    alt="Prototipo"
+                    class="proto-detail-info__img"
+                  />
+                </div>
+
+                <div
+                  class="d-flex justify-content-between align-items-center mt-3 pb-2 border-bottom"
+                >
+                  <div>
+                    <span class="text-muted small d-block">Publicado por:</span>
+                    <strong class="text-primary fs-6" id="modalProtoOferente"
+                      >Matrícula</strong
+                    >
+                  </div>
+                  <div class="prototype-card__rating">
+                    <i class="bx bxs-star prototype-card__star-icon fs-5"></i>
+                    <span
+                      class="prototype-card__score fs-6"
+                      id="modalProtoScore"
+                      >5.0</span
+                    >
+                  </div>
+                </div>
+
+                <div
+                  class="prototype-card__tags mt-3"
+                  id="modalProtoTags"
+                ></div>
+
+                <div class="mt-3">
+                  <h6 class="fw-bold mb-1">Descripción del Prototipo</h6>
+                  <p class="text-muted small lh-sm" id="modalProtoDescLarga">
+                    Cargando descripción...
+                  </p>
+                </div>
+              </div>
+
+              <div class="proto-detail-action p-3 bg-light rounded-3">
+                <h6 class="fw-bold mb-2 text-primary">Solicitar o Ofertar</h6>
+                <p class="text-muted small mb-3">
+                  Selecciona la modalidad deseada para iniciar la transacción.
+                </p>
+
+                <div
+                  class="nav nav-pills nav-fill mb-3 gap-1"
+                  id="pills-tab-solicitud"
+                  role="tablist"
+                >
+                  <button
+                    class="nav-link btn-sm active"
+                    id="pill-prestamo-tab"
+                    data-bs-toggle="pill"
+                    data-bs-target="#pill-prestamo"
+                    type="button"
+                    style="display: none"
+                  >
+                    Préstamo
+                  </button>
+                  <button
+                    class="nav-link btn-sm"
+                    id="pill-intercambio-tab"
+                    data-bs-toggle="pill"
+                    data-bs-target="#pill-intercambio"
+                    type="button"
+                    style="display: none"
+                  >
+                    Intercambio
+                  </button>
+                  <button
+                    class="nav-link btn-sm"
+                    id="pill-donacion-tab"
+                    data-bs-toggle="pill"
+                    data-bs-target="#pill-donacion"
+                    type="button"
+                    style="display: none"
+                  >
+                    Donación
+                  </button>
+                </div>
+
+                <div class="tab-content" id="pills-tabContent">
+                  <div
+                    class="tab-pane fade show active"
+                    id="pill-prestamo"
+                    role="tabpanel"
+                  >
+                    <form
+                      id="formSolicitudPrestamo"
+                      class="d-flex flex-column gap-2"
+                    >
+                      <div>
+                        <label class="form-label small fw-bold mb-1"
+                          >Días de Préstamo (Mín. 1 - Máx. 20) *</label
+                        >
+                        <input
+                          type="number"
+                          id="solDiasPrestamo"
+                          class="form-control form-control-sm"
+                          min="1"
+                          max="20"
+                          value="3"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label class="form-label small fw-bold mb-1"
+                          >Mensaje o Motivo *</label
+                        >
+                        <textarea
+                          id="solMsgPrestamo"
+                          class="form-control form-control-sm"
+                          rows="3"
+                          placeholder="Explica brevemente para qué proyecto o práctica necesitas el material..."
+                          maxlength="256"
+                          required
+                        ></textarea>
+                      </div>
+                      <button
+                        type="submit"
+                        class="btn auth-btn btn-sm w-100 mt-2"
+                      >
+                        <i class="bx bx-send me-1"></i> Enviar Solicitud de
+                        Préstamo
+                      </button>
+                    </form>
+                  </div>
+
+                  <div
+                    class="tab-pane fade"
+                    id="pill-intercambio"
+                    role="tabpanel"
+                  >
+                    <form
+                      id="formSolicitudIntercambio"
+                      class="d-flex flex-column gap-2"
+                    >
+                      <div>
+                        <label class="form-label small fw-bold mb-1"
+                          >Artículo que Ofreces *</label
+                        >
+                        <input
+                          type="text"
+                          id="solTituloOferta"
+                          class="form-control form-control-sm"
+                          placeholder="Ej. Cautín digital Weller 60W"
+                          maxlength="100"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label class="form-label small fw-bold mb-1"
+                          >Fotografía del Artículo *</label
+                        >
+                        <div class="drag-drop-zone p-2" id="dragDropZoneOferta">
+                          <input
+                            type="file"
+                            id="solImagenOfertaFile"
+                            class="drag-drop-zone__input"
+                            accept="image/png, image/jpeg, image/jpg, image/webp"
+                            required
+                          />
+                          <p
+                            class="drag-drop-zone__text mb-0 small"
+                            id="dragDropOfertaText"
+                          >
+                            Haz clic o arrastra la foto de tu artículo
+                          </p>
+                        </div>
+                      </div>
+                      <div>
+                        <label class="form-label small fw-bold mb-1"
+                          >Mensaje para el Dueño *</label
+                        >
+                        <textarea
+                          id="solMsgIntercambio"
+                          class="form-control form-control-sm"
+                          rows="2"
+                          placeholder="Describe las condiciones de tu artículo..."
+                          maxlength="256"
+                          required
+                        ></textarea>
+                      </div>
+                      <button
+                        type="submit"
+                        class="btn auth-btn btn-sm w-100 mt-2"
+                      >
+                        <i class="bx bx-transfer-alt me-1"></i> Proponer
+                        Intercambio
+                      </button>
+                    </form>
+                  </div>
+
+                  <div class="tab-pane fade" id="pill-donacion" role="tabpanel">
+                    <form
+                      id="formSolicitudDonacion"
+                      class="d-flex flex-column gap-2"
+                    >
+                      <div>
+                        <label class="form-label small fw-bold mb-1"
+                          >Justificación o Motivo *</label
+                        >
+                        <textarea
+                          id="solMsgDonacion"
+                          class="form-control form-control-sm"
+                          rows="4"
+                          placeholder="Cuéntale al donador por qué te sería de gran ayuda recibir este material..."
+                          maxlength="256"
+                          required
+                        ></textarea>
+                      </div>
+                      <button
+                        type="submit"
+                        class="btn auth-btn btn-sm w-100 mt-2"
+                      >
+                        <i class="bx bx-gift me-1"></i> Solicitar Donación
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
