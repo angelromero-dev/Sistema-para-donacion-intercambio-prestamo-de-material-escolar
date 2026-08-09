@@ -1236,3 +1236,60 @@
   align-items: center;
   gap: 0.35rem;
 }
+
+/* --- ZONA DRAG & DROP --- */
+.drag-drop-zone {
+  position: relative;
+  width: 100%;
+  border: 2px dashed var(--color-border-base);
+  border-radius: 8px;
+  background-color: #f8fafc;
+  padding: 2rem 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.drag-drop-zone:hover, 
+.drag-drop-zone.dragover {
+  border-color: var(--color-brand-primary);
+  background-color: #f1f5f9;
+}
+
+.drag-drop-zone__input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.drag-drop-zone__icon {
+  font-size: 3rem;
+  color: var(--color-brand-primary);
+  margin-bottom: 0.5rem;
+}
+
+.drag-drop-zone__text {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.drag-drop-zone__text span {
+  color: var(--color-brand-primary);
+  text-decoration: underline;
+}
+
+.drag-drop-zone__hint {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--color-text-hint);
+  margin: 0;
+}
