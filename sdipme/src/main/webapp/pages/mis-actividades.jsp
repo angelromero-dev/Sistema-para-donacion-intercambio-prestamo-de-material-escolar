@@ -354,12 +354,9 @@
                       >Categoría *</label
                     >
                     <select id="pubCategoria" class="publish-form__select">
-                      <option value="" disabled selected>Selecciona...</option>
-                      <option value="1">Componentes Electrónicos</option>
-                      <option value="2">Herramientas</option>
-                      <option value="3">Libros y Manuales</option>
-                      <option value="4">Material de Papelería</option>
-                      <option value="5">Impresiones 3D</option>
+                      <option value="" disabled selected>
+                        Cargando categorías...
+                      </option>
                     </select>
                   </div>
                   <div class="col-md-6">
@@ -367,11 +364,9 @@
                       >Carrera Perteneciente *</label
                     >
                     <select id="pubCarrera" class="publish-form__select">
-                      <option value="" disabled selected>Selecciona...</option>
-                      <option value="1">Desarrollo de Software</option>
-                      <option value="2">Redes Digitales</option>
-                      <option value="3">Mantenimiento Industrial</option>
-                      <option value="4">Mecatrónica</option>
+                      <option value="" disabled selected>
+                        Cargando carreras...
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -454,7 +449,7 @@
                 <article class="prototype-card" style="margin: 0">
                   <div class="prototype-card__media">
                     <img
-                      src="https://images.unsplash.com/photo-1581092160607-ee22621dd758"
+                      src="../assets/images/logo-light-txt.png"
                       id="prevImg"
                       alt="Vista Previa"
                       class="prototype-card__img"
@@ -486,6 +481,45 @@
                   </div>
                 </article>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- modal de confirmación de publicación -->
+    <div
+      class="modal fade"
+      id="modalConfirmPublicar"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-body text-center p-4">
+            <i
+              class="bx bx-cloud-upload text-primary"
+              style="font-size: 3.5rem"
+            ></i>
+            <h5 class="fw-bold mt-2">¿Publicar prototipo?</h5>
+            <p class="text-muted small">
+              Tu prototipo será visible para toda la comunidad UTEZ.
+            </p>
+            <div class="d-flex gap-2 justify-content-center mt-3">
+              <button
+                type="button"
+                class="btn btn-light btn-sm px-3"
+                data-bs-dismiss="modal"
+              >
+                Revisar de nuevo
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm px-3"
+                id="btnConfirmPublicarFinal"
+              >
+                Sí, publicar
+              </button>
             </div>
           </div>
         </div>
