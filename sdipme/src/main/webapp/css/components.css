@@ -1294,10 +1294,21 @@
   margin: 0;
 }
 
-/* --- ESTADOS DEL DRAG & DROP --- */
+/* --- DRAG & DROP State --- */
 .drag-drop-zone.success {
-  border-color: var(--color-brand-secondary); /* Verde de UTEZ */
-  background-color: #f0fdf4;
+  border-color: var(--color-brand-secondary) !important;
+  background-color: #f0fdf4 !important;
+}
+.drag-drop-zone.error {
+  border-color: var(--color-status-error) !important;
+  background-color: #fef2f2 !important;
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%, 75% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
 }
 
 .drag-drop-zone.success .drag-drop-zone__icon {
@@ -1308,15 +1319,41 @@
   color: var(--color-brand-secondary);
 }
 
-/* --- MODIFICADORES DEL TOAST FLOTANTE --- */
+.toast-alert {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background-color: #1e293b;
+  color: #ffffff;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  z-index: 99999 !important;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.toast-alert.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .toast-alert--error {
   background-color: #fef2f2 !important;
   color: #991b1b !important;
-  border: 1px solid #fecaca;
+  border: 1px solid #fecaca !important;
 }
 
 .toast-alert--success {
   background-color: #f0fdf4 !important;
   color: #166534 !important;
-  border: 1px solid #bbf7d0;
+  border: 1px solid #bbf7d0 !important;
 }

@@ -46,7 +46,7 @@
     <link rel="stylesheet" href="../css/components.css" />
   </head>
 
-  <body class="bg-light">
+  <body>
     <header class="l-activity-header">
       <a href="dashboard.jsp" class="back-link">
         <i class="bx bx-left-arrow-alt fs-3"></i> Volver
@@ -312,7 +312,6 @@
                     class="publish-form__input"
                     placeholder="Ej. Kit Arduino Uno Rev3 con Sensores"
                     maxlength="100"
-                    required
                   />
                 </div>
 
@@ -354,11 +353,7 @@
                     <label for="pubCategoria" class="publish-form__label"
                       >Categoría *</label
                     >
-                    <select
-                      id="pubCategoria"
-                      class="publish-form__select"
-                      required
-                    >
+                    <select id="pubCategoria" class="publish-form__select">
                       <option value="" disabled selected>Selecciona...</option>
                       <option value="1">Componentes Electrónicos</option>
                       <option value="2">Herramientas</option>
@@ -371,11 +366,7 @@
                     <label for="pubCarrera" class="publish-form__label"
                       >Carrera Perteneciente *</label
                     >
-                    <select
-                      id="pubCarrera"
-                      class="publish-form__select"
-                      required
-                    >
+                    <select id="pubCarrera" class="publish-form__select">
                       <option value="" disabled selected>Selecciona...</option>
                       <option value="1">Desarrollo de Software</option>
                       <option value="2">Redes Digitales</option>
@@ -395,7 +386,6 @@
                       id="pubImagenArchivo"
                       class="drag-drop-zone__input"
                       accept="image/png, image/jpeg, image/jpg, image/webp"
-                      required
                     />
                     <div class="drag-drop-zone__content">
                       <i class="bx bx-cloud-upload drag-drop-zone__icon"></i>
@@ -425,7 +415,6 @@
                     class="publish-form__input"
                     placeholder="Resumen breve para el catálogo..."
                     maxlength="100"
-                    required
                   />
                 </div>
 
@@ -443,7 +432,6 @@
                     class="publish-form__textarea"
                     placeholder="Especifica el estado del material, reglas de entrega o accesorios incluidos..."
                     maxlength="256"
-                    required
                   ></textarea>
                 </div>
 
@@ -485,12 +473,14 @@
                       tarjeta del catálogo.
                     </p>
                     <div class="prototype-card__footer">
-                      <span class="prototype-card__matricula"
+                      <span class="prototype-card__matricula" id="prevMatricula"
                         >Tu Matrícula</span
                       >
                       <div class="prototype-card__rating">
                         <i class="bx bxs-star prototype-card__star-icon"></i>
-                        <span class="prototype-card__score">5.0</span>
+                        <span class="prototype-card__score" id="prevScore"
+                          >5.0</span
+                        >
                       </div>
                     </div>
                   </div>
@@ -506,7 +496,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="../js/ui/publicar-modal-ui.js"></script>
     <script src="../js/ui/actividades-ui.js"></script>
     <script src="../js/service/api.js"></script>
   </body>
