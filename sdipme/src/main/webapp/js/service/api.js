@@ -165,6 +165,16 @@ getMisPendientes: async () => {
         } catch (error) { return { ok: false, data: [] }; }
     },
 
+    cancelarPrototipo: async (idPrototipo) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/actividades/prototipos?idPrototipo=${idPrototipo}`, {
+                method: 'DELETE'
+            });
+            const data = await response.json();
+            return { ok: response.ok, data };
+        } catch (error) { return { ok: false, data: { message: "Error de red" } }; }
+    },
+    
     getSolicitudesRecibidas: async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/actividades/solicitudes`);
