@@ -69,13 +69,28 @@
         </p>
       </div>
 
-      <div class="notif-tabs" id="notifTabs">
+      <div
+        class="notif-tabs mb-4"
+        id="notifTabs"
+        style="border-bottom: 2px solid var(--color-border-base)"
+      >
         <button class="notif-tab active" data-target="panel-solicitudes">
-          Solicitudes Recibidas
-          <span class="badge bg-danger rounded-pill ms-1">2</span>
+          Pendientes
+          <span
+            class="badge bg-danger rounded-pill ms-1"
+            id="badge-pendientes"
+            style="display: none"
+            >0</span
+          >
+        </button>
+        <button class="notif-tab" data-target="panel-historial-sol">
+          Historial Solicitudes
         </button>
         <button class="notif-tab" data-target="panel-mis-prototipos">
-          Mis Prototipos Publicados
+          Publicaciones Activas
+        </button>
+        <button class="notif-tab" data-target="panel-historial-pub">
+          Historial Publicaciones
         </button>
       </div>
 
@@ -93,6 +108,14 @@
       </section>
 
       <section
+        id="panel-historial-sol"
+        class="notif-panel"
+        style="display: none"
+      >
+        <div class="l-notif-list" id="lista-historial-sol"></div>
+      </section>
+
+      <section
         id="panel-mis-prototipos"
         class="notif-panel"
         style="display: none"
@@ -103,6 +126,14 @@
             <p class="text-muted mt-2">Cargando tus publicaciones...</p>
           </div>
         </div>
+      </section>
+
+      <section
+        id="panel-historial-pub"
+        class="notif-panel"
+        style="display: none"
+      >
+        <div class="l-notif-list" id="lista-historial-pub"></div>
       </section>
     </main>
 
@@ -184,30 +215,71 @@
       aria-hidden="true"
     >
       <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-          <div class="modal-header border-0 pb-0">
-            <h5 class="modal-title fw-bold">Prototipo de Intercambio</h5>
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-header-title text-white mb-0" id="exchangeTitle">
+              Oferta de Intercambio
+            </h5>
             <button
               type="button"
-              class="btn-close"
+              class="btn-close btn-close-white"
               data-bs-dismiss="modal"
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body p-4 text-center">
-            <img
-              src="https://images.unsplash.com/photo-1581092160607-ee22621dd758"
-              alt="Prototipo Ofrecido"
-              class="img-fluid rounded mb-3"
-              style="max-height: 220px; width: 100%; object-fit: cover"
-            />
-            <h6 class="fw-bold text-start mb-1" id="exchangeTitle">
-              Cautín de Estación Weller Digital
-            </h6>
-            <p class="text-muted small text-start" id="exchangeDesc">
-              Cautín regulable en temperatura con base metálica. En excelente
-              estado operativo.
+          <div class="modal-body p-4">
+            <div class="exchange-modal-img-wrapper mb-3">
+              <img
+                src=""
+                id="exchangeModalImg"
+                alt="Artículo ofrecido"
+                class="exchange-modal-img"
+              />
+            </div>
+            <div class="bg-light p-3 rounded-3">
+              <h6 class="fw-bold text-dark mb-1">
+                <i class="bx bx-message-square-detail text-primary me-1"></i>
+                Mensaje del Solicitante:
+              </h6>
+              <p class="text-muted small mb-0 lh-sm" id="exchangeDesc">
+                Sin mensaje adicional.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modalConfirmCancelProto"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-body text-center p-4">
+            <i class="bx bx-trash text-danger" style="font-size: 3.5rem"></i>
+            <h5 class="fw-bold mt-2">¿Cancelar publicación?</h5>
+            <p class="text-muted small">
+              Tu prototipo ya no estará disponible en el catálogo general.
             </p>
+            <div class="d-flex gap-2 justify-content-center mt-3">
+              <button
+                type="button"
+                class="btn btn-light btn-sm px-3"
+                data-bs-dismiss="modal"
+              >
+                Atrás
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger btn-sm px-3"
+                id="btnConfirmCancelProtoFinal"
+              >
+                Sí, cancelar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -429,7 +501,6 @@
       </div>
     </div>
 
-    <!-- modal de confirmación de publicación -->
     <div
       class="modal fade"
       id="modalConfirmPublicar"
