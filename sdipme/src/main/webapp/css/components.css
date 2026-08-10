@@ -1419,3 +1419,40 @@
 .form-disabled-overlay + .form-disabled-msg {
   display: block;
 }
+
+/* --- OVERLAY --- */
+.prototype-card.is-pending {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.prototype-card__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(5px);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-brand-primary);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: background 0.3s ease;
+}
+
+.prototype-card__overlay:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.prototype-card__overlay i {
+  font-size: 3.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-brand-primary);
+}

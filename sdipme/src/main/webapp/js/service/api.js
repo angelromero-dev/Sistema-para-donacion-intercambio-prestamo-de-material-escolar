@@ -156,5 +156,12 @@ getPrototipos: async () => {
             console.error(">>> [API GET FATAL] Error al obtener perfil:", error);
             return { ok: false, data: null };
         }
+    },
+getMisPendientes: async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/solicitudes`);
+            const data = await response.json();
+            return { ok: response.ok, data: data.data || [] };
+        } catch (error) { return { ok: false, data: [] }; }
     }
 };

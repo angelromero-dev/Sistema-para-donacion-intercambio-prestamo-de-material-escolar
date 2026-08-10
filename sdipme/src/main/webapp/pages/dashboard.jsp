@@ -518,6 +518,73 @@
       </div>
     </div>
 
+    <!-- alert modal -->
+    <div
+      class="modal fade"
+      id="modalYaSolicitado"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div
+        class="modal-dialog modal-dialog-centered modal-sm"
+        style="z-index: 1070"
+      >
+        <div class="modal-content border-0 shadow">
+          <div class="modal-body text-center p-4">
+            <i
+              class="bx bx-time-five text-warning"
+              style="font-size: 3.5rem"
+            ></i>
+            <h5 class="fw-bold mt-2">En espera</h5>
+            <p class="text-muted small">
+              Ya solicitaste este material. Debes esperar a que el dueño
+              responda tu petición en la sección "Mis Actividades".
+            </p>
+            <button
+              type="button"
+              class="btn btn-warning btn-sm w-100 mt-2 text-dark"
+              data-bs-dismiss="modal"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modalLimiteAlcanzado"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div
+        class="modal-dialog modal-dialog-centered modal-sm"
+        style="z-index: 1070"
+      >
+        <div class="modal-content border-0 shadow">
+          <div class="modal-body text-center p-4">
+            <i
+              class="bx bx-stop-circle text-danger"
+              style="font-size: 3.5rem"
+            ></i>
+            <h5 class="fw-bold mt-2">Límite Alcanzado</h5>
+            <p class="text-muted small">
+              Solo puedes tener hasta 5 solicitudes activas al mismo tiempo para
+              no acaparar el catálogo.
+            </p>
+            <button
+              type="button"
+              class="btn btn-danger btn-sm w-100 mt-2"
+              data-bs-dismiss="modal"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 

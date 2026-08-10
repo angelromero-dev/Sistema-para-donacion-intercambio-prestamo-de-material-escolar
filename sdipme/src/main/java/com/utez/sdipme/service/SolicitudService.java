@@ -2,50 +2,54 @@ package com.utez.sdipme.service;
 
 import com.utez.sdipme.dao.SolicitudDao;
 import com.utez.sdipme.model.Solicitud;
+import java.util.List;
 
 public class SolicitudService {
 
     private final SolicitudDao solicitudDao = new SolicitudDao();
 
     public String procesarNuevaSolicitud(Solicitud solicitud) {
-        System.out.println(">>> [SERVICE - service/SolicitudService.java] Iniciando procesamiento de solicitud para el prototipo ID: " + solicitud.getIdPrototipo());
+        System.out.println(">>> [SERVICE] Iniciando procesamiento de solicitud para el prototipo ID: " + solicitud.getIdPrototipo());
 
         try {
             boolean disponible = solicitudDao.esPrototipoDisponible(solicitud.getIdPrototipo());
-
             if (!disponible) {
-                System.err.println(">>> [SERVICE WARN - service/SolicitudService.java] Bloqueo de concurrencia: El prototipo ya está ocupado o en proceso.");
+                System.err.println(">>> [SERVICE WARN] El prototipo ya está ocupado.");
                 return "ERROR_OCUPADO";
+            }
+
+            if (solicitudDao.usuarioYaSolicito(solicitud.getIdPrototipo(), solicitud.getIdSolicitante())) {
+                System.err.println(">>> [SERVICE WARN] El usuario ya tiene una solicitud pendiente para este prototipo.");
+                return "ERROR_DUPLICADO";
+            }
+
+            if (solicitudDao.contarSolicitudesActivasUsuario(solicitud.getIdSolicitante()) >= 5) {
+                System.err.println(">>> [SERVICE WARN] El usuario ha alcanzado el límite de 5 solicitudes activas.");
+                return "ERROR_LIMITE_ALCANZADO";
             }
 
             boolean exito = solicitudDao.registrarSolicitud(solicitud);
 
             if (exito) {
-                System.out.println(">>> [SERVICE OK - service/SolicitudService.java] Solicitud registrada correctamente en la base de datos.");
+                System.out.println(">>> [SERVICE OK] Solicitud registrada correctamente.");
                 return "EXITO";
             } else {
-                System.err.println(">>> [SERVICE ERROR - service/SolicitudService.java] El DAO devolvió false al intentar insertar.");
+                System.err.println(">>> [SERVICE ERROR] El DAO devolvió false al intentar insertar.");
                 return "ERROR_BD";
             }
 
         } catch (Exception e) {
-            System.err.println(">>> [SERVICE FATAL - service/SolicitudService.java] Excepción no controlada en la lógica de negocio: " + e.getMessage());
+            System.err.println(">>> [SERVICE FATAL] Excepción no controlada: " + e.getMessage());
             e.printStackTrace();
             return "ERROR_INTERNO";
         }
     }
 
     public boolean cambiarEstadoSolicitud(int idSolicitud, String nuevoEstado) {
-        System.out.println(">>> [SERVICE - service/SolicitudService.java] Intentando cambiar solicitud ID " + idSolicitud + " a estado: " + nuevoEstado);
+        return solicitudDao.actualizarEstado(idSolicitud, nuevoEstado);
+    }
 
-        boolean exito = solicitudDao.actualizarEstado(idSolicitud, nuevoEstado);
-
-        if (exito) {
-            System.out.println(">>> [SERVICE OK - service/SolicitudService.java] Máquina de estados actualizada exitosamente.");
-        } else {
-            System.err.println(">>> [SERVICE ERROR - service/SolicitudService.java] No se pudo cambiar el estado. ¿El ID existe?");
-        }
-
-        return exito;
+    public List<Integer> obtenerPrototiposPendientes(int idSolicitante) {
+        return solicitudDao.obtenerPrototiposPendientes(idSolicitante);
     }
 }

@@ -1,11 +1,9 @@
 /**
  * prototipo-detalle-ui.js
- * Lógica robusta: Tabs de agua, formularios desactivados opacos, validaciones JS, y envío a backend.
+ * Lógica robusta para Detalles, Envío y Límites (UI Frontend).
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log(">>> [UI DETALLES] Controlador cargado con validaciones estrictas y UX opaca.");
-
     const gridPrototipos = document.getElementById('grid-prototipos');
     const modalEl = document.getElementById('modalDetallePrototipo');
     const modalConfirmEl = document.getElementById('modalConfirmSolicitud');
@@ -14,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalInstance = new bootstrap.Modal(modalEl);
     const confirmInstance = new bootstrap.Modal(modalConfirmEl);
 
-    // Dom Elements
     const modalTitle = document.getElementById('modalProtoTitulo');
     const modalImg = document.getElementById('modalProtoImg');
     const modalOferente = document.getElementById('modalProtoOferente');
@@ -22,19 +19,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTags = document.getElementById('modalProtoTags');
     const modalDescLarga = document.getElementById('modalProtoDescLarga');
 
-    // Forms
     const formPrestamo = document.getElementById('formSolicitudPrestamo');
     const formIntercambio = document.getElementById('formSolicitudIntercambio');
     const formDonacion = document.getElementById('formSolicitudDonacion');
 
-    // Image Oferta State
     const inputOfertaFile = document.getElementById('solImagenOfertaFile');
     const textOfertaDrop = document.getElementById('dragDropOfertaText');
     const dropZoneOferta = document.getElementById('dragDropZoneOferta');
     let ofertaFileSelected = null;
 
     let currentPrototipoId = null;
-    let pendingPayload = null;
+    let pendingPayload = null; 
 
     function showToast(msg, type = 'error') {
         let toastEl = document.getElementById('actionToast');
@@ -48,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => toastEl.classList.remove('show'), 3500);
     }
 
+    // --- TABS ANIMACIÓN ---
     const tabsContainer = document.getElementById('tabs-solicitud');
     const tabPanels = document.querySelectorAll('.tab-pane-solicitud');
 
@@ -55,10 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
         tabsContainer.addEventListener('click', (e) => {
             const tab = e.target.closest('.notif-tab');
             if (!tab) return;
-            // Efecto Agua
             tabsContainer.querySelectorAll('.notif-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            // Cambiar Panel
             const targetId = tab.dataset.target;
             tabPanels.forEach(panel => {
                 panel.style.display = (panel.id === targetId) ? 'block' : 'none';
@@ -69,6 +63,12 @@ document.addEventListener('DOMContentLoaded', () => {
     gridPrototipos.addEventListener('click', async (e) => {
         const card = e.target.closest('.prototype-card');
         if (!card) return;
+
+        if (card.classList.contains('is-pending')) {
+            const pendingModal = new bootstrap.Modal(document.getElementById('modalYaSolicitado'));
+            pendingModal.show();
+            return;
+        }
 
         const protoId = card.dataset.id;
         currentPrototipoId = parseInt(protoId);
@@ -115,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalInstance.show();
     });
 
+    // --- DRAG & DROP ---
     if (dropZoneOferta && inputOfertaFile) {
         inputOfertaFile.addEventListener('change', function() {
             if (this.files && this.files.length > 0) {
@@ -130,15 +131,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    
     formPrestamo.addEventListener('submit', (e) => {
         e.preventDefault();
         const dias = document.getElementById('solDiasPrestamo').value;
         const msg = document.getElementById('solMsgPrestamo').value.trim();
-
         if (!dias || dias < 1 || dias > 20) { showToast("Los días deben estar entre 1 y 20."); return; }
-        if (!msg) { showToast("El motivo es obligatorio."); document.getElementById('solMsgPrestamo').focus(); return; }
-
+        if (!msg) { showToast("El motivo es obligatorio."); return; }
         pendingPayload = { idPrototipo: currentPrototipoId, mensajeJustificacion: msg, diasPrestamo: parseInt(dias) };
         confirmInstance.show();
     });
@@ -147,20 +145,17 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const tituloOferta = document.getElementById('solTituloOferta').value.trim();
         const msg = document.getElementById('solMsgIntercambio').value.trim();
-
-        if (!tituloOferta) { showToast("Escribe qué ofreces."); document.getElementById('solTituloOferta').focus(); return; }
+        if (!tituloOferta) { showToast("Escribe qué ofreces."); return; }
         if (!ofertaFileSelected) { showToast("La foto de tu artículo es obligatoria."); return; }
-        if (!msg) { showToast("El mensaje es obligatorio."); document.getElementById('solMsgIntercambio').focus(); return; }
-
+        if (!msg) { showToast("El mensaje es obligatorio."); return; }
         pendingPayload = { idPrototipo: currentPrototipoId, mensajeJustificacion: msg, ofertaIntercambio: tituloOferta };
-        confirmInstance.show();
+        confirmInstance.show(); 
     });
 
     formDonacion.addEventListener('submit', (e) => {
         e.preventDefault();
         const msg = document.getElementById('solMsgDonacion').value.trim();
-        if (!msg) { showToast("La justificación es obligatoria."); document.getElementById('solMsgDonacion').focus(); return; }
-
+        if (!msg) { showToast("La justificación es obligatoria."); return; }
         pendingPayload = { idPrototipo: currentPrototipoId, mensajeJustificacion: msg };
         confirmInstance.show();
     });
@@ -181,22 +176,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 pendingPayload.fotoIntercambio = cloudRes.url;
             }
 
-            // Enviar Payload
             const res = await api.solicitarPrototipo(pendingPayload);
 
             if (res.ok) {
-                showToast("¡Solicitud enviada con éxito al dueño!", "success");
+                showToast("¡Solicitud enviada con éxito!", "success");
                 confirmInstance.hide();
                 modalInstance.hide();
                 
-                formPrestamo.reset(); formIntercambio.reset(); formDonacion.reset();
-                ofertaFileSelected = null;
-                if(dropZoneOferta) dropZoneOferta.classList.remove('success');
-                if(textOfertaDrop) textOfertaDrop.innerText = "Arrastra la foto de tu artículo";
-                pendingPayload = null;
+                setTimeout(() => window.location.reload(), 1000);
             } else {
-                showToast(res.data.message || "Error al enviar la solicitud.");
                 confirmInstance.hide();
+                if (res.data && res.data.errorType === 'LIMIT_REACHED') {
+                    const limiteModal = new bootstrap.Modal(document.getElementById('modalLimiteAlcanzado'));
+                    limiteModal.show();
+                } else {
+                    showToast(res.data.message || "Error al enviar la solicitud.");
+                }
             }
         } catch (error) {
             console.error(error);

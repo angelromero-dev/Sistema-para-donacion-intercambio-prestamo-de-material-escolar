@@ -7,12 +7,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SolicitudDao {
 
     public boolean registrarSolicitud(Solicitud s) {
         String sql = "INSERT INTO solicitudes (id_prototipo, id_solicitante, mensaje_justificacion, dias_prestamo, oferta_intercambio, foto_intercambio, estado) VALUES (?, ?, ?, ?, ?, ?, 'PENDIENTE')";
-
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -31,45 +32,80 @@ public class SolicitudDao {
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println(">>> [DAO ERROR - SolicitudDao.java] Fallo al registrar solicitud: " + e.getMessage());
+            System.err.println(">>> [DAO ERROR] Fallo al registrar solicitud: " + e.getMessage());
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
     public boolean esPrototipoDisponible(int idPrototipo) {
         String sql = "SELECT COUNT(*) FROM solicitudes WHERE id_prototipo = ? AND estado IN ('ACEPTADA', 'ENTREGADA', 'DEVUELTA')";
-
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setInt(1, idPrototipo);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) == 0;
-                }
+                if (rs.next()) return rs.getInt(1) == 0;
             }
         } catch (SQLException e) {
-            System.err.println(">>> [DAO ERROR - SolicitudDao.java] Fallo al verificar disponibilidad: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println(">>> [DAO ERROR] Fallo al verificar disponibilidad: " + e.getMessage());
         }
         return false;
     }
 
     public boolean actualizarEstado(int idSolicitud, String nuevoEstado) {
         String sql = "UPDATE solicitudes SET estado = ? WHERE id_solicitud = ?";
-
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setString(1, nuevoEstado);
             ps.setInt(2, idSolicitud);
-
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println(">>> [DAO ERROR - SolicitudDao.java] Fallo al actualizar estado: " + e.getMessage());
-            e.printStackTrace();
-            return false;
+            System.err.println(">>> [DAO ERROR] Fallo al actualizar estado: " + e.getMessage());
         }
+        return false;
+    }
+
+    public boolean usuarioYaSolicito(int idPrototipo, int idSolicitante) {
+        String sql = "SELECT COUNT(*) FROM solicitudes WHERE id_prototipo = ? AND id_solicitante = ? AND estado = 'PENDIENTE'";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPrototipo);
+            ps.setInt(2, idSolicitante);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println(">>> [DAO ERROR] Error al verificar duplicados: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public int contarSolicitudesActivasUsuario(int idSolicitante) {
+        String sql = "SELECT COUNT(*) FROM solicitudes WHERE id_solicitante = ? AND estado = 'PENDIENTE'";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idSolicitante);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Integer> obtenerPrototiposPendientes(int idSolicitante) {
+        List<Integer> lista = new ArrayList<>();
+        String sql = "SELECT id_prototipo FROM solicitudes WHERE id_solicitante = ? AND estado = 'PENDIENTE'";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idSolicitante);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) lista.add(rs.getInt(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
     }
 }
