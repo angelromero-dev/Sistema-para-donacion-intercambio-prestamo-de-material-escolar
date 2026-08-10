@@ -3,34 +3,32 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log(">>> [UI ACTIVIDADES] Inicializando controlador...");
+    console.log(">>> [UI ACTIVIDADES] Controlador con paneles separados inicializado.");
 
-    const listaSolicitudes = document.getElementById('lista-solicitudes');
-    const listaMisPrototipos = document.getElementById('lista-mis-prototipos');
     const tabsContainer = document.getElementById('notifTabs');
     const tabPanels = document.querySelectorAll('.notif-panel');
-    const badgeSolicitudes = document.querySelector('[data-target="panel-solicitudes"] .badge');
+    const badgePendientes = document.getElementById('badge-pendientes');
 
-    const approveModalEl = document.getElementById('modalConfirmApprove');
-    const rejectModalEl = document.getElementById('modalConfirmReject');
-    const prototypeModalEl = document.getElementById('modalPrototypeDetail');
-    
-    const approveModal = approveModalEl ? new bootstrap.Modal(approveModalEl) : null;
-    const rejectModal = rejectModalEl ? new bootstrap.Modal(rejectModalEl) : null;
-    const prototypeModal = prototypeModalEl ? new bootstrap.Modal(prototypeModalEl) : null;
+    const listSolicitudesPendientes = document.getElementById('lista-solicitudes');
+    const listHistorialSol = document.getElementById('lista-historial-sol');
+    const listPrototiposActivos = document.getElementById('lista-mis-prototipos');
+    const listHistorialPub = document.getElementById('lista-historial-pub');
+
+    const approveModal = new bootstrap.Modal(document.getElementById('modalConfirmApprove'));
+    const rejectModal = new bootstrap.Modal(document.getElementById('modalConfirmReject'));
+    const prototypeModal = new bootstrap.Modal(document.getElementById('modalPrototypeDetail'));
+    const cancelProtoModal = new bootstrap.Modal(document.getElementById('modalConfirmCancelProto'));
 
     let targetCardPending = null;
     let pendingActionType = null;
     let currentSolicitudId = null;
+    let currentCancelProtoId = null;
 
     function showToast(msg, type = 'error') {
         const toastEl = document.getElementById('actionToast');
         if (!toastEl) return;
-        const toastMessageEl = document.getElementById('toastMessage');
-        const icon = toastEl.querySelector('i');
-        toastMessageEl.innerText = msg;
+        document.getElementById('toastMessage').innerText = msg;
         toastEl.className = `toast-alert show ${type === 'success' ? 'toast-alert--success' : 'toast-alert--error'}`;
-        if (icon) icon.className = type === 'success' ? 'bx bx-check-circle fs-4' : 'bx bx-error-circle fs-4';
         setTimeout(() => toastEl.classList.remove('show'), 3500);
     }
 
@@ -47,149 +45,184 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    function generarHTMLSolicitud(sol, esHistorial) {
+        let statusBadge = '';
+        if (!esHistorial) {
+            statusBadge = `<span class="badge-status badge-status--pending"><i class='bx bx-time-five'></i> Pendiente</span>`;
+        } else {
+            statusBadge = sol.estado === 'ACEPTADA' 
+                ? `<span class="badge-status badge-status--accepted"><i class='bx bx-check-circle'></i> Aceptada</span>` 
+                : `<span class="badge-status badge-status--rejected"><i class='bx bx-x-circle'></i> Rechazada</span>`;
+        }
+
+        let iconBox = ''; let detailBox = '';
+        if (sol.diasPrestamo != null) {
+            iconBox = `<div class="notif-card__avatar"><i class='bx bx-time-five'></i></div>`;
+            detailBox = `<div class="notif-card__detail-box"><span><i class='bx bx-calendar-event me-1'></i> Pide: <b>${sol.diasPrestamo} días</b> de préstamo</span></div>`;
+        } else if (sol.ofertaIntercambio != null) {
+            iconBox = `<div class="notif-card__avatar" style="background-color: #F77702;"><i class='bx bx-transfer-alt'></i></div>`;
+            detailBox = `
+                <div class="notif-card__detail-box notif-card__detail-box--exchange">
+                    <span>Ofrece: <b>${sol.ofertaIntercambio}</b></span>
+                    <button class="btn-detail-link btn btn-link btn-sm p-0 ms-2 text-primary text-decoration-none fw-bold" 
+                            data-img="${sol.fotoIntercambio}" data-title="${sol.ofertaIntercambio}" data-desc="${sol.mensaje}">[Ver artículo]</button>
+                </div>`;
+        } else {
+            iconBox = `<div class="notif-card__avatar" style="background-color: #128970;"><i class='bx bx-gift'></i></div>`;
+            detailBox = `<div class="notif-card__detail-box" style="border-left-color: #128970;"><span><i class='bx bx-heart me-1'></i> <b>Pide Donación</b></span></div>`;
+        }
+
+        const actionButtons = !esHistorial ? `
+            <div class="d-flex gap-2 mt-3">
+                <button class="btn-approve-custom"><i class='bx bx-check'></i> Aprobar</button>
+                <button class="btn-reject-custom"><i class='bx bx-x'></i> Rechazar</button>
+            </div>
+        ` : '';
+
+        return `
+            <article class="notif-card ${esHistorial ? 'notif-card--history' : ''}" data-id="${sol.idSolicitud}">
+                ${iconBox}
+                <div class="notif-card__body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h3 class="notif-card__title">Prototipo: "${sol.prototipoTitulo}"</h3>
+                        ${statusBadge}
+                    </div>
+                    <p class="notif-card__text mt-1">Solicitante: <b>${sol.solicitanteMatricula}</b> (${sol.solicitanteNombre})</p>
+                    <p class="text-muted small fst-italic mt-1 mb-0">"${sol.mensaje}"</p>
+                    ${detailBox}
+                    ${actionButtons}
+                </div>
+            </article>
+        `;
+    }
+
     async function cargarSolicitudes() {
         const res = await api.getSolicitudesRecibidas();
-        if (!res.ok) {
-            listaSolicitudes.innerHTML = `<p class="text-center text-danger w-100 py-4">Error al cargar solicitudes.</p>`;
-            return;
+        if (!res.ok) return;
+
+        const pendientes = res.data.filter(s => s.estado === 'PENDIENTE');
+        const historial = res.data.filter(s => s.estado !== 'PENDIENTE');
+
+        if (badgePendientes) {
+            badgePendientes.innerText = pendientes.length;
+            badgePendientes.style.display = pendientes.length > 0 ? 'inline-block' : 'none';
         }
 
-        const solicitudes = res.data;
+        listSolicitudesPendientes.innerHTML = pendientes.length === 0 
+            ? `<div class="text-center py-5"><i class='bx bx-check-double text-muted' style='font-size: 3.5rem;'></i><p class="text-muted mt-2">No tienes solicitudes pendientes.</p></div>`
+            : pendientes.map(s => generarHTMLSolicitud(s, false)).join('');
 
-        if (badgeSolicitudes) {
-            badgeSolicitudes.innerText = solicitudes.length;
-            badgeSolicitudes.style.display = solicitudes.length > 0 ? 'inline-block' : 'none';
-        }
-
-        if (solicitudes.length === 0) {
-            listaSolicitudes.innerHTML = `<div class="text-center py-5"><i class='bx bx-check-double text-muted' style='font-size: 3.5rem;'></i><p class="text-muted mt-2">No tienes solicitudes pendientes.</p></div>`;
-            return;
-        }
-
-        listaSolicitudes.innerHTML = solicitudes.map(sol => {
-            let iconBox = '';
-            let detailBox = '';
-            const isIntercambio = sol.ofertaIntercambio != null;
-            const isPrestamo = sol.diasPrestamo != null;
-
-            if (isPrestamo) {
-                iconBox = `<div class="notif-card__avatar"><i class='bx bx-time-five'></i></div>`;
-                detailBox = `<div class="notif-card__detail-box"><span><i class='bx bx-calendar-event me-1'></i> Pide: <b>${sol.diasPrestamo} días</b> de préstamo</span></div>`;
-            } else if (isIntercambio) {
-                iconBox = `<div class="notif-card__avatar" style="background-color: #F77702;"><i class='bx bx-transfer-alt'></i></div>`;
-                detailBox = `
-                    <div class="notif-card__detail-box notif-card__detail-box--exchange">
-                        <span>Ofrece: <b>${sol.ofertaIntercambio}</b></span>
-                        <button class="btn-detail-link" data-img="${sol.fotoIntercambio}" data-title="${sol.ofertaIntercambio}" data-desc="${sol.mensaje}">[Ver foto]</button>
-                    </div>`;
-            } else {
-                iconBox = `<div class="notif-card__avatar" style="background-color: #128970;"><i class='bx bx-gift'></i></div>`;
-                detailBox = `<div class="notif-card__detail-box" style="border-left-color: #128970;"><span><i class='bx bx-heart me-1'></i> <b>Pide Donación</b></span></div>`;
-            }
-
-            return `
-                <article class="notif-card" data-id="${sol.idSolicitud}">
-                    ${iconBox}
-                    <div class="notif-card__body">
-                        <div class="d-flex align-items-center">
-                            <h3 class="notif-card__title">Solicitud por "${sol.prototipoTitulo}"</h3>
-                        </div>
-                        <p class="notif-card__text mt-1">El alumno <b>${sol.solicitanteMatricula}</b> (${sol.solicitanteNombre}) ha enviado una solicitud.</p>
-                        <p class="text-muted small fst-italic mt-1 mb-0">"${sol.mensaje}"</p>
-                        
-                        ${detailBox}
-
-                        <div class="d-flex gap-2 mt-3">
-                            <button class="btn-approve-custom"><i class='bx bx-check'></i> Aprobar</button>
-                            <button class="btn-reject-custom"><i class='bx bx-x'></i> Rechazar</button>
-                        </div>
-                    </div>
-                </article>
-            `;
-        }).join('');
+        listHistorialSol.innerHTML = historial.length === 0 
+            ? `<div class="text-center py-5"><i class='bx bx-history text-muted' style='font-size: 3.5rem;'></i><p class="text-muted mt-2">Historial vacío.</p></div>`
+            : historial.map(s => generarHTMLSolicitud(s, true)).join('');
     }
 
     async function cargarMisPrototipos() {
         const res = await api.getMisPrototiposPublicados();
-        if (!res.ok || res.data.length === 0) {
-            listaMisPrototipos.innerHTML = `<div class="text-center py-5"><i class='bx bx-package text-muted' style="font-size: 3.5rem;"></i><p class="text-muted mt-2">Aún no has publicado nada.</p></div>`;
-            return;
-        }
+        if (!res.ok) return;
 
-        listaMisPrototipos.innerHTML = res.data.map(proto => {
-            const estadoBadge = proto.estado === 'ACTIVA' ? '<span class="badge bg-success">Activa</span>' : `<span class="badge bg-secondary">${proto.estado}</span>`;
-            return `
+        const activos = res.data.filter(p => p.estado === 'ACTIVA');
+        const inactivos = res.data.filter(p => p.estado !== 'ACTIVA'); 
+
+        listPrototiposActivos.innerHTML = activos.length === 0 
+            ? `<div class="text-center py-5"><i class='bx bx-package text-muted' style="font-size: 3.5rem;"></i><p class="text-muted mt-2">No tienes publicaciones activas.</p></div>`
+            : activos.map(p => `
                 <article class="notif-card" style="align-items: center;">
-                    <img src="${proto.urlImagen || '../assets/svg/logo.svg'}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" />
-                    <div class="notif-card__body ms-2">
-                        <h3 class="notif-card__title">${proto.titulo} ${estadoBadge}</h3>
-                        <p class="notif-card__text small">${proto.descripcionCorta}</p>
-                        <span class="text-muted small mt-1 d-block"><i class='bx bx-purchase-tag-alt'></i> ${proto.tipoTransaccion}</span>
+                    <img src="${p.urlImagen || '../assets/svg/logo.svg'}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" />
+                    <div class="notif-card__body ms-2 flex-grow-1">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h3 class="notif-card__title mb-0">${p.titulo}</h3>
+                            <span class="badge-status badge-status--accepted"><i class="bx bx-check"></i> Activo</span>
+                        </div>
+                        <p class="notif-card__text small mb-1 mt-1">${p.descripcionCorta}</p>
+                        <span class="text-muted small d-block"><i class='bx bx-purchase-tag-alt'></i> ${p.tipoTransaccion}</span>
                     </div>
-                </article>
-            `;
-        }).join('');
+                    <button class="btn btn-outline-danger btn-sm btn-cancel-proto ms-auto" data-id="${p.idPrototipo}">
+                        <i class='bx bx-trash me-1'></i> Cancelar
+                    </button>
+                </article>`).join('');
+
+        listHistorialPub.innerHTML = inactivos.length === 0 
+            ? `<div class="text-center py-5"><i class='bx bx-archive text-muted' style="font-size: 3.5rem;"></i><p class="text-muted mt-2">Historial vacío.</p></div>`
+            : inactivos.map(p => {
+                let badge = p.estado === 'CANCELADA' 
+                    ? `<span class="badge-status badge-status--cancelled"><i class="bx bx-block"></i> Cancelada</span>`
+                    : `<span class="badge-status badge-status--accepted"><i class="bx bx-check-double"></i> Entregado/Ocupado</span>`;
+                
+                return `
+                <article class="notif-card notif-card--cancelled" style="align-items: center;">
+                    <img src="${p.urlImagen || '../assets/svg/logo.svg'}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; filter: grayscale(100%);" />
+                    <div class="notif-card__body ms-2 flex-grow-1">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h3 class="notif-card__title mb-0">${p.titulo}</h3>
+                            ${badge}
+                        </div>
+                        <p class="notif-card__text small mb-1 mt-1">${p.descripcionCorta}</p>
+                    </div>
+                </article>`;
+            }).join('');
     }
 
     cargarSolicitudes();
     cargarMisPrototipos();
 
-    listaSolicitudes.addEventListener('click', (e) => {
-        const btnApprove = e.target.closest('.btn-approve-custom');
-        const btnReject = e.target.closest('.btn-reject-custom');
-        const btnDetail = e.target.closest('.btn-detail-link');
-
-        if (btnDetail) {
-            document.getElementById('exchangeTitle').innerText = btnDetail.dataset.title;
-            document.getElementById('exchangeDesc').innerText = btnDetail.dataset.desc;
-            document.querySelector('#modalPrototypeDetail img').src = btnDetail.dataset.img;
-            prototypeModal?.show();
+    document.addEventListener('click', (e) => {
+        const btnCancel = e.target.closest('.btn-cancel-proto');
+        if (btnCancel) {
+            currentCancelProtoId = parseInt(btnCancel.dataset.id);
+            cancelProtoModal.show();
             return;
         }
 
-        if (btnApprove || btnReject) {
-            const card = e.target.closest('.notif-card');
-            currentSolicitudId = parseInt(card.dataset.id);
-            targetCardPending = card;
+        const btnDetail = e.target.closest('.btn-detail-link');
+        if (btnDetail) {
+            document.getElementById('exchangeTitle').innerText = `Oferta: ${btnDetail.dataset.title}`;
+            document.getElementById('exchangeDesc').innerText = btnDetail.dataset.desc;
+            document.getElementById('exchangeModalImg').src = btnDetail.dataset.img || '../assets/svg/logo.svg';
+            prototypeModal.show();
+            return;
+        }
 
-            if (btnApprove) {
-                pendingActionType = 'ACEPTADA';
-                approveModal?.show();
-            } else {
-                pendingActionType = 'RECHAZADA';
-                rejectModal?.show();
-            }
+        const btnApprove = e.target.closest('.btn-approve-custom');
+        const btnReject = e.target.closest('.btn-reject-custom');
+        if (btnApprove || btnReject) {
+            targetCardPending = e.target.closest('.notif-card');
+            currentSolicitudId = parseInt(targetCardPending.dataset.id);
+            pendingActionType = btnApprove ? 'ACEPTADA' : 'RECHAZADA';
+            (btnApprove ? approveModal : rejectModal).show();
         }
     });
 
     async function procesarRespuesta(modalInstance) {
         if (!currentSolicitudId || !pendingActionType) return;
-
         const res = await api.responderSolicitud(currentSolicitudId, pendingActionType);
         
         if (res.ok) {
-            showToast(`Solicitud ${pendingActionType.toLowerCase()} con éxito.`, "success");
+            showToast(`Solicitud ${pendingActionType.toLowerCase()} exitosamente.`, "success");
+            targetCardPending.classList.add('is-collapsing'); 
             
-            targetCardPending.classList.add(pendingActionType === 'ACEPTADA' ? 'slide-right' : 'slide-left');
-            targetCardPending.addEventListener('animationend', () => {
-                targetCardPending.remove();
-                const currentCount = parseInt(badgeSolicitudes.innerText);
-                if (currentCount > 0) {
-                    badgeSolicitudes.innerText = currentCount - 1;
-                    if (currentCount - 1 === 0) badgeSolicitudes.style.display = 'none';
-                }
-            }, { once: true });
-
+            setTimeout(() => {
+                cargarSolicitudes();
+                if (pendingActionType === 'ACEPTADA') cargarMisPrototipos(); 
+            }, 420);
         } else {
-            showToast(res.data.message || "Error al procesar la solicitud.", "error");
+            showToast(res.data.message || "Error al procesar.", "error");
         }
-
         modalInstance.hide();
-        targetCardPending = null;
-        currentSolicitudId = null;
     }
 
-    document.getElementById('btnConfirmApprove')?.addEventListener('click', () => procesarRespuesta(approveModal));
-    document.getElementById('btnConfirmReject')?.addEventListener('click', () => procesarRespuesta(rejectModal));
+    document.getElementById('btnConfirmApprove').addEventListener('click', () => procesarRespuesta(approveModal));
+    document.getElementById('btnConfirmReject').addEventListener('click', () => procesarRespuesta(rejectModal));
 
+    document.getElementById('btnConfirmCancelProtoFinal').addEventListener('click', async () => {
+        if (!currentCancelProtoId) return;
+        const res = await api.cancelarPrototipo(currentCancelProtoId);
+        if (res.ok) {
+            showToast("Publicación cancelada. Retirada del catálogo.", "success");
+            cancelProtoModal.hide();
+            cargarMisPrototipos();
+        } else {
+            showToast("Error al cancelar.", "error");
+        }
+    });
 });
