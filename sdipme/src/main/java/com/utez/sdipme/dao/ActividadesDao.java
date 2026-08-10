@@ -21,8 +21,8 @@ public class ActividadesDao {
                 "FROM solicitudes s " +
                 "INNER JOIN prototipos p ON s.id_prototipo = p.id_prototipo " +
                 "INNER JOIN usuarios u ON s.id_solicitante = u.id_usuario " +
-                "WHERE p.id_usuario = ? AND s.estado = 'PENDIENTE' " +
-                "ORDER BY s.fecha_solicitud DESC";
+                "WHERE p.id_usuario = ? " +
+                "ORDER BY CASE WHEN s.estado = 'PENDIENTE' THEN 1 ELSE 2 END, s.fecha_solicitud DESC";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -59,6 +59,19 @@ public class ActividadesDao {
             System.err.println(">>> [DAO ERROR] Fallo al obtener solicitudes recibidas: " + e.getMessage());
         }
         return lista.toString();
+    }
+
+    public boolean cancelarPrototipo(int idPrototipo, int idUsuario) {
+        String sql = "UPDATE prototipos SET estado_publicacion = 'CANCELADA' WHERE id_prototipo = ? AND id_usuario = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPrototipo);
+            ps.setInt(2, idUsuario);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println(">>> [DAO ERROR] Fallo al cancelar prototipo: " + e.getMessage());
+        }
+        return false;
     }
 
     public String obtenerMisPrototiposPublicados(int idUsuario) {

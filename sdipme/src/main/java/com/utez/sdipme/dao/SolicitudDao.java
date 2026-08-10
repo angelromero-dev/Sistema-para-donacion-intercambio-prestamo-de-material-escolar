@@ -80,6 +80,18 @@ public class SolicitudDao {
         return false;
     }
 
+    public boolean marcarPrototipoOcupadoPorSolicitud(int idSolicitud) {
+        String sql = "UPDATE prototipos SET estado_publicacion = 'OCUPADO' WHERE id_prototipo = (SELECT id_prototipo FROM solicitudes WHERE id_solicitud = ?)";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idSolicitud);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println(">>> [DAO ERROR] Fallo al ocupar prototipo: " + e.getMessage());
+        }
+        return false;
+    }
+
     public int contarSolicitudesActivasUsuario(int idSolicitante) {
         String sql = "SELECT COUNT(*) FROM solicitudes WHERE id_solicitante = ? AND estado = 'PENDIENTE'";
         try (Connection con = DatabaseConnection.getConnection();

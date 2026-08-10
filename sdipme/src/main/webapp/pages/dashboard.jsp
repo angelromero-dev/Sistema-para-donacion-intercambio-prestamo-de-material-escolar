@@ -116,12 +116,12 @@
 
           <!-- Items -->
           <li class="nav-menu__item">
-            <a href="pages/mis-actividades.jsp" class="nav-menu__link">
+            <a href="mis-actividades.jsp" class="nav-menu__link">
               Mi actividad
             </a>
           </li>
           <li class="nav-menu__item">
-            <a href="pages/registro.jsp" class="nav-menu__link">
+            <a href="#" class="nav-menu__link">
               <i class="bx bx-user-plus"></i> Registrarse
             </a>
           </li>

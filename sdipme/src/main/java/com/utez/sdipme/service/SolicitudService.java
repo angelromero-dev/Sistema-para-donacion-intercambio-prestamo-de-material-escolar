@@ -46,7 +46,15 @@ public class SolicitudService {
     }
 
     public boolean cambiarEstadoSolicitud(int idSolicitud, String nuevoEstado) {
-        return solicitudDao.actualizarEstado(idSolicitud, nuevoEstado);
+        System.out.println(">>> [SERVICE] Intentando cambiar solicitud ID " + idSolicitud + " a estado: " + nuevoEstado);
+        boolean exito = solicitudDao.actualizarEstado(idSolicitud, nuevoEstado);
+
+        if (exito && "ACEPTADA".equals(nuevoEstado)) {
+            solicitudDao.marcarPrototipoOcupadoPorSolicitud(idSolicitud);
+            System.out.println(">>> [SERVICE] Prototipo marcado como OCUPADO con éxito.");
+        }
+
+        return exito;
     }
 
     public List<Integer> obtenerPrototiposPendientes(int idSolicitante) {

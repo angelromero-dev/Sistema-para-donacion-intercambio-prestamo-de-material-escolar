@@ -1,5 +1,6 @@
 package com.utez.sdipme.controller;
 
+import com.google.gson.JsonObject;
 import com.utez.sdipme.dao.ActividadesDao;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -61,5 +62,44 @@ public class ActividadesServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"status\":\"error\", \"message\":\"Error interno en el servidor.\"}");
         }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        JsonObject jsonResponse = new JsonObject();
+
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("idUsuario") == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"status\":\"error\", \"message\":\"Sesión expirada.\"}");
+            return;
+        }
+
+        int idUsuario = (int) session.getAttribute("idUsuario");
+        String idProtoStr = request.getParameter("idPrototipo");
+
+        if (idProtoStr == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            jsonResponse.addProperty("status", "error");
+            jsonResponse.addProperty("message", "ID de prototipo no proporcionado.");
+            response.getWriter().write(jsonResponse.toString());
+            return;
+        }
+
+        int idPrototipo = Integer.parseInt(idProtoStr);
+        boolean exito = actividadesDao.cancelarPrototipo(idPrototipo, idUsuario);
+
+        if (exito) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            jsonResponse.addProperty("status", "success");
+            jsonResponse.addProperty("message", "Publicación cancelada correctamente.");
+        } else {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            jsonResponse.addProperty("status", "error");
+            jsonResponse.addProperty("message", "No se pudo cancelar el prototipo.");
+        }
+        response.getWriter().write(jsonResponse.toString());
     }
 }
