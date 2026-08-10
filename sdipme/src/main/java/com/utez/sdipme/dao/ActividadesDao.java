@@ -101,4 +101,65 @@ public class ActividadesDao {
         }
         return lista.toString();
     }
+    public String obtenerMisSolicitudesEnviadas(int idSolicitante) {
+        JsonArray lista = new JsonArray();
+
+        String sql = "SELECT s.id_solicitud, s.estado, s.fecha_solicitud, s.mensaje_justificacion, " +
+                "s.dias_prestamo, s.oferta_intercambio, s.foto_intercambio, " +
+                "p.id_prototipo, p.titulo AS prototipo_titulo, p.tipo_transaccion, " +
+                "u.matricula AS matricula_dueno, u.nombre, u.apellidos, u.telefono, u.correo, u.reputacion " +
+                "FROM solicitudes s " +
+                "INNER JOIN prototipos p ON s.id_prototipo = p.id_prototipo " +
+                "INNER JOIN usuarios u ON p.id_usuario = u.id_usuario " + // u = El Dueño
+                "WHERE s.id_solicitante = ? " +
+                "ORDER BY CASE WHEN s.estado = 'PENDIENTE' THEN 1 ELSE 2 END, s.fecha_solicitud DESC";
+
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idSolicitante);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    JsonObject obj = new JsonObject();
+                    String estado = rs.getString("estado");
+
+                    obj.addProperty("idSolicitud", rs.getInt("id_solicitud"));
+                    obj.addProperty("estado", estado);
+                    obj.addProperty("fecha", rs.getTimestamp("fecha_solicitud").toString());
+                    obj.addProperty("mensaje", rs.getString("mensaje_justificacion"));
+
+                    if (rs.getObject("dias_prestamo") != null) {
+                        obj.addProperty("diasPrestamo", rs.getInt("dias_prestamo"));
+                    }
+                    if (rs.getString("oferta_intercambio") != null) {
+                        obj.addProperty("ofertaIntercambio", rs.getString("oferta_intercambio"));
+                        obj.addProperty("fotoIntercambio", rs.getString("foto_intercambio"));
+                    }
+
+                    obj.addProperty("idPrototipo", rs.getInt("id_prototipo"));
+                    obj.addProperty("prototipoTitulo", rs.getString("prototipo_titulo"));
+                    obj.addProperty("prototipoTransaccion", rs.getString("tipo_transaccion"));
+
+                    obj.addProperty("duenoMatricula", rs.getString("matricula_dueno"));
+                    obj.addProperty("duenoReputacion", rs.getDouble("reputacion"));
+
+                    // === DATA MASKING ===
+                    if ("ACEPTADA".equals(estado)) {
+                        obj.addProperty("duenoNombre", rs.getString("nombre") + " " + rs.getString("apellidos"));
+                        obj.addProperty("duenoTelefono", rs.getString("telefono"));
+                        obj.addProperty("duenoCorreo", rs.getString("correo"));
+                    } else {
+                        obj.addProperty("duenoNombre", "Información Protegida");
+                        obj.addProperty("duenoTelefono", "***-***-****");
+                        obj.addProperty("duenoCorreo", "protegido@utez.edu.mx");
+                    }
+
+                    lista.add(obj);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println(">>> [DAO ERROR] Fallo al obtener mis solicitudes enviadas: " + e.getMessage());
+        }
+        return lista.toString();
+    }
 }

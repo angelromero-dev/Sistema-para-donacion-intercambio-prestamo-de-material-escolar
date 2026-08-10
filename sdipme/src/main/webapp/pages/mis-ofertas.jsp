@@ -17,7 +17,7 @@
       href="../assets/svg/logo.svg"
       type="image/x-icon"
     />
-    <title>SDIPME-Mis Actividades</title>
+    <title>SDIPME-Mis Ofertas</title>
 
     <!-- External fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -143,31 +143,57 @@
       tabindex="-1"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
-          <div class="modal-body text-center p-4">
-            <i
-              class="bx bx-check-circle text-success"
-              style="font-size: 3.5rem"
-            ></i>
-            <h5 class="fw-bold mt-2">¿Aprobar solicitud?</h5>
-            <p class="text-muted small">
-              Se le notificará al alumno para coordinar la entrega.
-            </p>
-            <div class="d-flex gap-2 justify-content-center mt-3">
+          <div class="modal-body p-4">
+            <div class="text-center mb-3">
+              <i
+                class="bx bx-shield-quarter text-success"
+                style="font-size: 3.5rem"
+              ></i>
+              <h5 class="fw-bold mt-2">Aprobar Solicitud</h5>
+            </div>
+
+            <div
+              class="alert alert-warning border-0 bg-warning bg-opacity-10 text-dark small mb-3"
+            >
+              <i class="bx bx-error-circle"></i>
+              <strong>Aviso de Privacidad:</strong> Al aprobar esta solicitud,
+              la plataforma compartirá tu
+              <b>Nombre Real, Teléfono y Correo</b> con el solicitante para que
+              puedan coordinar el intercambio. Tú también recibirás sus datos.
+            </div>
+
+            <div class="form-check mb-4">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="chkPrivacyConsent"
+              />
+              <label
+                class="form-check-label small text-muted"
+                for="chkPrivacyConsent"
+              >
+                Comprendo y acepto compartir mis datos de contacto con este
+                alumno.
+              </label>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-center">
               <button
                 type="button"
-                class="btn btn-light btn-sm px-3"
+                class="btn btn-light btn-sm px-4"
                 data-bs-dismiss="modal"
               >
                 Cancelar
               </button>
               <button
                 type="button"
-                class="btn btn-success btn-sm px-3"
+                class="btn btn-success btn-sm px-4"
                 id="btnConfirmApprove"
+                disabled
               >
-                Sí, aprobar
+                Sí, aprobar y compartir datos
               </button>
             </div>
           </div>

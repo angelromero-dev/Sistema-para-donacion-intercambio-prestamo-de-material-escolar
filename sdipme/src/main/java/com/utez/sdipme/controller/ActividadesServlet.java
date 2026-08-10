@@ -48,6 +48,10 @@ public class ActividadesServlet extends HttpServlet {
                 System.out.println(">>> [API] Solicitando prototipos propios para usuario ID: " + idUsuario);
                 jsonResult = actividadesDao.obtenerMisPrototiposPublicados(idUsuario);
 
+            } else if (pathInfo.equals("/mis-solicitudes")) {
+                System.out.println(">>> [API] Solicitando historial de peticiones (cliente) para usuario ID: " + idUsuario);
+                jsonResult = actividadesDao.obtenerMisSolicitudesEnviadas(idUsuario);
+
             } else {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 response.getWriter().write("{\"status\":\"error\", \"message\":\"Endpoint no encontrado.\"}");
