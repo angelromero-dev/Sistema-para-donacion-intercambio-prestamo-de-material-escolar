@@ -5,6 +5,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     console.log(">>> [UI ACTIVIDADES] Controlador con paneles separados inicializado.");
 
+    // --- 1. DOM Elements & State ---
     const tabsContainer = document.getElementById('notifTabs');
     const tabPanels = document.querySelectorAll('.notif-panel');
     const badgePendientes = document.getElementById('badge-pendientes');
@@ -18,12 +19,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const rejectModal = new bootstrap.Modal(document.getElementById('modalConfirmReject'));
     const prototypeModal = new bootstrap.Modal(document.getElementById('modalPrototypeDetail'));
     const cancelProtoModal = new bootstrap.Modal(document.getElementById('modalConfirmCancelProto'));
+    
+    // Requester Contact Modal 
+    const modalContactoSolEl = document.getElementById('modalVerContactoSol');
+    const contactModal = modalContactoSolEl ? new bootstrap.Modal(modalContactoSolEl) : null;
 
     let targetCardPending = null;
     let pendingActionType = null;
     let currentSolicitudId = null;
     let currentCancelProtoId = null;
 
+    // --- 2. Helper Functions ---
     function showToast(msg, type = 'error') {
         const toastEl = document.getElementById('actionToast');
         if (!toastEl) return;
@@ -32,6 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => toastEl.classList.remove('show'), 3500);
     }
 
+    // --- 3. Tab Navigation ---
     if (tabsContainer) {
         tabsContainer.addEventListener('click', (e) => {
             const tab = e.target.closest('.notif-tab');
@@ -45,14 +52,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // --- 4. HTML Generators ---
     function generarHTMLSolicitud(sol, esHistorial) {
         let statusBadge = '';
+        let btnContactoSol = ''; 
+
         if (!esHistorial) {
             statusBadge = `<span class="badge-status badge-status--pending"><i class='bx bx-time-five'></i> Pendiente</span>`;
         } else {
-            statusBadge = sol.estado === 'ACEPTADA' 
-                ? `<span class="badge-status badge-status--accepted"><i class='bx bx-check-circle'></i> Aceptada</span>` 
-                : `<span class="badge-status badge-status--rejected"><i class='bx bx-x-circle'></i> Rechazada</span>`;
+            if (sol.estado === 'ACEPTADA') {
+                statusBadge = `<span class="badge-status badge-status--accepted"><i class='bx bx-check-circle'></i> Aceptada</span>`;
+                btnContactoSol = `
+                    <button class="btn btn-success btn-sm mt-2 w-100 btn-ver-contacto-sol" 
+                        data-nombre="${sol.solicitanteNombre}" 
+                        data-matricula="${sol.solicitanteMatricula}" 
+                        data-tel="${sol.solicitanteTelefono}" 
+                        data-correo="${sol.solicitanteCorreo}">
+                        <i class='bx bx-user-check me-1'></i> Ver Contacto del Solicitante
+                    </button>
+                `;
+            } else {
+                statusBadge = `<span class="badge-status badge-status--rejected"><i class='bx bx-x-circle'></i> Rechazada</span>`;
+            }
         }
 
         let iconBox = ''; let detailBox = '';
@@ -91,11 +112,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <p class="text-muted small fst-italic mt-1 mb-0">"${sol.mensaje}"</p>
                     ${detailBox}
                     ${actionButtons}
+                    ${btnContactoSol}
                 </div>
             </article>
         `;
     }
 
+    // --- 5. API Data Loaders ---
     async function cargarSolicitudes() {
         const res = await api.getSolicitudesRecibidas();
         if (!res.ok) return;
@@ -166,7 +189,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     cargarSolicitudes();
     cargarMisPrototipos();
 
+    // --- 6. Global Event Listeners ---
     document.addEventListener('click', (e) => {
+        
+        // 6.1 Cancel Prototype
         const btnCancel = e.target.closest('.btn-cancel-proto');
         if (btnCancel) {
             currentCancelProtoId = parseInt(btnCancel.dataset.id);
@@ -174,6 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
+        // 6.2 View Exchange Details
         const btnDetail = e.target.closest('.btn-detail-link');
         if (btnDetail) {
             document.getElementById('exchangeTitle').innerText = `Oferta: ${btnDetail.dataset.title}`;
@@ -183,6 +210,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
+        // 6.3 View Requester Contact (NUEVO)
+        const btnContactoSol = e.target.closest('.btn-ver-contacto-sol');
+        if (btnContactoSol && contactModal) {
+            document.getElementById('solNombre').innerText = btnContactoSol.dataset.nombre;
+            document.getElementById('solMatricula').innerText = `Matrícula: ${btnContactoSol.dataset.matricula}`;
+            document.getElementById('solTelefono').innerText = btnContactoSol.dataset.tel;
+            document.getElementById('solCorreo').innerText = btnContactoSol.dataset.correo;
+            
+            contactModal.show();
+            return;
+        }
+
+        // 6.4 Approve or Reject Request
         const btnApprove = e.target.closest('.btn-approve-custom');
         const btnReject = e.target.closest('.btn-reject-custom');
         if (btnApprove || btnReject) {
@@ -193,6 +233,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    // --- 7. API Interactions & Logic ---
     async function procesarRespuesta(modalInstance) {
         if (!currentSolicitudId || !pendingActionType) return;
         const res = await api.responderSolicitud(currentSolicitudId, pendingActionType);
@@ -211,6 +252,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         modalInstance.hide();
     }
 
+    // --- 8. Privacy Checkbox Logic ---
+    const chkPrivacy = document.getElementById('chkPrivacyConsent');
+    const btnApproveFinal = document.getElementById('btnConfirmApprove');
+    
+    if (chkPrivacy && btnApproveFinal) {
+        chkPrivacy.addEventListener('change', (e) => {
+            btnApproveFinal.disabled = !e.target.checked;
+        });
+
+        document.getElementById('modalConfirmApprove').addEventListener('hidden.bs.modal', () => {
+            chkPrivacy.checked = false;
+            btnApproveFinal.disabled = true;
+        });
+    }
+    
+    // --- 9. Modal Confirmation Bindings ---
     document.getElementById('btnConfirmApprove').addEventListener('click', () => procesarRespuesta(approveModal));
     document.getElementById('btnConfirmReject').addEventListener('click', () => procesarRespuesta(rejectModal));
 

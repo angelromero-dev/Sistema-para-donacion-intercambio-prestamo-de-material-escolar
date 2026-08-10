@@ -17,7 +17,7 @@ public class ActividadesDao {
         String sql = "SELECT s.id_solicitud, s.estado, s.fecha_solicitud, s.mensaje_justificacion, " +
                 "s.dias_prestamo, s.oferta_intercambio, s.foto_intercambio, " +
                 "p.id_prototipo, p.titulo AS prototipo_titulo, p.tipo_transaccion, " +
-                "u.matricula AS matricula_solicitante, u.nombre, u.apellidos, u.reputacion " +
+                "u.matricula AS matricula_solicitante, u.nombre, u.apellidos, u.telefono, u.correo, u.reputacion " +
                 "FROM solicitudes s " +
                 "INNER JOIN prototipos p ON s.id_prototipo = p.id_prototipo " +
                 "INNER JOIN usuarios u ON s.id_solicitante = u.id_usuario " +
@@ -31,8 +31,10 @@ public class ActividadesDao {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     JsonObject obj = new JsonObject();
+                    String estado = rs.getString("estado");
+
                     obj.addProperty("idSolicitud", rs.getInt("id_solicitud"));
-                    obj.addProperty("estado", rs.getString("estado"));
+                    obj.addProperty("estado", estado);
                     obj.addProperty("fecha", rs.getTimestamp("fecha_solicitud").toString());
                     obj.addProperty("mensaje", rs.getString("mensaje_justificacion"));
 
@@ -51,6 +53,14 @@ public class ActividadesDao {
                     obj.addProperty("solicitanteMatricula", rs.getString("matricula_solicitante"));
                     obj.addProperty("solicitanteNombre", rs.getString("nombre") + " " + rs.getString("apellidos"));
                     obj.addProperty("solicitanteReputacion", rs.getDouble("reputacion"));
+
+                    if ("ACEPTADA".equals(estado)) {
+                        obj.addProperty("solicitanteTelefono", rs.getString("telefono"));
+                        obj.addProperty("solicitanteCorreo", rs.getString("correo"));
+                    } else {
+                        obj.addProperty("solicitanteTelefono", "***-***-****");
+                        obj.addProperty("solicitanteCorreo", "protegido@utez.edu.mx");
+                    }
 
                     lista.add(obj);
                 }

@@ -201,5 +201,13 @@ getMisPendientes: async () => {
             const data = await response.json();
             return { ok: response.ok, data };
         } catch (error) { return { ok: false, data: { message: "Error de red" } }; }
+    },
+
+    getMisSolicitudesEnviadas: async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/actividades/mis-solicitudes`);
+            const data = await response.json();
+            return { ok: response.ok, data: data.data || [] };
+        } catch (error) { return { ok: false, data: [] }; }
     }
 };

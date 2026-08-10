@@ -88,6 +88,54 @@
       </section>
     </main>
 
+    <div
+      class="modal fade"
+      id="modalVerContacto"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-header-title text-white mb-0">
+              <i class="bx bx-user-check me-2"></i> Contacto del Dueño
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-4 text-center">
+            <div class="mb-3">
+              <div class="bg-light rounded-circle d-inline-flex p-3 mb-2">
+                <i class="bx bx-user fs-1 text-success"></i>
+              </div>
+              <h5 class="fw-bold mb-0" id="contactoNombre">Cargando...</h5>
+              <p class="text-muted small" id="contactoMatricula">Matrícula</p>
+            </div>
+
+            <div class="bg-light p-3 rounded-3 text-start mb-3">
+              <p class="mb-2 small">
+                <i class="bx bx-phone text-success me-2"></i>
+                <strong id="contactoTelefono">***</strong>
+              </p>
+              <p class="mb-0 small">
+                <i class="bx bx-envelope text-success me-2"></i>
+                <strong id="contactoCorreo">***</strong>
+              </p>
+            </div>
+
+            <p class="small text-muted fst-italic mb-0">
+              Ponte en contacto para coordinar la entrega de forma segura dentro
+              del campus.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/service/api.js"></script>
     <script src="../js/ui/mis-solicitudes-ui.js"></script>
