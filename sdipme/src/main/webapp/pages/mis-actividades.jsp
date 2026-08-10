@@ -85,69 +85,10 @@
         style="display: block"
       >
         <div class="l-notif-list" id="lista-solicitudes">
-          <article class="notif-card" data-id="101">
-            <div class="notif-card__avatar">
-              <i class="bx bx-user"></i>
-            </div>
-            <div class="notif-card__body">
-              <div class="d-flex align-items-center">
-                <h3 class="notif-card__title">Solicitud de Préstamo</h3>
-                <span class="notif-card__time">Hace 25 min</span>
-              </div>
-              <p class="notif-card__text">
-                El alumno <b>20233001</b> quiere solicitar tu prototipo
-                <i>"Kit Arduino Uno Rev3"</i>.
-              </p>
-
-              <div class="notif-card__detail-box">
-                <span
-                  ><i class="bx bx-calendar-event me-1"></i> Solicitado por:
-                  <b>3 días de préstamo</b></span
-                >
-              </div>
-
-              <div class="d-flex gap-2 mt-3">
-                <button class="btn-approve-custom">
-                  <i class="bx bx-check"></i> Aprobar
-                </button>
-                <button class="btn-reject-custom">
-                  <i class="bx bx-x"></i> Rechazar
-                </button>
-              </div>
-            </div>
-          </article>
-
-          <article class="notif-card" data-id="102">
-            <div class="notif-card__avatar" style="background-color: #f77702">
-              <i class="bx bx-transfer-alt"></i>
-            </div>
-            <div class="notif-card__body">
-              <div class="d-flex align-items-center">
-                <h3 class="notif-card__title">Oferta de Intercambio</h3>
-                <span class="notif-card__time">Hace 2 horas</span>
-              </div>
-              <p class="notif-card__text">
-                El alumno <b>20215099</b> ofrece un artículo a cambio de tu
-                <i>"Multímetro Digital"</i>.
-              </p>
-
-              <div
-                class="notif-card__detail-box notif-card__detail-box--exchange"
-              >
-                <span>Ofrece: <b>Cautín de estación Weller</b></span>
-                <button class="btn-detail-link">[Ver detalles]</button>
-              </div>
-
-              <div class="d-flex gap-2 mt-3">
-                <button class="btn-approve-custom">
-                  <i class="bx bx-check"></i> Aceptar Oferta
-                </button>
-                <button class="btn-reject-custom">
-                  <i class="bx bx-x"></i> Rechazar
-                </button>
-              </div>
-            </div>
-          </article>
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="text-muted mt-2">Cargando solicitudes...</p>
+          </div>
         </div>
       </section>
 
@@ -156,11 +97,11 @@
         class="notif-panel"
         style="display: none"
       >
-        <div class="text-center py-5">
-          <i class="bx bx-package text-muted" style="font-size: 3.5rem"></i>
-          <p class="text-muted mt-2">
-            Aquí se inyectarán tus publicaciones activas.
-          </p>
+        <div class="l-notif-list" id="lista-mis-prototipos">
+          <div class="text-center py-5">
+            <i class="bx bx-package text-muted" style="font-size: 3.5rem"></i>
+            <p class="text-muted mt-2">Cargando tus publicaciones...</p>
+          </div>
         </div>
       </section>
     </main>
