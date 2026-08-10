@@ -2,50 +2,44 @@
  * actividades-ui.js
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log(">>> [UI ACTIVIDADES] Inicializando controlador de eventos...");
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log(">>> [UI ACTIVIDADES] Inicializando controlador...");
 
-    let targetCardPending = null;
-    let pendingActionType = null;
+    const listaSolicitudes = document.getElementById('lista-solicitudes');
+    const listaMisPrototipos = document.getElementById('lista-mis-prototipos');
+    const tabsContainer = document.getElementById('notifTabs');
+    const tabPanels = document.querySelectorAll('.notif-panel');
+    const badgeSolicitudes = document.querySelector('[data-target="panel-solicitudes"] .badge');
 
-    // Bootstrap Modals Instances
     const approveModalEl = document.getElementById('modalConfirmApprove');
     const rejectModalEl = document.getElementById('modalConfirmReject');
     const prototypeModalEl = document.getElementById('modalPrototypeDetail');
-
+    
     const approveModal = approveModalEl ? new bootstrap.Modal(approveModalEl) : null;
     const rejectModal = rejectModalEl ? new bootstrap.Modal(rejectModalEl) : null;
     const prototypeModal = prototypeModalEl ? new bootstrap.Modal(prototypeModalEl) : null;
 
-    // Toast Element
-    const toastEl = document.getElementById('actionToast');
-    const toastMessageEl = document.getElementById('toastMessage');
+    let targetCardPending = null;
+    let pendingActionType = null;
+    let currentSolicitudId = null;
 
-    /**
-     * Shows a temporary floating toast legend that fades out after 2.5 seconds.
-     * @param {string} msg 
-     */
-    function showToast(msg) {
-        if (!toastEl || !toastMessageEl) return;
+    function showToast(msg, type = 'error') {
+        const toastEl = document.getElementById('actionToast');
+        if (!toastEl) return;
+        const toastMessageEl = document.getElementById('toastMessage');
+        const icon = toastEl.querySelector('i');
         toastMessageEl.innerText = msg;
-        toastEl.classList.add('show');
-        setTimeout(() => {
-            toastEl.classList.remove('show');
-        }, 2500);
+        toastEl.className = `toast-alert show ${type === 'success' ? 'toast-alert--success' : 'toast-alert--error'}`;
+        if (icon) icon.className = type === 'success' ? 'bx bx-check-circle fs-4' : 'bx bx-error-circle fs-4';
+        setTimeout(() => toastEl.classList.remove('show'), 3500);
     }
-
-    // 1. Tab Switching (Water fill effect)
-    const tabsContainer = document.getElementById('notifTabs');
-    const tabPanels = document.querySelectorAll('.notif-panel');
 
     if (tabsContainer) {
         tabsContainer.addEventListener('click', (e) => {
             const tab = e.target.closest('.notif-tab');
             if (!tab) return;
-
             tabsContainer.querySelectorAll('.notif-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-
             const targetId = tab.dataset.target;
             tabPanels.forEach(panel => {
                 panel.style.display = (panel.id === targetId) ? 'block' : 'none';
@@ -53,80 +47,149 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. Open Confirmation Modal on Button Click
-    document.addEventListener('click', (e) => {
+    async function cargarSolicitudes() {
+        const res = await api.getSolicitudesRecibidas();
+        if (!res.ok) {
+            listaSolicitudes.innerHTML = `<p class="text-center text-danger w-100 py-4">Error al cargar solicitudes.</p>`;
+            return;
+        }
+
+        const solicitudes = res.data;
+
+        if (badgeSolicitudes) {
+            badgeSolicitudes.innerText = solicitudes.length;
+            badgeSolicitudes.style.display = solicitudes.length > 0 ? 'inline-block' : 'none';
+        }
+
+        if (solicitudes.length === 0) {
+            listaSolicitudes.innerHTML = `<div class="text-center py-5"><i class='bx bx-check-double text-muted' style='font-size: 3.5rem;'></i><p class="text-muted mt-2">No tienes solicitudes pendientes.</p></div>`;
+            return;
+        }
+
+        listaSolicitudes.innerHTML = solicitudes.map(sol => {
+            let iconBox = '';
+            let detailBox = '';
+            const isIntercambio = sol.ofertaIntercambio != null;
+            const isPrestamo = sol.diasPrestamo != null;
+
+            if (isPrestamo) {
+                iconBox = `<div class="notif-card__avatar"><i class='bx bx-time-five'></i></div>`;
+                detailBox = `<div class="notif-card__detail-box"><span><i class='bx bx-calendar-event me-1'></i> Pide: <b>${sol.diasPrestamo} días</b> de préstamo</span></div>`;
+            } else if (isIntercambio) {
+                iconBox = `<div class="notif-card__avatar" style="background-color: #F77702;"><i class='bx bx-transfer-alt'></i></div>`;
+                detailBox = `
+                    <div class="notif-card__detail-box notif-card__detail-box--exchange">
+                        <span>Ofrece: <b>${sol.ofertaIntercambio}</b></span>
+                        <button class="btn-detail-link" data-img="${sol.fotoIntercambio}" data-title="${sol.ofertaIntercambio}" data-desc="${sol.mensaje}">[Ver foto]</button>
+                    </div>`;
+            } else {
+                iconBox = `<div class="notif-card__avatar" style="background-color: #128970;"><i class='bx bx-gift'></i></div>`;
+                detailBox = `<div class="notif-card__detail-box" style="border-left-color: #128970;"><span><i class='bx bx-heart me-1'></i> <b>Pide Donación</b></span></div>`;
+            }
+
+            return `
+                <article class="notif-card" data-id="${sol.idSolicitud}">
+                    ${iconBox}
+                    <div class="notif-card__body">
+                        <div class="d-flex align-items-center">
+                            <h3 class="notif-card__title">Solicitud por "${sol.prototipoTitulo}"</h3>
+                        </div>
+                        <p class="notif-card__text mt-1">El alumno <b>${sol.solicitanteMatricula}</b> (${sol.solicitanteNombre}) ha enviado una solicitud.</p>
+                        <p class="text-muted small fst-italic mt-1 mb-0">"${sol.mensaje}"</p>
+                        
+                        ${detailBox}
+
+                        <div class="d-flex gap-2 mt-3">
+                            <button class="btn-approve-custom"><i class='bx bx-check'></i> Aprobar</button>
+                            <button class="btn-reject-custom"><i class='bx bx-x'></i> Rechazar</button>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }).join('');
+    }
+
+    async function cargarMisPrototipos() {
+        const res = await api.getMisPrototiposPublicados();
+        if (!res.ok || res.data.length === 0) {
+            listaMisPrototipos.innerHTML = `<div class="text-center py-5"><i class='bx bx-package text-muted' style="font-size: 3.5rem;"></i><p class="text-muted mt-2">Aún no has publicado nada.</p></div>`;
+            return;
+        }
+
+        listaMisPrototipos.innerHTML = res.data.map(proto => {
+            const estadoBadge = proto.estado === 'ACTIVA' ? '<span class="badge bg-success">Activa</span>' : `<span class="badge bg-secondary">${proto.estado}</span>`;
+            return `
+                <article class="notif-card" style="align-items: center;">
+                    <img src="${proto.urlImagen || '../assets/svg/logo.svg'}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" />
+                    <div class="notif-card__body ms-2">
+                        <h3 class="notif-card__title">${proto.titulo} ${estadoBadge}</h3>
+                        <p class="notif-card__text small">${proto.descripcionCorta}</p>
+                        <span class="text-muted small mt-1 d-block"><i class='bx bx-purchase-tag-alt'></i> ${proto.tipoTransaccion}</span>
+                    </div>
+                </article>
+            `;
+        }).join('');
+    }
+
+    cargarSolicitudes();
+    cargarMisPrototipos();
+
+    listaSolicitudes.addEventListener('click', (e) => {
         const btnApprove = e.target.closest('.btn-approve-custom');
         const btnReject = e.target.closest('.btn-reject-custom');
         const btnDetail = e.target.closest('.btn-detail-link');
 
-        if (btnApprove) {
-            targetCardPending = btnApprove.closest('.notif-card');
-            pendingActionType = 'APPROVE';
-            approveModal?.show();
-        } else if (btnReject) {
-            targetCardPending = btnReject.closest('.notif-card');
-            pendingActionType = 'REJECT';
-            rejectModal?.show();
-        } else if (btnDetail) {
-            // Open prototype details modal
+        if (btnDetail) {
+            document.getElementById('exchangeTitle').innerText = btnDetail.dataset.title;
+            document.getElementById('exchangeDesc').innerText = btnDetail.dataset.desc;
+            document.querySelector('#modalPrototypeDetail img').src = btnDetail.dataset.img;
             prototypeModal?.show();
+            return;
+        }
+
+        if (btnApprove || btnReject) {
+            const card = e.target.closest('.notif-card');
+            currentSolicitudId = parseInt(card.dataset.id);
+            targetCardPending = card;
+
+            if (btnApprove) {
+                pendingActionType = 'ACEPTADA';
+                approveModal?.show();
+            } else {
+                pendingActionType = 'RECHAZADA';
+                rejectModal?.show();
+            }
         }
     });
 
-    // 3. Confirm Approve Button Click inside Modal
-    const btnConfirmApprove = document.getElementById('btnConfirmApprove');
-    if (btnConfirmApprove) {
-        btnConfirmApprove.addEventListener('click', () => {
-            if (targetCardPending) {
-                targetCardPending.classList.add('slide-right');
-                targetCardPending.addEventListener('animationend', () => targetCardPending.remove(), { once: true });
-                showToast("¡Solicitud aprobada con éxito!");
-            }
-            approveModal?.hide();
-            targetCardPending = null;
-        });
-    }
+    async function procesarRespuesta(modalInstance) {
+        if (!currentSolicitudId || !pendingActionType) return;
 
-    // 4. Confirm Reject Button Click inside Modal
-    const btnConfirmReject = document.getElementById('btnConfirmReject');
-    if (btnConfirmReject) {
-        btnConfirmReject.addEventListener('click', () => {
-            if (targetCardPending) {
-                targetCardPending.classList.add('slide-left');
-                targetCardPending.addEventListener('animationend', () => targetCardPending.remove(), { once: true });
-                showToast("Solicitud rechazada.");
-            }
-            rejectModal?.hide();
-            targetCardPending = null;
-        });
-    }
+        const res = await api.responderSolicitud(currentSolicitudId, pendingActionType);
+        
+        if (res.ok) {
+            showToast(`Solicitud ${pendingActionType.toLowerCase()} con éxito.`, "success");
+            
+            targetCardPending.classList.add(pendingActionType === 'ACEPTADA' ? 'slide-right' : 'slide-left');
+            targetCardPending.addEventListener('animationend', () => {
+                targetCardPending.remove();
+                const currentCount = parseInt(badgeSolicitudes.innerText);
+                if (currentCount > 0) {
+                    badgeSolicitudes.innerText = currentCount - 1;
+                    if (currentCount - 1 === 0) badgeSolicitudes.style.display = 'none';
+                }
+            }, { once: true });
 
-    // 5. Swipe Gesture Detection (Touch / Mouse Drag)
-    let startX = 0;
-    let currentCard = null;
-
-    document.addEventListener('touchstart', (e) => {
-        const card = e.target.closest('.notif-card');
-        if (!card) return;
-        startX = e.touches[0].clientX;
-        currentCard = card;
-    }, { passive: true });
-
-    document.addEventListener('touchend', (e) => {
-        if (!currentCard) return;
-        const endX = e.changedTouches[0].clientX;
-        const diffX = endX - startX;
-
-        // Swipe Right (Approve)
-        if (diffX > 80) {
-            targetCardPending = currentCard;
-            approveModal?.show();
-        } 
-        // Swipe Left (Reject)
-        else if (diffX < -80) {
-            targetCardPending = currentCard;
-            rejectModal?.show();
+        } else {
+            showToast(res.data.message || "Error al procesar la solicitud.", "error");
         }
-        currentCard = null;
-    });
+
+        modalInstance.hide();
+        targetCardPending = null;
+        currentSolicitudId = null;
+    }
+
+    document.getElementById('btnConfirmApprove')?.addEventListener('click', () => procesarRespuesta(approveModal));
+    document.getElementById('btnConfirmReject')?.addEventListener('click', () => procesarRespuesta(rejectModal));
+
 });
