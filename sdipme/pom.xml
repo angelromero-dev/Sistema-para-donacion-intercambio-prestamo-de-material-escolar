@@ -29,6 +29,17 @@
             <artifactId>ojdbc11-production</artifactId>
             <version>23.26.2.0.0</version>
             <type>pom</type>
+
+            <exclusions>
+            <exclusion>
+                <groupId>com.oracle.database.xml</groupId>
+                <artifactId>xmlparserv2</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>com.oracle.database.xml</groupId>
+                <artifactId>xdb</artifactId>
+            </exclusion>
+        </exclusions>
         </dependency>
 
         <dependency>
