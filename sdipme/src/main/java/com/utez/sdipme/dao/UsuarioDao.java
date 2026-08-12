@@ -224,4 +224,164 @@ public class UsuarioDao {
             return false;
         }
     }
+
+    public com.utez.sdipme.dto.UsuarioPerfilDTO getPerfilCompleto(int idUsuario) {
+        String sql = "SELECT u.id_usuario, u.nombre, u.apellidos, u.telefono, u.matricula, u.correo, u.foto_perfil, u.reputacion, c.id_carrera, c.nombre AS nombre_carrera " +
+                "FROM usuarios u " +
+                "INNER JOIN cat_carreras c ON u.id_carrera = c.id_carrera " +
+                "WHERE u.id_usuario = ?";
+
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idUsuario);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    boolean isRoot = "root@utez.edu.mx".equals(rs.getString("correo"));
+
+                    return new com.utez.sdipme.dto.UsuarioPerfilDTO(
+                            rs.getInt("id_usuario"),
+                            rs.getString("nombre"),
+                            rs.getString("apellidos"),
+                            rs.getString("telefono"),
+                            rs.getString("matricula"),
+                            rs.getString("correo"),
+                            rs.getString("nombre_carrera"),
+                            rs.getInt("id_carrera"),
+                            rs.getString("foto_perfil"),
+                            rs.getDouble("reputacion"),
+                            isRoot
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean actualizarNombres(int idUsuario, String nombre, String apellidos) {
+        String sql = "UPDATE usuarios SET nombre = ?, apellidos = ? WHERE id_usuario = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, nombre);
+            ps.setString(2, apellidos);
+            ps.setInt(3, idUsuario);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean actualizarTelefono(int idUsuario, String telefono) {
+        String sql = "UPDATE usuarios SET telefono = ? WHERE id_usuario = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, telefono);
+            ps.setInt(2, idUsuario);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean actualizarCarrera(int idUsuario, int idCarrera) {
+        String sql = "UPDATE usuarios SET id_carrera = ? WHERE id_usuario = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idCarrera);
+            ps.setInt(2, idUsuario);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean suspenderCuenta(int idUsuario) {
+        String sql = "UPDATE usuarios SET estado_cuenta = 'SUSPENDIDO' WHERE id_usuario = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idUsuario);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean cambiarPassword(int idUsuario, String nuevoHash) {
+        String sqlOld = "UPDATE historial_contrasenas SET es_actual = 0 WHERE id_usuario = ?";
+        String sqlNew = "INSERT INTO historial_contrasenas (id_usuario, hash_password, es_actual) VALUES (?, ?, 1)";
+
+        try (Connection con = DatabaseConnection.getConnection()) {
+            con.setAutoCommit(false);
+            try (PreparedStatement ps1 = con.prepareStatement(sqlOld);
+                 PreparedStatement ps2 = con.prepareStatement(sqlNew)) {
+
+                ps1.setInt(1, idUsuario);
+                ps1.executeUpdate();
+
+                ps2.setInt(1, idUsuario);
+                ps2.setString(2, nuevoHash);
+                ps2.executeUpdate();
+
+                con.commit();
+                return true;
+            } catch (SQLException ex) {
+                con.rollback();
+                throw ex;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean eliminarCuentaPermanente(int idUsuario) {
+        String sqlDeleteSolicitudes = "DELETE FROM solicitudes WHERE id_solicitante = ? OR id_prototipo IN (SELECT id_prototipo FROM prototipos WHERE id_usuario = ?)";
+        String sqlDeletePrototipos = "DELETE FROM prototipos WHERE id_usuario = ?";
+        String sqlDeleteBitacora = "DELETE FROM bitacora_usuarios WHERE id_usuario = ?";
+        String sqlDeleteUsuario = "DELETE FROM usuarios WHERE id_usuario = ?";
+
+        try (Connection con = DatabaseConnection.getConnection()) {
+            con.setAutoCommit(false);
+            try (
+                    PreparedStatement ps1 = con.prepareStatement(sqlDeleteSolicitudes);
+                    PreparedStatement ps2 = con.prepareStatement(sqlDeletePrototipos);
+                    PreparedStatement ps3 = con.prepareStatement(sqlDeleteBitacora);
+                    PreparedStatement ps4 = con.prepareStatement(sqlDeleteUsuario)
+            ) {
+                ps1.setInt(1, idUsuario);
+                ps1.setInt(2, idUsuario);
+                ps1.executeUpdate();
+
+                ps2.setInt(1, idUsuario);
+                ps2.executeUpdate();
+
+                // Paso 3: Limpiar su rastro de auditoría
+                ps3.setInt(1, idUsuario);
+                ps3.executeUpdate();
+
+                ps4.setInt(1, idUsuario);
+                int borrados = ps4.executeUpdate();
+
+                if (borrados > 0) {
+                    con.commit();
+                    return true;
+                } else {
+                    con.rollback();
+                    return false;
+                }
+            } catch (SQLException ex) {
+                con.rollback();
+                throw ex;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
