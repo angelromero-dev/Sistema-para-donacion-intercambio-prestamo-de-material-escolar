@@ -1,4 +1,3 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!doctype html>
 <html lang="es">
   <head>
@@ -58,9 +57,7 @@
             <span id="settingsAvatarInitials">--</span>
           </div>
           <div class="settings-user__info">
-            <p class="settings-user__name" id="settingsUserName">
-              Cargando...
-            </p>
+            <p class="settings-user__name" id="settingsUserName">Cargando...</p>
             <p class="settings-user__matricula" id="settingsUserMatricula">
               Estudiante
             </p>
@@ -123,10 +120,7 @@
           </header>
 
           <!-- ================= PANEL: PERFIL ================= -->
-          <section
-            class="l-settings-panel settings-panel"
-            id="panel-perfil"
-          >
+          <section class="l-settings-panel settings-panel" id="panel-perfil">
             <!-- Información personal -->
             <div class="settings-card">
               <div class="settings-card__header">
@@ -187,9 +181,7 @@
                   <div class="settings-field">
                     <div>
                       <p class="settings-field__label">Número de matrícula</p>
-                      <p class="settings-field__value" id="viewMatricula">
-                        --
-                      </p>
+                      <p class="settings-field__value" id="viewMatricula">--</p>
                       <p class="settings-field__hint">
                         Generado automáticamente
                       </p>
@@ -222,9 +214,14 @@
                       <p class="settings-field__value" id="viewCarrera">--</p>
                     </div>
                     <div class="settings-field__action">
-                      <span class="settings-badge-lock"
-                        ><i class="bx bx-lock-alt"></i> Solo lectura</span
+                      <button
+                        type="button"
+                        class="settings-btn-edit"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalEditarCarrera"
                       >
+                        <i class="bx bx-edit-alt"></i> Editar
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -238,6 +235,8 @@
                 <h2 class="settings-card__title">Actualizar contacto</h2>
               </div>
               <div class="settings-card__body settings-card__body--form">
+                <p class="settings-field__label mb-1">Número actual</p>
+                <p class="settings-field__value mb-2" id="viewTelefono">Nulo</p>
                 <form
                   id="form-actualizar-contacto"
                   class="d-flex flex-column gap-3"
@@ -256,10 +255,7 @@
                       autocomplete="tel"
                       placeholder="777 123 4567"
                     />
-                    <span
-                      class="settings-input-hint--error"
-                      id="errorTelefono"
-                    >
+                    <span class="settings-input-hint--error" id="errorTelefono">
                       <i class="bx bx-error-circle"></i> Ingresa un número
                       válido a 10 dígitos.
                     </span>
@@ -408,8 +404,8 @@
                       Suspender cuenta temporalmente
                     </p>
                     <p class="settings-danger-row__text">
-                      Tu cuenta quedará inactiva. Puedes reactivarla
-                      iniciando sesión de nuevo.
+                      Tu cuenta quedará inactiva. Puedes reactivarla iniciando
+                      sesión de nuevo.
                     </p>
                   </div>
                   <button
@@ -459,7 +455,10 @@
     >
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
-          <div class="modal-header" style="background: var(--gradient-global-horizontal)">
+          <div
+            class="modal-header"
+            style="background: var(--gradient-global-horizontal)"
+          >
             <h5 class="modal-header-title text-white mb-0">
               <i class="bx bx-id-card me-2"></i> Editar información personal
             </h5>
@@ -471,9 +470,15 @@
             ></button>
           </div>
           <div class="modal-body p-4">
-            <form id="form-editar-perfil" class="d-flex flex-column gap-3" novalidate>
+            <form
+              id="form-editar-perfil"
+              class="d-flex flex-column gap-3"
+              novalidate
+            >
               <div>
-                <label class="settings-form-label" for="modalNombre">Nombre(s)</label>
+                <label class="settings-form-label" for="modalNombre"
+                  >Nombre(s)</label
+                >
                 <input
                   type="text"
                   id="modalNombre"
@@ -483,11 +488,14 @@
                   placeholder="Ej. Juan"
                 />
                 <span class="settings-input-hint--error" id="errorModalNombre">
-                  <i class="bx bx-error-circle"></i> Escribe un nombre válido (solo letras).
+                  <i class="bx bx-error-circle"></i> Escribe un nombre válido
+                  (solo letras).
                 </span>
               </div>
               <div>
-                <label class="settings-form-label" for="modalApellidos">Apellidos</label>
+                <label class="settings-form-label" for="modalApellidos"
+                  >Apellidos</label
+                >
                 <input
                   type="text"
                   id="modalApellidos"
@@ -496,11 +504,19 @@
                   autocomplete="family-name"
                   placeholder="Ej. Pérez López"
                 />
-                <span class="settings-input-hint--error" id="errorModalApellidos">
-                  <i class="bx bx-error-circle"></i> Escribe apellidos válidos (solo letras).
+                <span
+                  class="settings-input-hint--error"
+                  id="errorModalApellidos"
+                >
+                  <i class="bx bx-error-circle"></i> Escribe apellidos válidos
+                  (solo letras).
                 </span>
               </div>
-              <button type="submit" class="btn auth-btn w-100 mt-2" id="btn-guardar-perfil">
+              <button
+                type="submit"
+                class="btn auth-btn w-100 mt-2"
+                id="btn-guardar-perfil"
+              >
                 <i class="bx bx-save me-1"></i> Guardar cambios
               </button>
             </form>
@@ -518,7 +534,10 @@
     >
       <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content border-0 shadow-lg">
-          <div class="modal-header" style="background: var(--gradient-global-horizontal)">
+          <div
+            class="modal-header"
+            style="background: var(--gradient-global-horizontal)"
+          >
             <h5 class="modal-header-title text-white mb-0">
               <i class="bx bx-camera me-2"></i> Foto de perfil
             </h5>
@@ -531,8 +550,17 @@
           </div>
           <div class="modal-body p-4 text-center">
             <div class="settings-avatar-preview" id="avatarPreview">
-              <img id="avatarPreviewImg" src="" alt="Vista previa" style="display: none" />
-              <i class="bx bx-user" id="avatarPreviewIcon" style="font-size: 2.5rem; color: var(--color-text-hint)"></i>
+              <img
+                id="avatarPreviewImg"
+                src=""
+                alt="Vista previa"
+                style="display: none"
+              />
+              <i
+                class="bx bx-user"
+                id="avatarPreviewIcon"
+                style="font-size: 2.5rem; color: var(--color-text-hint)"
+              ></i>
             </div>
 
             <div class="drag-drop-zone p-3" id="dragDropZoneAvatar">
@@ -549,7 +577,12 @@
               <p class="drag-drop-zone__hint">JPEG o PNG · máx. 2MB</p>
             </div>
 
-            <button type="button" class="btn auth-btn w-100 mt-3" id="btn-guardar-foto" disabled>
+            <button
+              type="button"
+              class="btn auth-btn w-100 mt-3"
+              id="btn-guardar-foto"
+              disabled
+            >
               <i class="bx bx-save me-1"></i> Guardar foto
             </button>
           </div>
@@ -567,22 +600,119 @@
       <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content border-0 shadow-lg">
           <div class="modal-body text-center p-4">
-            <i class="bx bx-envelope text-primary" style="font-size: 3.5rem"></i>
-            <h5 class="fw-bold mt-2">Recuperar acceso</h5>
-            <p class="text-muted small">
-              Enviaremos un enlace de recuperación a tu correo institucional
-              registrado.
-            </p>
-            <form id="form-olvide-password">
-              <input
-                type="email"
-                id="correoRecuperacion"
-                class="auth-input form-control mb-3"
-                placeholder="20253RD033@utez.edu.mx"
-                readonly
-              />
-              <button type="submit" class="btn auth-btn w-100" id="btn-enviar-recuperacion">
-                <i class="bx bx-send me-1"></i> Enviar enlace
+            <!-- Guarda el correo institucional del usuario para el envío automático -->
+            <input type="hidden" id="correoRecuperacion" />
+
+            <!-- Estado: enviando -->
+            <div class="status-page__state is-active" id="olvideEstadoCargando">
+              <div
+                class="spinner-border status-page__spinner mb-2"
+                role="status"
+              >
+                <span class="visually-hidden">Enviando...</span>
+              </div>
+              <h5 class="fw-bold mt-2">Enviando enlace</h5>
+              <p class="text-muted small mb-0">
+                Estamos generando tu enlace de recuperación, espera un momento.
+              </p>
+            </div>
+
+            <!-- Estado: enlace enviado -->
+            <div class="status-page__state" id="olvideEstadoExito">
+              <i
+                class="bx bx-envelope text-primary"
+                style="font-size: 3.5rem"
+              ></i>
+              <h5 class="fw-bold mt-2">Revisa tu correo</h5>
+              <p class="text-muted small">
+                Se ha enviado un correo electrónico a tu cuenta institucional.
+                Favor de revisar tu bandeja de entrada y entrar al enlace para
+                cambiar tu contraseña.
+              </p>
+              <button
+                type="button"
+                class="btn auth-btn w-100"
+                data-bs-dismiss="modal"
+              >
+                Entendido
+              </button>
+            </div>
+
+            <!-- Estado: sin conexión con el servidor -->
+            <div class="status-page__state" id="olvideEstadoError">
+              <i
+                class="bx bx-wifi-off text-danger"
+                style="font-size: 3.5rem"
+              ></i>
+              <h5 class="fw-bold mt-2">No pudimos conectar</h5>
+              <p class="text-muted small">
+                No pudimos conectar con el servidor. Intenta de nuevo más tarde.
+              </p>
+              <button
+                type="button"
+                class="btn auth-btn w-100"
+                data-bs-dismiss="modal"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Editar carrera -->
+    <div
+      class="modal fade"
+      id="modalEditarCarrera"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+          <div
+            class="modal-header"
+            style="background: var(--gradient-global-horizontal)"
+          >
+            <h5 class="modal-header-title text-white mb-0">
+              <i class="bx bx-book-bookmark me-2"></i> Editar carrera
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <form
+              id="form-editar-carrera"
+              class="d-flex flex-column gap-3"
+              novalidate
+            >
+              <div>
+                <label class="settings-form-label" for="modalCarrera"
+                  >Carrera</label
+                >
+                <select
+                  id="modalCarrera"
+                  class="auth-input form-control form-select"
+                >
+                  <option value="" selected disabled>
+                    Selecciona tu carrera
+                  </option>
+                </select>
+                <span class="settings-input-hint--error" id="errorModalCarrera">
+                  <i class="bx bx-error-circle"></i> Selecciona una carrera
+                  válida.
+                </span>
+              </div>
+              <button
+                type="submit"
+                class="btn auth-btn w-100 mt-2"
+                id="btn-guardar-carrera"
+              >
+                <i class="bx bx-save me-1"></i> Guardar cambios
               </button>
             </form>
           </div>
@@ -606,10 +736,18 @@
               Deberás iniciar sesión de nuevo para acceder a tu cuenta.
             </p>
             <div class="d-flex gap-2 justify-content-center mt-3">
-              <button type="button" class="btn btn-light btn-sm px-3" data-bs-dismiss="modal">
+              <button
+                type="button"
+                class="btn btn-light btn-sm px-3"
+                data-bs-dismiss="modal"
+              >
                 Cancelar
               </button>
-              <button type="button" class="btn btn-primary btn-sm px-3" id="btnConfirmLogout">
+              <button
+                type="button"
+                class="btn btn-primary btn-sm px-3"
+                id="btnConfirmLogout"
+              >
                 Sí, cerrar sesión
               </button>
             </div>
@@ -628,17 +766,28 @@
       <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content border-0 shadow-lg">
           <div class="modal-body text-center p-4">
-            <i class="bx bx-pause-circle text-warning" style="font-size: 3.5rem"></i>
+            <i
+              class="bx bx-pause-circle text-warning"
+              style="font-size: 3.5rem"
+            ></i>
             <h5 class="fw-bold mt-2">¿Suspender tu cuenta?</h5>
             <p class="text-muted small">
-              Tu perfil dejará de ser visible en el catálogo. Podrás
-              reactivarla iniciando sesión cuando quieras.
+              Tu perfil dejará de ser visible en el catálogo. Podrás reactivarla
+              iniciando sesión cuando quieras.
             </p>
             <div class="d-flex gap-2 justify-content-center mt-3">
-              <button type="button" class="btn btn-light btn-sm px-3" data-bs-dismiss="modal">
+              <button
+                type="button"
+                class="btn btn-light btn-sm px-3"
+                data-bs-dismiss="modal"
+              >
                 Cancelar
               </button>
-              <button type="button" class="btn btn-warning btn-sm px-3 text-dark" id="btnConfirmSuspender">
+              <button
+                type="button"
+                class="btn btn-warning btn-sm px-3 text-dark"
+                id="btnConfirmSuspender"
+              >
                 Sí, suspender
               </button>
             </div>
@@ -671,10 +820,14 @@
           <div class="modal-body p-4">
             <p class="text-muted small">
               Esta acción es <strong>irreversible</strong>. Se eliminarán tu
-              perfil, tus publicaciones y tu historial de solicitudes de
-              forma permanente.
+              perfil, tus publicaciones y tu historial de solicitudes de forma
+              permanente.
             </p>
-            <form id="form-eliminar-cuenta" class="d-flex flex-column gap-3" novalidate>
+            <form
+              id="form-eliminar-cuenta"
+              class="d-flex flex-column gap-3"
+              novalidate
+            >
               <div>
                 <label class="settings-form-label" for="passwordEliminar"
                   >Confirma tu contraseña</label
@@ -700,8 +853,8 @@
               </div>
               <label class="settings-check">
                 <input type="checkbox" id="checkEntiendoEliminar" />
-                Entiendo que esta acción no se puede deshacer y acepto
-                eliminar mi cuenta de forma permanente.
+                Entiendo que esta acción no se puede deshacer y acepto eliminar
+                mi cuenta de forma permanente.
               </label>
               <button
                 type="submit"
@@ -732,7 +885,11 @@
             <p class="text-muted small" id="errorGenericoMensaje">
               No pudimos procesar tu solicitud. Intenta de nuevo más tarde.
             </p>
-            <button type="button" class="btn btn-danger btn-sm w-100 mt-2" data-bs-dismiss="modal">
+            <button
+              type="button"
+              class="btn btn-danger btn-sm w-100 mt-2"
+              data-bs-dismiss="modal"
+            >
               Entendido
             </button>
           </div>
