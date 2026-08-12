@@ -15,7 +15,7 @@ public class Usuario {
     private double reputacion;
     private String ultimoAcceso;
 
-    public Usuario() {}
+    public Usuario(String matricula, String correo, String nombre, String apellidos, String telefono, int idCarrera, String hash) {}
 
     // Parameterized constructor for new user registration
     public Usuario(String matricula, String correo, String nombre, String apellidos, String telefono, int idCarrera, String passwordHash, int intentosFallidos) {

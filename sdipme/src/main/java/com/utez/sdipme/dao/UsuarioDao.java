@@ -106,7 +106,7 @@ public class UsuarioDao {
             ps.setString(1, correo);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    usuario = new Usuario();
+                    usuario = new Usuario(matricula, correo, nombre, apellidos, telefono, idCarrera, hash);
                     usuario.setIdUsuario(rs.getInt("id_usuario"));
                     usuario.setMatricula(rs.getString("matricula"));
                     usuario.setCorreo(rs.getString("correo"));
@@ -343,7 +343,8 @@ public class UsuarioDao {
     public boolean eliminarCuentaPermanente(int idUsuario) {
         String sqlDeleteSolicitudes = "DELETE FROM solicitudes WHERE id_solicitante = ? OR id_prototipo IN (SELECT id_prototipo FROM prototipos WHERE id_usuario = ?)";
         String sqlDeletePrototipos = "DELETE FROM prototipos WHERE id_usuario = ?";
-        String sqlDeleteBitacora = "DELETE FROM bitacora_usuarios WHERE id_usuario = ?";
+        // Here is the architectural fix: We detach the user ID but keep the audit record intact.
+        String sqlUpdateBitacora = "UPDATE bitacora_usuarios SET id_usuario = NULL WHERE id_usuario = ?";
         String sqlDeleteUsuario = "DELETE FROM usuarios WHERE id_usuario = ?";
 
         try (Connection con = DatabaseConnection.getConnection()) {
@@ -351,7 +352,7 @@ public class UsuarioDao {
             try (
                     PreparedStatement ps1 = con.prepareStatement(sqlDeleteSolicitudes);
                     PreparedStatement ps2 = con.prepareStatement(sqlDeletePrototipos);
-                    PreparedStatement ps3 = con.prepareStatement(sqlDeleteBitacora);
+                    PreparedStatement ps3 = con.prepareStatement(sqlUpdateBitacora);
                     PreparedStatement ps4 = con.prepareStatement(sqlDeleteUsuario)
             ) {
                 ps1.setInt(1, idUsuario);
@@ -361,9 +362,8 @@ public class UsuarioDao {
                 ps2.setInt(1, idUsuario);
                 ps2.executeUpdate();
 
-                // Paso 3: Limpiar su rastro de auditoría
                 ps3.setInt(1, idUsuario);
-                ps3.executeUpdate();
+                ps3.executeUpdate(); // Audit trail is preserved, just orphaned from the ID
 
                 ps4.setInt(1, idUsuario);
                 int borrados = ps4.executeUpdate();

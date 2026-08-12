@@ -119,4 +119,67 @@ public class UsuarioService {
 
         return exito ? "EXITO" : "Error: El enlace de recuperación es inválido o ya fue utilizado.";
     }
+
+    public com.utez.sdipme.dto.UsuarioPerfilDTO obtenerPerfil(int idUsuario) {
+        return usuarioDao.getPerfilCompleto(idUsuario);
+    }
+
+    public String actualizarPerfilBasico(int idUsuario, String nombre, String apellidos) {
+        if (nombre == null || nombre.trim().isEmpty() || apellidos == null || apellidos.trim().isEmpty()) {
+            return "El nombre y los apellidos son obligatorios.";
+        }
+        boolean exito = usuarioDao.actualizarNombres(idUsuario, nombre, apellidos);
+        return exito ? "EXITO" : "Error al actualizar la información personal.";
+    }
+
+    public String actualizarTelefono(int idUsuario, String telefono) {
+        if (telefono == null || !telefono.matches("\\d{10}")) {
+            return "El número de teléfono debe contener exactamente 10 dígitos.";
+        }
+        boolean exito = usuarioDao.actualizarTelefono(idUsuario, telefono);
+        return exito ? "EXITO" : "Error al actualizar el teléfono.";
+    }
+
+    public String actualizarCarrera(int idUsuario, int idCarrera) {
+        if (idCarrera <= 0) return "Carrera inválida.";
+        boolean exito = usuarioDao.actualizarCarrera(idUsuario, idCarrera);
+        return exito ? "EXITO" : "Error al actualizar la carrera.";
+    }
+
+    public String suspenderCuenta(int idUsuario) {
+        boolean exito = usuarioDao.suspenderCuenta(idUsuario);
+        return exito ? "EXITO" : "Error al suspender la cuenta.";
+    }
+
+    /**
+     * Validates current password before changing to a new one.
+     */
+    public String cambiarPasswordSeguro(int idUsuario, String correo, String passwordActual, String passwordNueva) {
+        Usuario usuario = usuarioDao.findByCorreo(correo);
+
+        if (usuario == null || !PasswordUtil.checkPassword(passwordActual, usuario.getPasswordHash())) {
+            return "La contraseña actual es incorrecta.";
+        }
+        if (passwordNueva == null || passwordNueva.length() < 8 || !passwordNueva.matches(".*[A-Z].*") || !passwordNueva.matches(".*\\d.*")) {
+            return "La nueva contraseña no cumple con los requisitos de seguridad.";
+        }
+
+        String nuevoHash = PasswordUtil.hashPassword(passwordNueva);
+        boolean exito = usuarioDao.cambiarPassword(idUsuario, nuevoHash);
+        return exito ? "EXITO" : "Error al actualizar la contraseña.";
+    }
+
+    /**
+     * Enforces password verification before permanently deleting the account.
+     */
+    public String eliminarCuentaPermanente(int idUsuario, String correo, String passwordConfirmacion) {
+        Usuario usuario = usuarioDao.findByCorreo(correo);
+
+        if (usuario == null || !PasswordUtil.checkPassword(passwordConfirmacion, usuario.getPasswordHash())) {
+            return "Contraseña incorrecta. Acción denegada.";
+        }
+
+        boolean exito = usuarioDao.eliminarCuentaPermanente(idUsuario);
+        return exito ? "EXITO" : "Error crítico al intentar eliminar la cuenta.";
+    }
 }
