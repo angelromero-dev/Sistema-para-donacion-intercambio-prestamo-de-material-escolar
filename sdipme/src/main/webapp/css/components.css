@@ -1537,3 +1537,791 @@
   margin-bottom: 0.5rem;
   color: var(--color-brand-primary);
 }
+
+/**
+ * COMPONENT: Settings Sidebar (Configuración)
+ */
+
+.settings-sidebar__logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+}
+
+.settings-sidebar__logo-img {
+  max-height: 64px;
+  width: auto;
+}
+
+/* User summary block */
+.settings-user {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--color-border-base);
+}
+
+.settings-user__avatar {
+  position: relative;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--gradient-global-horizontal);
+  color: var(--color-text-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+  overflow: hidden;
+}
+
+.settings-user__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.settings-user__info {
+  min-width: 0;
+}
+
+.settings-user__name {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.settings-user__matricula {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--color-text-hint);
+  margin-bottom: 0;
+}
+
+.settings-nav__label {
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-text-hint);
+  margin-bottom: 0.75rem;
+}
+
+.settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex-grow: 1;
+}
+
+.settings-nav__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  overflow: hidden;
+  transition: color 0.25s ease;
+}
+
+.settings-nav__link i {
+  font-size: 1.15rem;
+  z-index: 1;
+}
+
+.settings-nav__link span {
+  z-index: 1;
+}
+
+.settings-nav__link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-global-horizontal);
+  transform: translateX(-100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+  border-radius: 8px;
+}
+
+.settings-nav__link:hover:not(.settings-nav__link--active) {
+  background-color: var(--color-surface-base-card);
+}
+
+.settings-nav__link--active {
+  color: var(--color-text-inverse);
+}
+
+.settings-nav__link--active::before {
+  transform: translateX(0);
+}
+
+.settings-nav__link--disabled {
+  cursor: not-allowed;
+  color: var(--color-text-hint);
+  opacity: 0.7;
+}
+
+.settings-nav__badge {
+  margin-left: auto;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background-color: #f1f5f9;
+  color: var(--color-text-hint);
+  z-index: 1;
+}
+
+.settings-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: none;
+  border: none;
+  padding: 0.65rem 0.85rem;
+  margin-top: 1rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-status-error);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.settings-logout:hover {
+  background-color: var(--color-status-error);
+  transform: translateX(3px);
+}
+
+/* Mobile top-bar adaptation */
+@media (max-width: 991.98px) {
+  .settings-sidebar__logo {
+    margin-bottom: 0;
+  }
+  .settings-sidebar__logo-img {
+    max-height: 42px;
+    filter: brightness(0) invert(1);
+  }
+  .settings-user {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+  .settings-user__name,
+  .settings-user__matricula {
+    color: var(--color-text-inverse);
+  }
+  .settings-nav {
+    flex-direction: row;
+    flex-grow: 1;
+    overflow-x: auto;
+    gap: 0.5rem;
+  }
+  .settings-nav__label {
+    display: none;
+  }
+  .settings-nav__link {
+    white-space: nowrap;
+    color: var(--color-text-inverse);
+  }
+  .settings-nav__link:hover:not(.settings-nav__link--active) {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+  .settings-nav__link::before {
+    background: rgba(255, 255, 255, 0.18);
+  }
+  .settings-logout span {
+    display: none;
+  }
+  .settings-logout {
+    margin-top: 0;
+    color: var(--color-text-inverse);
+  }
+}
+
+/**
+ * COMPONENT: Settings Header (breadcrumb + title)
+ */
+
+.settings-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--color-text-hint);
+  margin-bottom: 0.35rem;
+}
+
+.settings-breadcrumb i {
+  font-size: 0.9rem;
+}
+
+.settings-breadcrumb__active {
+  color: var(--color-brand-primary);
+  font-weight: 600;
+}
+
+.settings-title {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0;
+}
+
+/**
+ * COMPONENT: Settings Card
+ */
+
+.settings-card {
+  background-color: var(--color-text-inverse);
+  border: 1px solid var(--color-border-base);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  opacity: 0;
+  transform: translateY(14px);
+  animation: settingsCardIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.settings-card:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.settings-card:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+@keyframes settingsCardIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settings-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 1.5rem;
+  background-color: var(--color-brand-secondary);
+}
+
+.settings-card__header i {
+  font-size: 1.2rem;
+  color: var(--color-text-inverse);
+}
+
+.settings-card__title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-inverse);
+  margin-bottom: 0;
+}
+
+.settings-card__header--danger {
+  background-color: var(--color-status-error);
+  border-bottom: 1px solid var(--color-border-status-error);
+}
+
+.settings-card__header--danger i,
+.settings-card__header--danger .settings-card__title {
+  color: var(--color-text-status-error);
+}
+
+.settings-card__body {
+  padding: 0.25rem 1.5rem 1.5rem;
+}
+
+.settings-card__body--form {
+  padding-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  max-width: 420px;
+}
+
+/**
+ * COMPONENT: Settings read-only field row
+ */
+
+.settings-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid #eef1f4;
+}
+
+.settings-field:last-child {
+  border-bottom: none;
+}
+
+.settings-field__label {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.settings-field__value {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.settings-field__hint {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--color-text-hint);
+  margin-top: 0.1rem;
+}
+
+.settings-field__action {
+  flex-shrink: 0;
+}
+
+.settings-badge-lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-hint);
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.settings-badge-lock i {
+  font-size: 0.85rem;
+}
+
+/* Small ghost "edit" trigger button reused across field rows */
+.settings-btn-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: none;
+  border: 1px solid var(--color-brand-primary);
+  color: var(--color-brand-primary);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.settings-btn-edit:hover {
+  background-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+  transform: translateY(-1px);
+}
+
+.settings-btn-edit:active {
+  transform: scale(0.96);
+}
+
+/**
+ * COMPONENT: Avatar upload
+ */
+
+.settings-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+}
+
+.settings-avatar-frame {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--gradient-global-horizontal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-avatar-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.settings-avatar-frame i {
+  color: var(--color-text-inverse);
+  font-size: 1.8rem;
+}
+
+/* Circular preview used inside the "change photo" modal */
+.settings-avatar-preview {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--color-border-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1f5f9;
+  transition: transform 0.3s ease;
+}
+
+.settings-avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.settings-avatar-preview.settings-avatar-preview--pulse {
+  animation: settingsAvatarPulse 0.5s ease;
+}
+
+@keyframes settingsAvatarPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/**
+ * COMPONENT: Settings form inputs (extends .auth-input / .auth-btn)
+ */
+
+.settings-form-label {
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+.settings-input-hint {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: var(--color-text-hint);
+  margin-top: 0.3rem;
+}
+
+.settings-input-hint--error {
+  color: var(--color-text-status-error);
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.settings-input-hint--error.show {
+  display: flex;
+}
+
+/* Password visibility toggle wrapper (reuses .auth-input) */
+.settings-password-field {
+  position: relative;
+}
+
+.settings-password-field .auth-input {
+  padding-right: 2.6rem;
+}
+
+.settings-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.85rem;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-text-hint);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.settings-password-toggle:hover {
+  color: var(--color-brand-primary);
+}
+
+/* Simple password strength meter */
+.settings-strength {
+  display: flex;
+  gap: 4px;
+  margin-top: 0.5rem;
+}
+
+.settings-strength__bar {
+  height: 4px;
+  flex: 1;
+  border-radius: 4px;
+  background-color: #e2e8f0;
+  transition: background-color 0.3s ease;
+}
+
+.settings-strength--weak .settings-strength__bar:nth-child(1) {
+  background-color: var(--color-text-status-error);
+}
+
+.settings-strength--medium .settings-strength__bar:nth-child(1),
+.settings-strength--medium .settings-strength__bar:nth-child(2) {
+  background-color: var(--color-brand-tertiary);
+}
+
+.settings-strength--strong .settings-strength__bar {
+  background-color: var(--color-brand-secondary);
+}
+
+.settings-forgot-link {
+  align-self: flex-end;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-brand-primary);
+  text-decoration: none;
+  margin-top: -0.5rem;
+}
+
+.settings-forgot-link:hover {
+  text-decoration: underline;
+  color: var(--color-brand-secondary);
+}
+
+/**
+ * COMPONENT: Danger zone rows (account management)
+ */
+
+.settings-danger-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid #f8d7d3;
+}
+
+.settings-danger-row:last-child {
+  border-bottom: none;
+}
+
+.settings-danger-row__title {
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.15rem;
+}
+
+.settings-danger-row__text {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--color-text-hint);
+  margin-bottom: 0;
+}
+
+.settings-btn-outline-danger {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--color-border-status-error);
+  color: var(--color-text-status-error);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.5rem 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.settings-btn-outline-danger:hover {
+  background-color: var(--color-status-error);
+}
+
+.settings-btn-solid-danger {
+  flex-shrink: 0;
+  background-color: var(--color-text-status-error);
+  border: 1px solid var(--color-text-status-error);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.5rem 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.settings-btn-solid-danger:hover {
+  background-color: #7a231f;
+  transform: translateY(-1px);
+}
+
+.settings-btn-solid-danger:disabled {
+  background-color: #f1f5f9;
+  border-color: #e2e8f0;
+  color: var(--color-text-hint);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Custom checkbox used in the delete-account modal */
+.settings-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: #334155;
+  text-align: left;
+}
+
+.settings-check input {
+  margin-top: 0.2rem;
+  accent-color: var(--color-text-status-error);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/**
+ * COMPONENT: Panel switch animation (Perfil <-> Seguridad)
+ */
+
+.settings-panel {
+  animation: settingsPanelIn 0.35s ease;
+}
+
+@keyframes settingsPanelIn {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Shared shake feedback for invalid settings inputs (mirrors .drag-drop-zone.error) */
+.settings-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+/**
+ * COMPONENT: Account Status Pages
+ * (Cambiar contraseña / Cuenta bloqueada / Activación de cuenta)
+ * Reuses .auth-layout, .auth-card, .auth-btn, .auth-link, .auth-input.
+ */
+
+.status-page__logo {
+  max-width: 190px;
+  height: auto;
+}
+
+.status-page__icon {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 1.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.75rem;
+}
+
+.status-page__icon--info {
+  background-color: var(--color-status-info, #e6f4f9);
+  color: var(--color-text-status-info, #2a7fa0);
+}
+
+.status-page__icon--success {
+  background-color: var(--color-status-success);
+  color: var(--color-text-status-success);
+}
+
+.status-page__icon--error {
+  background-color: var(--color-status-error);
+  color: var(--color-text-status-error);
+}
+
+.status-page__title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.status-page__text {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--color-text-hint);
+  margin-bottom: 0;
+}
+
+.status-page__state {
+  display: none;
+}
+
+.status-page__state.is-active {
+  display: block;
+}
+
+.status-page__spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--color-brand-primary);
+}
+
+.status-page__countdown {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-text-status-error);
+  margin: 0.75rem 0;
+}
+
+.status-page__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}

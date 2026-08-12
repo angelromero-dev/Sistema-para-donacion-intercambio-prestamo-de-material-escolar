@@ -171,3 +171,96 @@
   gap: 1rem;
   width: 100%;
 }
+
+/**
+ * SETTINGS / CONFIGURACIÓN LAYOUT
+ */
+
+/* Two-column shell: fixed sidebar + fluid content */
+.l-settings-shell {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--color-surface-base);
+}
+
+/* Sidebar column */
+.l-settings-sidebar {
+  flex: 0 0 280px;
+  max-width: 280px;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Content column */
+.l-settings-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 2.5rem clamp(1rem, 4vw, 3.5rem) 4rem;
+}
+
+/* Centered content wrapper (matches l-activity-container width rhythm) */
+.l-settings-wrapper {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.l-settings-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Card list inside each panel */
+.l-settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+/* Field rows inside a settings card */
+.l-settings-field-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive: collapse sidebar into a sticky top bar below 992px */
+@media (max-width: 991.98px) {
+  .l-settings-shell {
+    flex-direction: column;
+  }
+
+  .l-settings-sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    width: 100%;
+    max-width: 100%;
+    min-height: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    background: var(--gradient-global-horizontal);
+  }
+
+  .l-settings-content {
+    padding: 1.75rem 1rem 3rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .l-settings-content {
+    padding: 1.25rem 0.75rem 3rem;
+  }
+}
