@@ -81,6 +81,12 @@ public class PerfilServlet extends HttpServlet {
                             jsonRequest.get("telefono").getAsString()
                     );
                     break;
+                case "actualizar_foto":
+                    resultado = usuarioService.actualizarFotoPerfil(
+                            idUsuario,
+                            jsonRequest.get("fotoUrl").getAsString()
+                    );
+                    break;
                 case "actualizar_carrera":
                     resultado = usuarioService.actualizarCarrera(
                             idUsuario,

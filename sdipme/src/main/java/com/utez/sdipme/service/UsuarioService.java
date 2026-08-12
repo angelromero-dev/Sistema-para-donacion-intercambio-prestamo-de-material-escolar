@@ -182,4 +182,10 @@ public class UsuarioService {
         boolean exito = usuarioDao.eliminarCuentaPermanente(idUsuario);
         return exito ? "EXITO" : "Error crítico al intentar eliminar la cuenta.";
     }
+
+    public String actualizarFotoPerfil(int idUsuario, String fotoUrl) {
+        if (fotoUrl == null || fotoUrl.trim().isEmpty()) return "URL de imagen inválida.";
+        boolean exito = usuarioDao.actualizarFotoPerfil(idUsuario, fotoUrl);
+        return exito ? "EXITO" : "Error al actualizar la foto de perfil.";
+    }
 }

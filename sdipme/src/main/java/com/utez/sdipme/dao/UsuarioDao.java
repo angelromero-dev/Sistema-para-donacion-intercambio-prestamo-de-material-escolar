@@ -106,7 +106,7 @@ public class UsuarioDao {
             ps.setString(1, correo);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    usuario = new Usuario(matricula, correo, nombre, apellidos, telefono, idCarrera, hash);
+                    usuario = new Usuario();
                     usuario.setIdUsuario(rs.getInt("id_usuario"));
                     usuario.setMatricula(rs.getString("matricula"));
                     usuario.setCorreo(rs.getString("correo"));
@@ -379,6 +379,19 @@ public class UsuarioDao {
                 con.rollback();
                 throw ex;
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean actualizarFotoPerfil(int idUsuario, String fotoUrl) {
+        String sql = "UPDATE usuarios SET foto_perfil = ? WHERE id_usuario = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, fotoUrl);
+            ps.setInt(2, idUsuario);
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

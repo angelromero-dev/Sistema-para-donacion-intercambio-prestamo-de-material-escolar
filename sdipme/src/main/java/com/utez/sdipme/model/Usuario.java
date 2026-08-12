@@ -15,10 +15,11 @@ public class Usuario {
     private double reputacion;
     private String ultimoAcceso;
 
-    public Usuario(String matricula, String correo, String nombre, String apellidos, String telefono, int idCarrera, String hash) {}
+    // 1. Default constructor required by DAO for fetching records
+    public Usuario() {}
 
-    // Parameterized constructor for new user registration
-    public Usuario(String matricula, String correo, String nombre, String apellidos, String telefono, int idCarrera, String passwordHash, int intentosFallidos) {
+    // 2. Parameterized constructor for new user registration
+    public Usuario(String matricula, String correo, String nombre, String apellidos, String telefono, int idCarrera, String passwordHash) {
         this.matricula = matricula;
         this.correo = correo;
         this.nombre = nombre;
@@ -28,10 +29,10 @@ public class Usuario {
         this.passwordHash = passwordHash;
         this.estado = "INACTIVO";
         this.intentosFallidos = 0;
-        this.reputacion = 5.0;
-        this.ultimoAcceso = null;
+        this.reputacion = 5.0; // Default value matching DB schema
     }
 
+    // --- GETTERS & SETTERS ---
 
     public int getIdUsuario() { return idUsuario; }
     public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
