@@ -12,11 +12,13 @@ public class Usuario {
     private String passwordHash;
     private int intentosFallidos;
     private String estado;
+    private double reputacion;
+    private String ultimoAcceso;
 
     public Usuario() {}
 
     // Parameterized constructor for new user registration
-    public Usuario(String matricula, String correo, String nombre, String apellidos, String telefono, int idCarrera, String passwordHash) {
+    public Usuario(String matricula, String correo, String nombre, String apellidos, String telefono, int idCarrera, String passwordHash, int intentosFallidos) {
         this.matricula = matricula;
         this.correo = correo;
         this.nombre = nombre;
@@ -26,6 +28,8 @@ public class Usuario {
         this.passwordHash = passwordHash;
         this.estado = "INACTIVO";
         this.intentosFallidos = 0;
+        this.reputacion = 5.0;
+        this.ultimoAcceso = null;
     }
 
 
@@ -58,4 +62,10 @@ public class Usuario {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    public double getReputacion() { return reputacion; }
+    public void setReputacion(double reputacion) { this.reputacion = reputacion; }
+
+    public String getUltimoAcceso() { return ultimoAcceso; }
+    public void setUltimoAcceso(String ultimoAcceso) { this.ultimoAcceso = ultimoAcceso; }
 }
