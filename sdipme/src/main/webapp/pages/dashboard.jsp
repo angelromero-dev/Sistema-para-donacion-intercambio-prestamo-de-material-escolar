@@ -124,8 +124,8 @@
             </a>
           </li>
           <li class="nav-menu__item">
-            <a href="#" class="nav-menu__link">
-              <i class="bx bx-envelope"></i> Contacto
+            <a href="configuracion.jsp" class="nav-menu__link">
+              configuración
             </a>
           </li>
         </ul>

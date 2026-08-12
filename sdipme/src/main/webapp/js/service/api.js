@@ -209,5 +209,139 @@ getMisPendientes: async () => {
             const data = await response.json();
             return { ok: response.ok, data: data.data || [] };
         } catch (error) { return { ok: false, data: [] }; }
+    },
+
+    obtenerPerfil: async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/perfil`, {
+                method: 'GET'
+            });
+            const data = await response.json();
+            return { ok: response.ok, data };
+        } catch (error) {
+            return { ok: false, data: { message: "Error de conexión" } };
+        }
+    },
+
+    // Update names
+    actualizarPerfil: async (datos) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/perfil`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "actualizar_nombres", ...datos })
+            });
+            const data = await response.json();
+            return { ok: response.ok, data };
+        } catch (error) { return { ok: false, data: { message: "Error de red" } }; }
+    },
+
+    // Fetch careers for the select dropdown
+    obtenerCarreras: async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/catalogos`);
+            const data = await response.json();
+            // Maps the data depending on your CatalogosServlet response structure
+            if (response.ok && data.carreras) {
+                return { ok: true, data: data.carreras };
+            }
+            return { ok: false, data: [] };
+        } catch (error) { return { ok: false, data: [] }; }
+    },
+
+    // Update career
+    actualizarCarrera: async (idCarrera) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/perfil`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "actualizar_carrera", idCarrera })
+            });
+            const data = await response.json();
+            return { ok: response.ok, data };
+        } catch (error) { return { ok: false, data: { message: "Error de red" } }; }
+    },
+
+    // Update phone
+    actualizarTelefono: async (telefono) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/perfil`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "actualizar_telefono", telefono })
+            });
+            const data = await response.json();
+            return { ok: response.ok, data };
+        } catch (error) { return { ok: false, data: { message: "Error de red" } }; }
+    },
+
+    // Update password
+    cambiarPassword: async (passwords) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/perfil`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "cambiar_password", ...passwords })
+            });
+            const data = await response.json();
+            return { ok: response.ok, data };
+        } catch (error) { return { ok: false, data: { message: "Error de red" } }; }
+    },
+
+    // Suspend account (Soft delete)
+    suspenderCuenta: async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/perfil`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "suspender_cuenta" })
+            });
+            const data = await response.json();
+            return { ok: response.ok, data };
+        } catch (error) { return { ok: false, data: { message: "Error de red" } }; }
+    },
+
+    // Hard delete account
+    eliminarCuenta: async (password) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/perfil`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            });
+            const data = await response.json();
+            return { ok: response.ok, data };
+        } catch (error) { return { ok: false, data: { message: "Error de red" } }; }
+    },
+
+    // Upload to Cloudinary and save to DB in a single flow
+    actualizarFotoPerfil: async (file) => {
+        // 1. Upload to Cloudinary first
+        const uploadRes = await api.uploadImageToCloudinary(file);
+        
+        if (!uploadRes.ok) {
+            return { ok: false, data: { message: uploadRes.error } };
+        }
+
+        // 2. Tell Java backend to save the URL
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/perfil`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    action: "actualizar_foto", 
+                    fotoUrl: uploadRes.url 
+                })
+            });
+            const data = await response.json();
+            
+            // Attach the Cloudinary URL so main.js can update the UI instantly
+            if (response.ok) {
+                data.fotoUrl = uploadRes.url; 
+            }
+            return { ok: response.ok, data };
+        } catch (error) { 
+            return { ok: false, data: { message: "Error al guardar URL en base de datos" } }; 
+        }
     }
 };
