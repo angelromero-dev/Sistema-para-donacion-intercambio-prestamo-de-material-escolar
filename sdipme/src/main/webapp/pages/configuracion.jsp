@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!doctype html>
 <html lang="es">
   <head>
@@ -763,32 +764,57 @@
       tabindex="-1"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
-          <div class="modal-body text-center p-4">
-            <i
-              class="bx bx-pause-circle text-warning"
-              style="font-size: 3.5rem"
-            ></i>
-            <h5 class="fw-bold mt-2">¿Suspender tu cuenta?</h5>
-            <p class="text-muted small">
-              Tu perfil dejará de ser visible en el catálogo. Podrás reactivarla
-              iniciando sesión cuando quieras.
+          <div class="modal-header bg-warning">
+            <h5 class="modal-header-title text-dark mb-0">
+              <i class="bx bx-pause-circle me-2"></i> ¿Seguro que quieres
+              suspender tu cuenta?
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <p class="text-muted small mb-3">
+              Al confirmar la suspensión de tu cuenta, ocurrirá lo siguiente en
+              la plataforma:
             </p>
-            <div class="d-flex gap-2 justify-content-center mt-3">
+            <ul class="text-muted small mb-4">
+              <li class="mb-2">
+                <strong>Tus publicaciones:</strong> Todos tus prototipos
+                ofertados serán pausados y ya no aparecerán en el catálogo
+                público para otros alumnos.
+              </li>
+              <li class="mb-2">
+                <strong>Privacidad de contacto:</strong> En las transacciones en
+                curso o solicitudes que hayas aceptado, tu información personal
+                (teléfono y correo) se ocultará automáticamente para proteger tu
+                privacidad.
+              </li>
+              <li>
+                <strong>Reactivación:</strong> Tus datos no se borrarán. Podrás
+                reactivar tu cuenta y restaurar tus prototipos con tan solo
+                volver a iniciar sesión cuando lo desees.
+              </li>
+            </ul>
+            <div class="d-flex gap-2 justify-content-end">
               <button
                 type="button"
-                class="btn btn-light btn-sm px-3"
+                class="btn btn-light px-4"
                 data-bs-dismiss="modal"
               >
                 Cancelar
               </button>
               <button
                 type="button"
-                class="btn btn-warning btn-sm px-3 text-dark"
+                class="btn btn-warning text-dark px-4"
                 id="btnConfirmSuspender"
               >
-                Sí, suspender
+                <i class="bx bx-pause-circle me-1"></i> Sí, suspender cuenta
               </button>
             </div>
           </div>
