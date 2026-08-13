@@ -363,4 +363,22 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = 'login.jsp';
     });
   }
+
+  const btnAbrirSuspender = document.getElementById('btnAbrirSuspender');
+  if (btnAbrirSuspender) {
+    btnAbrirSuspender.addEventListener('click', () => {
+      bootstrap.Modal.getOrCreateInstance(
+        document.getElementById('modalSuspenderCuenta')
+      ).show();
+    });
+  }
+
+  const btnAbrirEliminar = document.getElementById('btnAbrirEliminar');
+  if (btnAbrirEliminar) {
+    btnAbrirEliminar.addEventListener('click', () => {
+      bootstrap.Modal.getOrCreateInstance(
+        document.getElementById('modalEliminarCuenta')
+      ).show();
+    });
+  }
 });
