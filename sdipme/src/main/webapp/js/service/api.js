@@ -27,19 +27,23 @@ const api = {
     // Registro request
     registro: async (alumnoData) => {
         try {
+            console.log(`>>> [CAPA 4 - API.JS] 1. Enviando petición POST a: ${API_BASE_URL}/auth/registro`);
+            console.log(`>>> [CAPA 4 - API.JS] 2. Datos enviados:`, alumnoData);
+            
             const response = await fetch(`${API_BASE_URL}/auth/registro`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(alumnoData)
             });
 
+            console.log(`>>> [CAPA 4 - API.JS] 3. El servidor respondió con HTTP Status: ${response.status}`);
             const data = await response.json();
+            console.log(`>>> [CAPA 4 - API.JS] 4. JSON procesado del servidor:`, data);
+            
             return { ok: response.ok, data };
         } catch (error) {
-            console.error("Error de conexión en registro:", error);
-            return { ok: false, data: { message: "Error de conexión con el servidor" } };
+            console.error(">>> [CAPA 4 - RED/CORS ERROR] El navegador ni siquiera pudo alcanzar a Tomcat. Razones posibles: CORS, Servidor apagado, o URL incorrecta.", error);
+            return { ok: false, data: { message: "Error de red/conexión. Revisa la consola (F12)." } };
         }
     },
 

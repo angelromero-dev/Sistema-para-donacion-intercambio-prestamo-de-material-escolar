@@ -72,14 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     password: pass
                 };
                 
+                console.log(">>> [CAPA 5 - UI] Botón de registro presionado. Iniciando validaciones...");
                 const response = await api.registro(alumnoData);
 
                 if (response.ok) {
-                    alert("Cuenta creada con éxito. Revisa tu correo para activarla.");
+                    console.log(">>> [CAPA 5 - UI] Registro exitoso. Mostrando alerta al usuario.");
+                alert(response.data.message);
                     window.location.href = "login.jsp";
                 } else {
-                    alert(response.data.message || "Error al registrar la cuenta");
-                    btnRegister.disabled = false;
+                console.error(">>> [CAPA 5 - UI] Registro rechazado por el backend. Mostrando error:", response.data.message);
+                alert(response.data.message);
+                btnRegister.disabled = false;
                     btnRegister.innerText = 'Crear Cuenta';
                 }
 

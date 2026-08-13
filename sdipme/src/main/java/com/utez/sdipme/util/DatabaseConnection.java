@@ -6,9 +6,12 @@ import java.sql.SQLException;
 
 public class DatabaseConnection {
 
-    private static final String URL = "jdbc:oracle:thin:@localhost:1521/XEPDB1";
-    private static final String USER = "system";
-    private static final String PASSWORD = "123";
+    private static final String TNS_ALIAS = "";
+    private static final String TNS_ADMIN = "";
+
+    private static final String URL = "jdbc:oracle:thin:@" + TNS_ALIAS + "?TNS_ADMIN=" + TNS_ADMIN;
+    private static final String USER = "";
+    private static final String PASSWORD = "";
 
     public static Connection getConnection() throws SQLException {
         try {

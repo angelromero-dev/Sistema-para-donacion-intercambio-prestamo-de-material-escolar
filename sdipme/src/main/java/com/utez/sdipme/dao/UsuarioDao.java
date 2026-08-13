@@ -55,7 +55,10 @@ public class UsuarioDao {
             return true;
 
         } catch (SQLException e) {
-            System.err.println(">>> [DAO ERROR - UsuarioDao.java] Error inserting user: " + e.getMessage());
+            System.err.println("\n>>> [CAPA 2 - DAO ERROR] EXPLOSIÓN AL INSERTAR USUARIO <<<");
+            System.err.println("    - Matrícula intentada: " + usuario.getMatricula());
+            System.err.println("    - Código de Oracle: ORA-" + e.getErrorCode());
+            System.err.println("    - Causa real: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
