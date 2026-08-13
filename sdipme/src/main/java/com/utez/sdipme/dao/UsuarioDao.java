@@ -341,32 +341,36 @@ public class UsuarioDao {
     }
 
     public boolean eliminarCuentaPermanente(int idUsuario) {
-        String sqlDeleteSolicitudes = "DELETE FROM solicitudes WHERE id_solicitante = ? OR id_prototipo IN (SELECT id_prototipo FROM prototipos WHERE id_usuario = ?)";
-        String sqlDeletePrototipos = "DELETE FROM prototipos WHERE id_usuario = ?";
-        // Here is the architectural fix: We detach the user ID but keep the audit record intact.
-        String sqlUpdateBitacora = "UPDATE bitacora_usuarios SET id_usuario = NULL WHERE id_usuario = ?";
-        String sqlDeleteUsuario = "DELETE FROM usuarios WHERE id_usuario = ?";
+
+        String sqlDeleteSolicitudes1 = "DELETE /*+ NO_PARALLEL */ FROM solicitudes WHERE id_solicitante = ?";
+        String sqlDeleteSolicitudes2 = "DELETE /*+ NO_PARALLEL */ FROM solicitudes WHERE id_prototipo IN (SELECT id_prototipo FROM prototipos WHERE id_usuario = ?)";
+        String sqlDeletePrototipos = "DELETE /*+ NO_PARALLEL */ FROM prototipos WHERE id_usuario = ?";
+        String sqlUpdateBitacora = "UPDATE /*+ NO_PARALLEL */ bitacora_usuarios SET id_usuario = NULL WHERE id_usuario = ?";
+        String sqlDeleteUsuario = "DELETE /*+ NO_PARALLEL */ FROM usuarios WHERE id_usuario = ?";
 
         try (Connection con = DatabaseConnection.getConnection()) {
             con.setAutoCommit(false);
             try (
-                    PreparedStatement ps1 = con.prepareStatement(sqlDeleteSolicitudes);
-                    PreparedStatement ps2 = con.prepareStatement(sqlDeletePrototipos);
-                    PreparedStatement ps3 = con.prepareStatement(sqlUpdateBitacora);
-                    PreparedStatement ps4 = con.prepareStatement(sqlDeleteUsuario)
+                    PreparedStatement ps1 = con.prepareStatement(sqlDeleteSolicitudes1);
+                    PreparedStatement ps2 = con.prepareStatement(sqlDeleteSolicitudes2);
+                    PreparedStatement ps3 = con.prepareStatement(sqlDeletePrototipos);
+                    PreparedStatement ps4 = con.prepareStatement(sqlUpdateBitacora);
+                    PreparedStatement ps5 = con.prepareStatement(sqlDeleteUsuario)
             ) {
                 ps1.setInt(1, idUsuario);
-                ps1.setInt(2, idUsuario);
                 ps1.executeUpdate();
 
                 ps2.setInt(1, idUsuario);
                 ps2.executeUpdate();
 
                 ps3.setInt(1, idUsuario);
-                ps3.executeUpdate(); // Audit trail is preserved, just orphaned from the ID
+                ps3.executeUpdate();
 
                 ps4.setInt(1, idUsuario);
-                int borrados = ps4.executeUpdate();
+                ps4.executeUpdate();
+
+                ps5.setInt(1, idUsuario);
+                int borrados = ps5.executeUpdate();
 
                 if (borrados > 0) {
                     con.commit();
@@ -380,6 +384,7 @@ public class UsuarioDao {
                 throw ex;
             }
         } catch (SQLException e) {
+            System.err.println(">>> [DAO ERROR] Fallo al eliminar cuenta permanentemente: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
