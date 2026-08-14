@@ -37,105 +37,184 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
    // REGISTRO
-    const registerForm = document.getElementById('form-register');
+   const registerForm = document.getElementById('form-register');
     
     if (registerForm) {
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); 
-            
+        /**
+         * Selectors
+         */
+        const nombreInput = document.getElementById('nombre');
+        const apellidosInput = document.getElementById('apellidos');
+        const correoInput = document.getElementById('correo');
+        const telefonoInput = document.getElementById('telefono');
+        const carreraSelect = document.getElementById('carrera');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        
+        // Modal Instances
+        const modalValidacion = new bootstrap.Modal(document.getElementById('modalValidacion'));
+        const modalConfirmacion = new bootstrap.Modal(document.getElementById('modalConfirmacion'));
+        const modalLoading = new bootstrap.Modal(document.getElementById('modalLoading'));
+        const modalExito = new bootstrap.Modal(document.getElementById('modalExito'));
+
+        const loadCareers = async () => {
             try {
-                const correoInput = document.getElementById('correo').value;
-                if (!correoInput.toLowerCase().endsWith('@utez.edu.mx')) {
-                    alert("Por políticas de la plataforma, solo puedes registrarte usando tu correo institucional (@utez.edu.mx).");
-                    return;
-                }
-
-                const pass = document.getElementById('password').value;
-                const confirmPass = document.getElementById('confirmPassword').value;
-
-                if (pass !== confirmPass) {
-                    alert("Las contraseñas no coinciden. Verifica e intenta de nuevo.");
-                    return;
-                }
-
-                const btnRegister = document.getElementById('btn-register');
-                btnRegister.disabled = true;
-                btnRegister.innerText = 'Registrando...';
-
-                const alumnoData = {
-                    nombre: document.getElementById('nombre').value,
-                    apellidos: document.getElementById('apellidos').value,
-                    telefono: document.getElementById('telefono').value,
-                    matricula: document.getElementById('matricula').value,
-                    correo: correoInput,
-                    idCarrera: parseInt(document.getElementById('idCarrera').value), 
-                    password: pass
-                };
+                const res = await api.getCatalogos();
                 
-                console.log(">>> [CAPA 5 - UI] Botón de registro presionado. Iniciando validaciones...");
-                const response = await api.registro(alumnoData);
+                if (res.ok && res.data && res.data.carreras) {
+                    carreraSelect.innerHTML = '<option value="" selected disabled>Selecciona tu carrera</option>';
+                    
+                    // Extraemos las divisiones por si el backend las manda como una lista separada
+                    const divisiones = res.data.divisiones || [];
 
-                if (response.ok) {
-                    console.log(">>> [CAPA 5 - UI] Registro exitoso. Mostrando alerta al usuario.");
-                alert(response.data.message);
-                    window.location.href = "login.jsp";
-                } else {
-                console.error(">>> [CAPA 5 - UI] Registro rechazado por el backend. Mostrando error:", response.data.message);
-                alert(response.data.message);
-                btnRegister.disabled = false;
-                    btnRegister.innerText = 'Crear Cuenta';
+                    res.data.carreras.forEach(car => {
+                        const option = document.createElement('option');
+                        option.value = car.id || car.idCarrera;
+                        option.text = car.nombre;
+
+                        // LÓGICA 100% DINÁMICA DE INFERENCIA
+                        // 1. Si tu backend de Java (DAO) hizo un JOIN y ya trae el acrónimo:
+                        let acronimo = car.acronimoDivision || car.acronimo;
+
+                        // 2. Si el backend solo mandó el idDivision, lo buscamos en el catálogo de divisiones:
+                        if (!acronimo && car.idDivision) {
+                            const divMatched = divisiones.find(d => d.idDivision === car.idDivision || d.id === car.idDivision);
+                            if (divMatched) acronimo = divMatched.acronimo;
+                        }
+
+                        // Guardamos el acrónimo real de la BD en el dataset del option
+                        option.dataset.division = acronimo || 'División Desconocida';
+                        
+                        carreraSelect.appendChild(option);
+                    });
                 }
+            } catch (e) {
+                console.error(">>> [JS ERROR] Error cargando el catálogo de carreras desde la BD:", e);
+            }
+        };
+        
+        loadCareers();
 
-            } catch (error) {
-                console.error(">>> [JS ERROR] Fallo en el script de registro:", error);
-                alert("Ocurrió un error en el navegador. Revisa la consola.");
+        /**
+         * Toggle Password Visibility
+         */
+        document.querySelectorAll('.password-toggle').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const targetInput = document.getElementById(targetId);
+                if (targetInput.type === 'password') {
+                    targetInput.type = 'text';
+                    this.classList.replace('bx-hide', 'bx-show');
+                    this.style.color = 'var(--color-brand-primary)';
+                } else {
+                    targetInput.type = 'password';
+                    this.classList.replace('bx-show', 'bx-hide');
+                    this.style.color = 'var(--color-text-hint)';
+                }
+            });
+        });
+
+        /**
+         * Form Submission & Strict Validation
+         */
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // 1. Gather Values
+            const nombre = nombreInput.value.trim();
+            const apellidos = apellidosInput.value.trim();
+            const correo = correoInput.value.trim().toLowerCase();
+            const telefono = telefonoInput.value.trim();
+            const idCarrera = carreraSelect.value;
+            const carreraNombre = carreraSelect.options[carreraSelect.selectedIndex]?.text || '';
+            const division = carreraSelect.options[carreraSelect.selectedIndex]?.dataset.division || '';
+            const password = passwordInput.value;
+            const confirm = confirmPasswordInput.value;
+
+            // 2. Regex Rules
+            const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+            const phoneRegex = /^[0-9]{10}$/;
+            const emailRegex = /^([a-zA-Z0-9._%-]+)@utez\.edu\.mx$/;
+
+            // 3. Validation Checks
+            let errorMsg = '';
+            
+            if (!nombre || !apellidos || !correo || !telefono || !idCarrera || !password) {
+                errorMsg = 'Por favor, completa todos los campos.';
+            } else if (!nameRegex.test(nombre) || !nameRegex.test(apellidos)) {
+                errorMsg = 'Los nombres y apellidos solo pueden contener letras.';
+            } else if (!emailRegex.test(correo)) {
+                errorMsg = 'Debes usar un correo institucional válido terminado en @utez.edu.mx';
+            } else if (!phoneRegex.test(telefono)) {
+                errorMsg = 'El teléfono debe ser un número válido de 10 dígitos (formato México).';
+            } else if (password.length < 8) {
+                errorMsg = 'La contraseña debe tener al menos 8 caracteres.';
+            } else if (password !== confirm) {
+                errorMsg = 'Las contraseñas no coinciden.';
+            }
+
+            if (errorMsg) {
+                document.getElementById('txtErrorValidacion').innerText = errorMsg;
+                modalValidacion.show();
+                return;
+            }
+
+            // 4. Auto-Generate Matrícula
+            const matriculaCalculada = correo.split('@')[0];
+
+            // 5. Populate Summary Modal
+            document.getElementById('sumNombre').innerText = `${nombre} ${apellidos}`;
+            document.getElementById('sumMatricula').innerText = matriculaCalculada;
+            document.getElementById('sumCorreo').innerText = correo;
+            document.getElementById('sumTelefono').innerText = telefono;
+            document.getElementById('sumCarrera').innerText = carreraNombre;
+            document.getElementById('sumDivision').innerText = division;
+
+            // 6. Show Confirmation
+            modalConfirmacion.show();
+        });
+
+        /**
+         * Final Submission to API
+         */
+        document.getElementById('btn-submit-final').addEventListener('click', async () => {
+            modalConfirmacion.hide();
+            modalLoading.show();
+
+            const matriculaCalculada = correoInput.value.trim().toLowerCase().split('@')[0];
+
+            const payload = {
+                nombre: nombreInput.value.trim(),
+                apellidos: apellidosInput.value.trim(),
+                correo: correoInput.value.trim().toLowerCase(),
+                matricula: matriculaCalculada,
+                telefono: telefonoInput.value.trim(),
+                idCarrera: parseInt(carreraSelect.value),
+                passwordPlana: passwordInput.value
+            };
+
+            const response = await api.registro(payload);
+            
+            modalLoading.hide();
+
+            if (response.ok) {
+                modalExito.show();
+                let count = 4;
+                const coundownEl = document.getElementById('countdown');
+                const timer = setInterval(() => {
+                    count--;
+                    coundownEl.innerText = count;
+                    if (count <= 0) {
+                        clearInterval(timer);
+                        window.location.href = "login.jsp";
+                    }
+                }, 1000);
+            } else {
+                document.getElementById('txtErrorValidacion').innerText = response.data.message || "Ocurrió un error en el servidor.";
+                modalValidacion.show();
             }
         });
     }
-
-    const settingsUserName = document.getElementById('settingsUserName');
-
-    if (settingsUserName) {
-        // Load current user data to populate read-only + editable fields
-        (async () => {
-            try {
-                const response = await api.obtenerPerfil();
-                if (response.ok) {
-                    const u = response.data;
-                    document.getElementById('settingsUserName').innerText = `${u.nombre} ${u.apellidos}`;
-                    document.getElementById('settingsUserMatricula').innerText = `Estudiante · ${u.matricula}`;
-                    document.getElementById('viewNombreCompleto').innerText = `${u.nombre} ${u.apellidos}`;
-                    document.getElementById('viewMatricula').innerText = u.matricula;
-                    document.getElementById('viewCorreo').innerText = u.correo;
-                    document.getElementById('viewCarrera').innerText = u.carrera;
-                    document.getElementById('telefono').value = u.telefono || '';
-                    document.getElementById('viewTelefono').innerText = u.telefono || 'Nulo';
-                    document.getElementById('correoRecuperacion').value = u.correo || '';
-
-                    const initials = `${(u.nombre || '?')[0]}${(u.apellidos || '?')[0]}`.toUpperCase();
-                    document.getElementById('settingsAvatarInitials').innerText = initials;
-
-                    if (u.fotoUrl) {
-                        const avatarImg = document.getElementById('settingsAvatarImg');
-                        avatarImg.src = u.fotoUrl;
-                        avatarImg.style.display = 'block';
-                        document.getElementById('settingsAvatarInitials').style.display = 'none';
-
-                        const fieldAvatarImg = document.getElementById('fieldAvatarImg');
-                        fieldAvatarImg.src = u.fotoUrl;
-                        fieldAvatarImg.style.display = 'block';
-                        document.getElementById('fieldAvatarIcon').style.display = 'none';
-                    }
-                } else {
-                    window.openErrorModal && window.openErrorModal('No pudimos cargar tu información de perfil.');
-                }
-            } catch (error) {
-                console.error(">>> [JS ERROR] Fallo al cargar el perfil:", error);
-                window.openErrorModal && window.openErrorModal('No pudimos conectar con el servidor.');
-            }
-        })();
-    }
-
     // Editar nombre y apellidos
     const formEditarPerfil = document.getElementById('form-editar-perfil');
     if (formEditarPerfil) {
