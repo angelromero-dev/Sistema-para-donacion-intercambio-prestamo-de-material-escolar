@@ -50,7 +50,7 @@ public class EmailService {
     }
 
     public static boolean enviarCorreoVerificacion(String destinatario, String token) {
-        String linkActivacion = "http://localhost:8080/sdipme_war_exploded/api/activar?token=" + token;
+        String linkActivacion = "http://127.0.0.1:8080/sdipme/api/activar?token=" + token;
         String asunto = "SDIPME - Activa tu cuenta universitaria";
 
         String templateHtml = """
@@ -92,7 +92,7 @@ public class EmailService {
                               </td>
                             </tr>
                           </table>
-                          <p style="margin:22px 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:13px;letter-spacing:1.5px;color:#d9ece7;text-transform:uppercase;">Sistema Docente e Institucional</p>
+                          <p style="margin:22px 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:13px;letter-spacing:1.5px;color:#d9ece7;text-transform:uppercase;">Sistema para donacion, intercambio y prestamo de material escolar</p>
                           <h1 class="title-text" style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:28px;line-height:1.3;font-weight:800;color:#ffffff;">¡Bienvenido a SDIPME!</h1>
                         </td>
                       </tr>
@@ -139,7 +139,7 @@ public class EmailService {
     }
 
     public static boolean enviarCorreoRecuperacion(String destinatario, String token) {
-        String enlaceRecuperacion = "http://localhost:8080/sdipme_war_exploded/restablecer-password.html?token=" + token;
+        String enlaceRecuperacion = "http://127.0.0.1:8080/sdipme/restablecer-password.html?token=" + token;
         String asunto = "SDIPME - Recuperacion de Contraseña o Desbloqueo";
 
         String templateHtml = """

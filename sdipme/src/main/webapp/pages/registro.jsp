@@ -10,10 +10,14 @@
       href="../assets/svg/logo.svg"
       type="image/x-icon"
     />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Roboto:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -22,48 +26,48 @@
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
       rel="stylesheet"
     />
+
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/component-auth.css" />
-    <link rel="stylesheet" href="../css/layout.css" />
   </head>
   <body>
     <div class="auth-page">
       <div class="auth-card">
-        <div class="text-center mb-4">
+        <div class="text-center mb-3">
           <img
             src="../assets/images/logo-light-txt.png"
             alt="Logo SDIPME"
-            style="height: 60px; filter: invert(1)"
+            class="auth-card__logo"
           />
         </div>
-        <h2 class="auth-title">Crea tu cuenta</h2>
+        <h2 class="auth-title">Crear Cuenta</h2>
 
         <form id="form-register" novalidate>
           <div class="row mb-3">
             <div class="col-md-6 mb-3 mb-md-0">
-              <label class="auth-label">Nombre(s)</label>
+              <label for="nombre" class="auth-label">Nombre(s)</label>
               <input
                 type="text"
                 id="nombre"
                 class="form-control auth-input"
-                placeholder="Ej. Ana María"
+                placeholder="Nombre(s)"
                 autocomplete="off"
               />
             </div>
             <div class="col-md-6">
-              <label class="auth-label">Apellidos</label>
+              <label for="apellidos" class="auth-label">Apellidos</label>
               <input
                 type="text"
                 id="apellidos"
                 class="form-control auth-input"
-                placeholder="Ej. López Cruz"
+                placeholder="Apellidos"
                 autocomplete="off"
               />
             </div>
           </div>
 
           <div class="mb-3">
-            <label class="auth-label">Correo Institucional</label>
+            <label for="correo" class="auth-label">Correo Institucional</label>
             <input
               type="email"
               id="correo"
@@ -71,25 +75,22 @@
               placeholder="ejemplo@utez.edu.mx"
               autocomplete="off"
             />
-            <small class="text-muted" style="font-size: 0.75rem"
-              >Tu matrícula se extraerá automáticamente.</small
-            >
           </div>
 
           <div class="mb-3">
-            <label class="auth-label">Teléfono (10 dígitos)</label>
+            <label for="telefono" class="auth-label">Teléfono</label>
             <input
               type="tel"
               id="telefono"
               class="form-control auth-input"
-              placeholder="777 123 4567"
+              placeholder="10 dígitos"
               maxlength="10"
               autocomplete="off"
             />
           </div>
 
           <div class="mb-3">
-            <label class="auth-label">Carrera</label>
+            <label for="carrera" class="auth-label">Carrera</label>
             <select id="carrera" class="form-select auth-input">
               <option value="" selected disabled>Cargando carreras...</option>
             </select>
@@ -97,13 +98,13 @@
 
           <div class="row mb-4">
             <div class="col-md-6 mb-3 mb-md-0">
-              <label class="auth-label">Contraseña</label>
+              <label for="password" class="auth-label">Contraseña</label>
               <div class="password-wrapper">
                 <input
                   type="password"
                   id="password"
                   class="form-control auth-input"
-                  placeholder="Mín. 8 caracteres"
+                  placeholder="Min. 6 caracteres, 1 mayúscula"
                 />
                 <i
                   class="bx bx-hide password-toggle"
@@ -112,7 +113,9 @@
               </div>
             </div>
             <div class="col-md-6">
-              <label class="auth-label">Confirmar Contraseña</label>
+              <label for="confirmPassword" class="auth-label"
+                >Confirmar Contraseña</label
+              >
               <div class="password-wrapper">
                 <input
                   type="password"
@@ -133,17 +136,13 @@
             id="btn-register-init"
             class="btn auth-btn w-100"
           >
-            Revisar datos y continuar
+            Registrarse
           </button>
         </form>
 
-        <div class="text-center mt-4">
-          <span class="text-muted">¿Ya tienes cuenta?</span>
-          <a
-            href="login.jsp"
-            style="color: var(--color-brand-primary); font-weight: 600"
-            >Inicia sesión</a
-          >
+        <div class="auth-footer">
+          <span>¿Ya tienes cuenta?</span>
+          <a href="login.jsp">Inicia sesión</a>
         </div>
       </div>
     </div>
@@ -158,19 +157,19 @@
         <div class="modal-content border-0 shadow">
           <div class="modal-body text-center p-4">
             <i
-              class="bx bx-error-circle text-warning"
-              style="font-size: 4rem"
+              class="bx bx-error-circle text-warning mb-2"
+              style="font-size: 3.5rem"
             ></i>
-            <h5 class="fw-bold mt-3">Revisa tus datos</h5>
-            <p class="text-muted small" id="txtErrorValidacion">
-              El formulario contiene errores.
+            <h5 class="fw-bold mb-2">Datos incompletos</h5>
+            <p class="text-muted small mb-3" id="txtErrorValidacion">
+              Ocurrió un error en el formulario.
             </p>
             <button
               type="button"
-              class="btn btn-warning w-100 fw-bold"
+              class="btn auth-btn w-100 py-2"
               data-bs-dismiss="modal"
             >
-              Corregir
+              Entendido
             </button>
           </div>
         </div>
@@ -188,7 +187,7 @@
         <div class="modal-content border-0 shadow-lg">
           <div class="modal-header bg-light border-0">
             <h5 class="fw-bold mb-0 text-primary">
-              <i class="bx bx-check-shield"></i> Confirma tu información
+              <i class="bx bx-check-shield"></i> Confirma tus Datos
             </h5>
             <button
               type="button"
@@ -197,18 +196,15 @@
             ></button>
           </div>
           <div class="modal-body p-4">
-            <p class="text-muted small">
-              Por favor verifica que todo sea correcto antes de crear tu cuenta.
-              Una vez registrada, no podrás cambiar tu matrícula ni tu correo.
+            <p class="text-muted small mb-3">
+              Verifica que tu información sea correcta antes de completar tu
+              registro.
             </p>
             <div class="summary-data">
               <p>
                 <strong>Nombre completo:</strong> <span id="sumNombre"></span>
               </p>
-              <p>
-                <strong>Matrícula (Auto):</strong>
-                <span id="sumMatricula"></span>
-              </p>
+              <p><strong>Matrícula:</strong> <span id="sumMatricula"></span></p>
               <p><strong>Correo:</strong> <span id="sumCorreo"></span></p>
               <p><strong>Teléfono:</strong> <span id="sumTelefono"></span></p>
               <p><strong>Carrera:</strong> <span id="sumCarrera"></span></p>
@@ -217,7 +213,7 @@
             <div class="d-flex gap-2 mt-4">
               <button
                 type="button"
-                class="btn btn-light w-50 fw-bold"
+                class="btn btn-outline-secondary w-50 fw-bold"
                 data-bs-dismiss="modal"
               >
                 Cancelar
@@ -227,7 +223,7 @@
                 class="btn auth-btn w-50"
                 id="btn-submit-final"
               >
-                Sí, crear cuenta
+                Confirmar y Enviar
               </button>
             </div>
           </div>
@@ -246,11 +242,18 @@
         <div class="modal-content border-0 bg-transparent shadow-none">
           <div class="modal-body text-center">
             <div
-              class="spinner-border text-light"
-              style="width: 4rem; height: 4rem; border-width: 0.35em"
+              class="spinner-border"
+              style="
+                width: 3.5rem;
+                height: 3.5rem;
+                border-width: 0.3em;
+                color: var(--color-brand-primary);
+              "
               role="status"
             ></div>
-            <h5 class="text-white mt-3 fw-bold shadow-sm">Creando cuenta...</h5>
+            <h6 class="mt-3 fw-bold" style="color: var(--color-brand-primary)">
+              Cargando ...
+            </h6>
           </div>
         </div>
       </div>
@@ -267,16 +270,16 @@
         <div class="modal-content border-0 shadow">
           <div class="modal-body text-center p-4">
             <i
-              class="bx bx-check-circle text-success"
-              style="font-size: 4rem"
+              class="bx bx-check-circle text-success mb-2"
+              style="font-size: 3.5rem"
             ></i>
-            <h5 class="fw-bold mt-3">¡Registro Exitoso!</h5>
-            <p class="text-muted small">
-              Revisa la bandeja de entrada de tu correo institucional para
-              activar tu cuenta.
+            <h5 class="fw-bold mb-2">¡Registro Exitoso!</h5>
+            <p class="text-muted small mb-2">
+              Revisa tu correo institucional para activar tu cuenta.
             </p>
-            <p class="text-muted small">
-              Redirigiendo al login en <span id="countdown">4</span>...
+            <p class="text-muted small mb-0">
+              Redirigiendo en
+              <span id="countdown" class="fw-bold text-primary">4</span>s...
             </p>
           </div>
         </div>

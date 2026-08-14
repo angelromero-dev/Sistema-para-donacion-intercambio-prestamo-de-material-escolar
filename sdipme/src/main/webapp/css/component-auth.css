@@ -1,57 +1,72 @@
 /**
  * AUTH.CSS
  */
-
 .auth-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1rem;
-  background: var(--color-surface-base);
+  padding: 2.5rem 1rem;
+  background-color: var(--color-surface-base);
 }
 
 .auth-card {
-  background: var(--color-text-inverse);
+  background-color: var(--color-text-inverse);
   width: 100%;
-  max-width: 600px;
-  border-radius: 16px;
-  padding: 2.5rem;
-  box-shadow: 0 10px 30px rgba(0, 66, 114, 0.08);
+  max-width: 580px;
+  border-radius: 12px;
+  padding: 2.5rem 2.25rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--color-surface-base-card);
 }
 
+/* Logo */
+.auth-card__logo {
+  height: 55px;
+  width: auto;
+  object-fit: contain;
+  margin: 0 auto 1.25rem auto;
+  display: block;
+}
+
+/* Título */
 .auth-title {
   font-family: var(--font-heading);
   color: var(--color-brand-primary);
   font-weight: 700;
+  font-size: 1.5rem;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
 }
 
+/* Labels e Inputs */
 .auth-label {
   font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--color-text-hint);
-  margin-bottom: 0.4rem;
+  color: var(--color-text-primary);
+  margin-bottom: 0.35rem;
   display: block;
 }
 
 .auth-input {
-  border: 2px solid #e2e8f0;
+  border: 1.5px solid #cbd5e1;
   border-radius: 8px;
-  padding: 0.65rem 1rem;
+  padding: 0.65rem 0.9rem;
   font-family: var(--font-body);
+  font-size: 0.9rem;
   color: var(--color-text-primary);
-  transition: all 0.3s ease;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .auth-input:focus {
   border-color: var(--color-brand-primary);
-  box-shadow: 0 0 0 4px rgba(0, 66, 114, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 66, 114, 0.12);
+  outline: none;
 }
 
-/* Password wrapper & eye icon */
+/* Password Toggle Icon Wrapper */
 .password-wrapper {
   position: relative;
   display: flex;
@@ -60,85 +75,97 @@
 
 .password-toggle {
   position: absolute;
-  right: 15px;
+  right: 14px;
   font-size: 1.25rem;
   color: var(--color-text-hint);
   cursor: pointer;
-  transition: color 0.2s;
+  user-select: none;
+  transition: color 0.2s ease;
 }
 
 .password-toggle:hover {
   color: var(--color-brand-primary);
 }
 
+/* Botón Principal */
 .auth-btn {
   background: var(--gradient-global-horizontal);
   border: none;
-  color: white;
+  color: var(--color-text-inverse);
   font-family: var(--font-heading);
   font-weight: 700;
-  padding: 0.75rem;
+  font-size: 0.95rem;
+  padding: 0.8rem;
   border-radius: 8px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .auth-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(24, 52, 81, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(24, 52, 81, 0.25);
+  color: var(--color-text-inverse);
 }
 
-/* Modal Animations & Styles */
-.modal-scale .modal-dialog {
-  transform: scale(0.9);
-  opacity: 0;
-  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+.auth-btn:active {
+  transform: translateY(0);
 }
+
+/* Enlaces Inferiores */
+.auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+}
+
+.auth-footer span {
+  color: var(--color-text-hint);
+}
+
+.auth-footer a {
+  color: var(--color-brand-primary);
+  font-weight: 700;
+  margin-left: 0.25rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.auth-footer a:hover {
+  color: var(--color-brand-secondary);
+  text-decoration: underline;
+}
+
+/* Estilos de Modales */
+.modal-scale .modal-dialog {
+  transform: scale(0.92);
+  opacity: 0;
+  transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+}
+
 .modal-scale.show .modal-dialog {
   transform: scale(1);
   opacity: 1;
 }
 
 .summary-data {
-  background: #f8fafc;
+  background-color: var(--color-surface-base);
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1.25rem;
   text-align: left;
+  border: 1px solid var(--color-surface-base-card);
 }
+
 .summary-data p {
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  color: #475569;
+  margin-bottom: 0.4rem;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
 }
+
+.summary-data p:last-child {
+  margin-bottom: 0;
+}
+
 .summary-data strong {
   color: var(--color-brand-primary);
 }
-
-.auth-card--wide {
-    max-width: 600px;
-}
-
-.auth-section-title {
-    font-family: var(--font-heading);
-    font-size: 0.95rem;
-    color: var(--color-brand-primary);
-    font-weight: 700;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid var(--color-border-base);
-    padding-bottom: 0.5rem;
-    opacity: 0.9;
-}
-
-.auth-label {
-    font-size: 0.85rem;
-    color: var(--color-text-primary);
-    font-weight: 600;
-    margin-bottom: 0.3rem;
-}
-
-.auth-hint {
-    font-size: 0.75rem;
-    color: var(--color-text-hint);
-    margin-top: 0.25rem;
-}
-

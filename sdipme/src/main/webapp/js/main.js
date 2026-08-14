@@ -3,18 +3,18 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    
+
     // LOGIN
     const loginForm = document.getElementById('form-login');
-    
+
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const btnLogin = document.getElementById('btn-login');
             const usuarioInput = document.getElementById('usuario');
             const passwordInput = document.getElementById('password');
-            
+
             btnLogin.disabled = true;
             btnLogin.innerText = 'Iniciando...';
             usuarioInput.classList.remove('is-invalid');
@@ -36,12 +36,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-   // REGISTRO
-   const registerForm = document.getElementById('form-register');
-    
+    // REGISTRO
+    const registerForm = document.getElementById('form-register');
+
     if (registerForm) {
         /**
-         * Selectors
+         * Element Selectors
          */
         const nombreInput = document.getElementById('nombre');
         const apellidosInput = document.getElementById('apellidos');
@@ -50,21 +50,37 @@ document.addEventListener('DOMContentLoaded', () => {
         const carreraSelect = document.getElementById('carrera');
         const passwordInput = document.getElementById('password');
         const confirmPasswordInput = document.getElementById('confirmPassword');
-        
+
         // Modal Instances
         const modalValidacion = new bootstrap.Modal(document.getElementById('modalValidacion'));
         const modalConfirmacion = new bootstrap.Modal(document.getElementById('modalConfirmacion'));
         const modalLoading = new bootstrap.Modal(document.getElementById('modalLoading'));
         const modalExito = new bootstrap.Modal(document.getElementById('modalExito'));
 
+        /**
+         * Division Full Name Formatter
+         */
+        const getDivisionFullName = (acronym) => {
+            const cleanAcronym = (acronym || '').toUpperCase().trim();
+            const names = {
+                'DACEA': 'División Académica Económico-Administrativa (DACEA)',
+                'DATID': 'División Académica de Tecnologías de la Información y Digitales (DATID)',
+                'DAMI': 'División Académica de Mecánica Industrial (DAMI)',
+                'DATEFI': 'División Académica de Terapia Física y Salud (DATEFI)'
+            };
+            return names[cleanAcronym] || cleanAcronym || 'División Académica';
+        };
+
+        /**
+         * Load Careers dynamically from Database Catalog API
+         */
         const loadCareers = async () => {
             try {
                 const res = await api.getCatalogos();
-                
+
                 if (res.ok && res.data && res.data.carreras) {
                     carreraSelect.innerHTML = '<option value="" selected disabled>Selecciona tu carrera</option>';
-                    
-                    // Extraemos las divisiones por si el backend las manda como una lista separada
+
                     const divisiones = res.data.divisiones || [];
 
                     res.data.carreras.forEach(car => {
@@ -72,83 +88,92 @@ document.addEventListener('DOMContentLoaded', () => {
                         option.value = car.id || car.idCarrera;
                         option.text = car.nombre;
 
-                        // LÓGICA 100% DINÁMICA DE INFERENCIA
-                        // 1. Si tu backend de Java (DAO) hizo un JOIN y ya trae el acrónimo:
-                        let acronimo = car.acronimoDivision || car.acronimo;
+                        // Identify Division Acronym dynamically
+                        let acronimo = car.acronimoDivision || car.acronimo || car.acronimo_division;
 
-                        // 2. Si el backend solo mandó el idDivision, lo buscamos en el catálogo de divisiones:
-                        if (!acronimo && car.idDivision) {
-                            const divMatched = divisiones.find(d => d.idDivision === car.idDivision || d.id === car.idDivision);
-                            if (divMatched) acronimo = divMatched.acronimo;
+                        if (!acronimo) {
+                            const divId = car.idDivision || car.id_division;
+                            const divMatched = divisiones.find(d => (d.idDivision || d.id_division || d.id) === divId);
+                            if (divMatched) {
+                                acronimo = divMatched.acronimo || divMatched.nombre;
+                            } else {
+                                const staticDivMap = { 1: 'DACEA', 2: 'DATID', 3: 'DAMI', 4: 'DATEFI' };
+                                acronimo = staticDivMap[divId] || '';
+                            }
                         }
 
-                        // Guardamos el acrónimo real de la BD en el dataset del option
-                        option.dataset.division = acronimo || 'División Desconocida';
-                        
+                        option.dataset.division = acronimo || 'DATID';
                         carreraSelect.appendChild(option);
                     });
                 }
             } catch (e) {
-                console.error(">>> [JS ERROR] Error cargando el catálogo de carreras desde la BD:", e);
+                console.error(">>> [JS ERROR] Error loading career catalog from API:", e);
             }
         };
-        
+
         loadCareers();
 
         /**
-         * Toggle Password Visibility
+         * Password Visibility Toggle Icon Handler
          */
         document.querySelectorAll('.password-toggle').forEach(icon => {
             icon.addEventListener('click', function() {
                 const targetId = this.getAttribute('data-target');
                 const targetInput = document.getElementById(targetId);
-                if (targetInput.type === 'password') {
-                    targetInput.type = 'text';
-                    this.classList.replace('bx-hide', 'bx-show');
-                    this.style.color = 'var(--color-brand-primary)';
-                } else {
-                    targetInput.type = 'password';
-                    this.classList.replace('bx-show', 'bx-hide');
-                    this.style.color = 'var(--color-text-hint)';
+                if (targetInput) {
+                    if (targetInput.type === 'password') {
+                        targetInput.type = 'text';
+                        this.classList.replace('bx-hide', 'bx-show');
+                        this.style.color = 'var(--color-brand-primary)';
+                    } else {
+                        targetInput.type = 'password';
+                        this.classList.replace('bx-show', 'bx-hide');
+                        this.style.color = 'var(--color-text-hint)';
+                    }
                 }
             });
         });
 
         /**
-         * Form Submission & Strict Validation
+         * Form Validation and Pre-submission Handling
          */
         registerForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            // 1. Gather Values
+            // 1. Value Extraction
             const nombre = nombreInput.value.trim();
             const apellidos = apellidosInput.value.trim();
             const correo = correoInput.value.trim().toLowerCase();
             const telefono = telefonoInput.value.trim();
             const idCarrera = carreraSelect.value;
             const carreraNombre = carreraSelect.options[carreraSelect.selectedIndex]?.text || '';
-            const division = carreraSelect.options[carreraSelect.selectedIndex]?.dataset.division || '';
+            const divisionAcronimo = carreraSelect.options[carreraSelect.selectedIndex]?.dataset.division || '';
             const password = passwordInput.value;
             const confirm = confirmPasswordInput.value;
 
-            // 2. Regex Rules
+            // 2. Validation Regex Patterns
             const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
             const phoneRegex = /^[0-9]{10}$/;
             const emailRegex = /^([a-zA-Z0-9._%-]+)@utez\.edu\.mx$/;
+            const sequentialRegex = /(012|123|234|345|456|567|678|789|987|876|765|654|543|432|321|210)/;
 
-            // 3. Validation Checks
+            // 3. Validation Rules Evaluation
             let errorMsg = '';
-            
+
             if (!nombre || !apellidos || !correo || !telefono || !idCarrera || !password) {
-                errorMsg = 'Por favor, completa todos los campos.';
+                errorMsg = 'Por favor, completa todos los campos del formulario.';
             } else if (!nameRegex.test(nombre) || !nameRegex.test(apellidos)) {
-                errorMsg = 'Los nombres y apellidos solo pueden contener letras.';
+                errorMsg = 'El nombre y apellidos solo deben contener letras.';
             } else if (!emailRegex.test(correo)) {
-                errorMsg = 'Debes usar un correo institucional válido terminado en @utez.edu.mx';
+                errorMsg = 'Debes utilizar tu correo institucional con dominio @utez.edu.mx';
             } else if (!phoneRegex.test(telefono)) {
-                errorMsg = 'El teléfono debe ser un número válido de 10 dígitos (formato México).';
-            } else if (password.length < 8) {
-                errorMsg = 'La contraseña debe tener al menos 8 caracteres.';
+                errorMsg = 'El número de teléfono debe ser de 10 dígitos.';
+            } else if (password.length < 6 || password.length > 20) {
+                errorMsg = 'La contraseña debe tener entre 6 y 20 caracteres.';
+            } else if (!/[A-Z]/.test(password)) {
+                errorMsg = 'La contraseña debe incluir al menos una letra mayúscula.';
+            } else if (sequentialRegex.test(password)) {
+                errorMsg = 'La contraseña no debe contener secuencias numéricas sencillas (ej. 12345).';
             } else if (password !== confirm) {
                 errorMsg = 'Las contraseñas no coinciden.';
             }
@@ -159,61 +184,72 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // 4. Auto-Generate Matrícula
+            // 4. Extract Matrícula from institutional email
             const matriculaCalculada = correo.split('@')[0];
 
-            // 5. Populate Summary Modal
+            // 5. Populate Confirmation Summary Modal
             document.getElementById('sumNombre').innerText = `${nombre} ${apellidos}`;
             document.getElementById('sumMatricula').innerText = matriculaCalculada;
             document.getElementById('sumCorreo').innerText = correo;
             document.getElementById('sumTelefono').innerText = telefono;
             document.getElementById('sumCarrera').innerText = carreraNombre;
-            document.getElementById('sumDivision').innerText = division;
+            document.getElementById('sumDivision').innerText = getDivisionFullName(divisionAcronimo);
 
-            // 6. Show Confirmation
+            // 6. Show Confirmation Dialog
             modalConfirmacion.show();
         });
 
         /**
-         * Final Submission to API
+         * Final API Submission Handler
          */
-        document.getElementById('btn-submit-final').addEventListener('click', async () => {
-            modalConfirmacion.hide();
-            modalLoading.show();
+        const btnSubmitFinal = document.getElementById('btn-submit-final');
+        if (btnSubmitFinal) {
+            btnSubmitFinal.addEventListener('click', async () => {
+                modalConfirmacion.hide();
 
-            const matriculaCalculada = correoInput.value.trim().toLowerCase().split('@')[0];
+                // Pequeña pausa para evitar cruce de animaciones con el modal anterior
+                setTimeout(async () => {
+                    modalLoading.show();
 
-            const payload = {
-                nombre: nombreInput.value.trim(),
-                apellidos: apellidosInput.value.trim(),
-                correo: correoInput.value.trim().toLowerCase(),
-                matricula: matriculaCalculada,
-                telefono: telefonoInput.value.trim(),
-                idCarrera: parseInt(carreraSelect.value),
-                passwordPlana: passwordInput.value
-            };
+                    const matriculaCalculada = correoInput.value.trim().toLowerCase().split('@')[0];
 
-            const response = await api.registro(payload);
-            
-            modalLoading.hide();
+                    const payload = {
+                        nombre: nombreInput.value.trim(),
+                        apellidos: apellidosInput.value.trim(),
+                        correo: correoInput.value.trim().toLowerCase(),
+                        matricula: matriculaCalculada,
+                        telefono: telefonoInput.value.trim(),
+                        idCarrera: parseInt(carreraSelect.value),
+                        password: passwordInput.value // <-- CORRECCIÓN CRÍTICA: Se llama 'password' para que Java lo lea
+                    };
 
-            if (response.ok) {
-                modalExito.show();
-                let count = 4;
-                const coundownEl = document.getElementById('countdown');
-                const timer = setInterval(() => {
-                    count--;
-                    coundownEl.innerText = count;
-                    if (count <= 0) {
-                        clearInterval(timer);
-                        window.location.href = "login.jsp";
-                    }
-                }, 1000);
-            } else {
-                document.getElementById('txtErrorValidacion').innerText = response.data.message || "Ocurrió un error en el servidor.";
-                modalValidacion.show();
-            }
-        });
+                    const response = await api.registro(payload);
+
+                    modalLoading.hide();
+
+                    // Esperamos 400ms a que termine la animación de cierre del Loading antes de abrir otro modal
+                    setTimeout(() => {
+                        if (response.ok) {
+                            modalExito.show();
+                            let count = 4;
+                            const countdownEl = document.getElementById('countdown');
+                            const timer = setInterval(() => {
+                                count--;
+                                if (countdownEl) countdownEl.innerText = count;
+                                if (count <= 0) {
+                                    clearInterval(timer);
+                                    window.location.href = "login.jsp";
+                                }
+                            }, 1000);
+                        } else {
+                            document.getElementById('txtErrorValidacion').innerText = response.data?.message || "Error al procesar el registro en el servidor.";
+                            modalValidacion.show();
+                        }
+                    }, 400); // 400ms de retraso para evitar el glitch de Bootstrap
+
+                }, 400);
+            });
+        }
     }
     // Editar nombre y apellidos
     const formEditarPerfil = document.getElementById('form-editar-perfil');

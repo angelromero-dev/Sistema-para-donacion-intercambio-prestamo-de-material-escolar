@@ -33,7 +33,8 @@ public class AuthFilter implements Filter {
                 path.startsWith("/js/") ||
                 path.startsWith("/assets/") ||
                 path.startsWith("/api/auth/") ||
-                path.startsWith("/api/activar");
+                path.startsWith("/api/activar")||
+                path.startsWith("/api/catalogos");
 
         // Verify session existence
         HttpSession session = httpRequest.getSession(false);
