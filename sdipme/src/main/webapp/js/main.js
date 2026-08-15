@@ -735,4 +735,28 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
+
+    // Detectar token de activación en la URL (login.jsp?token=...)
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenActivacion = urlParams.get('token');
+
+    if (tokenActivacion) {
+        (async () => {
+            console.log(">>> [ACTIVACIÓN] Token detectado en la URL del login:", tokenActivacion);
+
+            // Llamada automática al backend
+            const response = await api.activarCuenta(tokenActivacion);
+
+            if (response.ok && response.data.status === 'success') {
+                // Notificación visual de éxito (puedes adaptarlo a tu modal de éxito si lo prefieres)
+                alert("¡Cuenta activada con éxito! Ya puedes iniciar sesión con tus credenciales.");
+            } else {
+                // Notificación visual de error
+                alert("Error de activación: " + (response.data.message || "El token no es válido."));
+            }
+
+            // Limpiar el parámetro token de la barra de direcciones para evitar reenvíos al recargar
+            window.history.replaceState({}, document.title, window.location.pathname);
+        })();
+    }
 });

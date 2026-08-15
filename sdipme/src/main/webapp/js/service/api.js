@@ -161,6 +161,7 @@ getPrototipos: async () => {
             return { ok: false, data: null };
         }
     },
+
 getMisPendientes: async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/solicitudes`);
@@ -346,6 +347,20 @@ getMisPendientes: async () => {
             return { ok: response.ok, data };
         } catch (error) { 
             return { ok: false, data: { message: "Error al guardar URL en base de datos" } }; 
+        }
+    },
+
+    activarCuenta: async (token) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/activar?token=${token}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+            return { ok: response.ok, data };
+        } catch (error) {
+            console.error(">>> [API ERROR] Error de red al activar cuenta:", error);
+            return { ok: false, data: { message: "Error de red al intentar activar la cuenta." } };
         }
     }
 };

@@ -6,9 +6,64 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingsNav = document.getElementById('settingsNav');
   if (!settingsNav) return; // Not on the settings page, skip entirely
 
-  /* ---------------------------------------------------------------- */
-  /* Panel switching (Perfil / Seguridad)                             */
-  /* ---------------------------------------------------------------- */
+  /* ---- */
+  /* Cargar datos reales del perfil al entrar a la página             */
+  /* ---- */
+  (async function cargarPerfilUsuario() {
+    try {
+      const response = await api.obtenerPerfil();
+      if (!response.ok || !response.data) {
+        window.openErrorModal && window.openErrorModal('No pudimos cargar tu información de perfil.');
+        return;
+      }
+      const perfil = response.data;
+      const nombreCompleto = `${perfil.nombre} ${perfil.apellidos}`;
+
+      const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = value;
+      };
+
+      // Sidebar
+      setText('settingsUserName', nombreCompleto);
+      setText('settingsUserMatricula', perfil.matricula);
+
+      // Tarjeta de información personal
+      setText('viewNombreCompleto', nombreCompleto);
+      setText('viewMatricula', perfil.matricula);
+      setText('viewCorreo', perfil.correo);
+      setText('viewCarrera', perfil.carrera);
+      setText('viewTelefono', perfil.telefono || 'Nulo');
+
+      // Avatar (foto o iniciales)
+      const initials = ((perfil.nombre?.[0] || '') + (perfil.apellidos?.[0] || '')).toUpperCase();
+      ['settingsAvatarImg', 'fieldAvatarImg'].forEach((id) => {
+        const img = document.getElementById(id);
+        if (!img) return;
+        if (perfil.fotoUrl) {
+          img.src = perfil.fotoUrl;
+          img.style.display = 'block';
+        } else {
+          img.style.display = 'none';
+        }
+      });
+      const initialsEl = document.getElementById('settingsAvatarInitials');
+      if (initialsEl) {
+        initialsEl.innerText = initials || '--';
+        initialsEl.style.display = perfil.fotoUrl ? 'none' : '';
+      }
+      const fieldIcon = document.getElementById('fieldAvatarIcon');
+      if (fieldIcon) fieldIcon.style.display = perfil.fotoUrl ? 'none' : 'inline-block';
+
+    } catch (error) {
+      console.error('>>> [JS ERROR] Fallo al cargar el perfil del usuario:', error);
+      window.openErrorModal && window.openErrorModal('No pudimos conectar con el servidor.');
+    }
+  })();
+
+  /* ---- */
+  /* Panel switching (Perfil / Seguridad)                    */
+  /* ---- */
   const navLinks = settingsNav.querySelectorAll('.settings-nav__link[data-panel]');
   const panels = document.querySelectorAll('.settings-panel');
   const breadcrumbActive = document.getElementById('breadcrumbActive');
@@ -34,8 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     navLinks.forEach((link) => {
       link.classList.toggle(
-        'settings-nav__link--active',
-        link.dataset.panel === targetId
+          'settings-nav__link--active',
+          link.dataset.panel === targetId
       );
     });
 
@@ -57,9 +112,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ---------------------------------------------------------------- */
+  /* ---- */
   /* Toast helper (reuses .toast-alert / .toast-alert--* from CSS)    */
-  /* ---------------------------------------------------------------- */
+  /* ---- */
   const toastEl = document.getElementById('settingsToast');
   const toastIcon = document.getElementById('settingsToastIcon');
   const toastMsg = document.getElementById('settingsToastMsg');
@@ -91,14 +146,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalEl = document.getElementById('modalErrorGenerico');
     if (!modalEl) return;
     document.getElementById('errorGenericoMensaje').textContent =
-      message || 'No pudimos procesar tu solicitud. Intenta de nuevo más tarde.';
+        message || 'No pudimos procesar tu solicitud. Intenta de nuevo más tarde.';
     bootstrap.Modal.getOrCreateInstance(modalEl).show();
   }
   window.openErrorModal = openErrorModal;
 
-  /* ---------------------------------------------------------------- */
-  /* Validation helpers                                                */
-  /* ---------------------------------------------------------------- */
+  /* ---- */
+  /* Validation helpers                    */
+  /* ---- */
 
   const NAME_REGEX = /^[A-Za-zÁÉÍÓÚÑÜáéíóúñü]+(?:\s[A-Za-zÁÉÍÓÚÑÜáéíóúñü]+)*$/;
   const JUNK_WORDS = ['asdf', 'qwerty', 'test', 'prueba', 'xxxx', 'nombre', 'sinnombre'];
@@ -180,9 +235,9 @@ document.addEventListener('DOMContentLoaded', () => {
     passwordNueva.addEventListener('input', () => {
       const score = passwordStrength(passwordNueva.value);
       strengthMeter.classList.remove(
-        'settings-strength--weak',
-        'settings-strength--medium',
-        'settings-strength--strong'
+          'settings-strength--weak',
+          'settings-strength--medium',
+          'settings-strength--strong'
       );
       if (passwordNueva.value.length === 0) return;
       if (score <= 1) strengthMeter.classList.add('settings-strength--weak');
@@ -211,9 +266,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ---------------------------------------------------------------- */
+  /* ---- */
   /* Avatar upload (drag & drop, reuses .drag-drop-zone component)    */
-  /* ---------------------------------------------------------------- */
+  /* ---- */
   const dropZone = document.getElementById('dragDropZoneAvatar');
   const fileInput = document.getElementById('inputFotoPerfil');
   const avatarPreview = document.getElementById('avatarPreview');
@@ -243,8 +298,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!isValidType || !isValidSize) {
       dropZone.classList.add('error');
       dragDropFotoText.innerHTML = !isValidType
-        ? 'Solo se permiten imágenes en formato JPEG o PNG.'
-        : 'La imagen supera los 2MB permitidos.';
+          ? 'Solo se permiten imágenes en formato JPEG o PNG.'
+          : 'La imagen supera los 2MB permitidos.';
       btnGuardarFoto.disabled = true;
       selectedAvatarFile = null;
       if (fileInput) fileInput.value = '';
@@ -292,9 +347,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ---------------------------------------------------------------- */
+  /* ---- */
   /* Delete-account modal: enable submit only when everything is set  */
-  /* ---------------------------------------------------------------- */
+  /* ---- */
   const passwordEliminar = document.getElementById('passwordEliminar');
   const confirmTextoEliminar = document.getElementById('confirmTextoEliminar');
   const checkEntiendoEliminar = document.getElementById('checkEntiendoEliminar');
@@ -334,9 +389,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ---------------------------------------------------------------- */
-  /* Editar carrera                                                    */
-  /* ---------------------------------------------------------------- */
+  /* ---- */
+  /* Editar carrera                    */
+  /* ---- */
   const modalCarrera = document.getElementById('modalCarrera');
   const errorModalCarrera = document.getElementById('errorModalCarrera');
   if (modalCarrera) {
@@ -345,14 +400,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ---------------------------------------------------------------- */
-  /* Logout / suspend confirmation modals                             */
-  /* ---------------------------------------------------------------- */
+  /* ---- */
+  /* Logout / suspend confirmation modals                    */
+  /* ---- */
   const btnAbrirLogout = document.getElementById('btnAbrirLogout');
   if (btnAbrirLogout) {
     btnAbrirLogout.addEventListener('click', () => {
       bootstrap.Modal.getOrCreateInstance(
-        document.getElementById('modalConfirmLogout')
+          document.getElementById('modalConfirmLogout')
       ).show();
     });
   }
@@ -368,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnAbrirSuspender) {
     btnAbrirSuspender.addEventListener('click', () => {
       bootstrap.Modal.getOrCreateInstance(
-        document.getElementById('modalSuspenderCuenta')
+          document.getElementById('modalSuspenderCuenta')
       ).show();
     });
   }
@@ -377,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnAbrirEliminar) {
     btnAbrirEliminar.addEventListener('click', () => {
       bootstrap.Modal.getOrCreateInstance(
-        document.getElementById('modalEliminarCuenta')
+          document.getElementById('modalEliminarCuenta')
       ).show();
     });
   }
