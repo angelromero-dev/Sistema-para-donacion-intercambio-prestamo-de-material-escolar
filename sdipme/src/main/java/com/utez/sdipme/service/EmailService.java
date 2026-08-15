@@ -50,7 +50,7 @@ public class EmailService {
     }
 
     public static boolean enviarCorreoVerificacion(String destinatario, String token) {
-        String linkActivacion = "http://127.0.0.1:8080/sdipme/api/activar?token=" + token;
+        String linkActivacion = "http://www.sdipme.online/pages/login.jsp?token=" + token;
         String asunto = "SDIPME - Activa tu cuenta universitaria";
 
         String templateHtml = """

@@ -15,14 +15,16 @@ public class ActivacionServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("\n=========================================");
+        response.setContentType("application/json; charset=UTF-8");
+        System.out.println("\n====");
         System.out.println(">>> [CONTROLLER] Petición GET recibida en /api/activar");
 
         String token = request.getParameter("token");
 
         if (token == null || token.trim().isEmpty()) {
             System.err.println(">>> [CONTROLLER ERROR] Se intentó acceder sin token.");
-            response.sendRedirect(request.getContextPath() + "/login.jsp?activacion=error_token");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"status\":\"error\",\"message\":\"Token no proporcionado.\"}");
             return;
         }
 
@@ -31,10 +33,12 @@ public class ActivacionServlet extends HttpServlet {
 
         if (exito) {
             System.out.println(">>> [CONTROLLER OK] Cuenta activada con éxito.");
-            response.sendRedirect(request.getContextPath() + "/login.jsp?activacion=exitosa");
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().write("{\"status\":\"success\",\"activada\":true}");
         } else {
             System.err.println(">>> [CONTROLLER WARN] Token inválido o ya usado.");
-            response.sendRedirect(request.getContextPath() + "/login.jsp?activacion=invalido");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"status\":\"error\",\"activada\":false,\"message\":\"El token es inválido o la cuenta ya fue activada.\"}");
         }
     }
 }

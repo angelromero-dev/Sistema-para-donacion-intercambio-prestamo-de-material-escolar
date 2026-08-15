@@ -23,17 +23,106 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await api.login(usuarioInput.value, passwordInput.value);
 
             if (response.ok) {
-                console.log("Login exitoso", response.data);
                 window.location.href = "dashboard.jsp";
             } else {
-                usuarioInput.classList.add('is-invalid');
-                passwordInput.classList.add('is-invalid');
-                alert(response.data.message || "Credenciales incorrectas");
+                // Analizar la respuesta del backend
+                const estado = response.data.estadoCuenta; // Ej: 'SUSPENDIDO', 'BLOQUEADO'
+                const baneadoAdmin = response.data.bloqueadoPorAdmin; // true o false
+
+                if (baneadoAdmin === true) {
+                    // CASO 3: Bloqueado por Superusuario
+                    document.getElementById('idUsuarioBaneado').value = response.data.idUsuario;
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalBaneado')).show();
+                } 
+                else if (estado === 'SUSPENDIDO' || estado === 'BLOQUEADO') {
+                    // CASO 2: Sin intentos o suspendido por el mismo usuario
+                    document.getElementById('correoReactivacionOculto').value = usuarioInput.value;
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCuentaSuspendida')).show();
+                } 
+                else {
+                    // Credenciales incorrectas estándar
+                    usuarioInput.classList.add('is-invalid');
+                    passwordInput.classList.add('is-invalid');
+                    alert(response.data.message || "Credenciales incorrectas");
+                }
             }
 
             btnLogin.disabled = false;
             btnLogin.innerText = 'Iniciar';
         });
+    }
+
+    // ==========================================
+    // 2. CASO 1: OLVIDÉ MI CONTRASEÑA
+    // ==========================================
+    const formOlvide = document.getElementById('form-olvide-password');
+    if (formOlvide) {
+        formOlvide.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const correo = document.getElementById('correoRecuperacion').value;
+            const btn = document.getElementById('btn-enviar-recuperacion');
+            btn.disabled = true;
+
+            await api.solicitarRecuperacion(correo);
+            
+            // Cierra el modal de pedir correo y abre el de avisar que revise su bandeja
+            bootstrap.Modal.getInstance(document.getElementById('modalOlvidePassword')).hide();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalRevisaCorreo')).show();
+            
+            btn.disabled = false;
+        });
+    }
+
+    // ==========================================
+    // 3. ENVÍO DE MENSAJE AL ADMIN (CASO 3)
+    // ==========================================
+    const formMensajeAdmin = document.getElementById('form-mensaje-admin');
+    if (formMensajeAdmin) {
+        formMensajeAdmin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const idUsuario = document.getElementById('idUsuarioBaneado').value;
+            const mensaje = document.getElementById('mensajeAdminTexto').value.trim();
+            const btn = document.getElementById('btn-enviar-admin');
+
+            if (mensaje.length === 0 || mensaje.length > 255) return;
+
+            btn.disabled = true;
+            btn.innerText = 'Enviando...';
+
+            const res = await api.enviarMensajeAdmin(idUsuario, mensaje);
+            
+            if(res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('modalBaneado')).hide();
+                alert("Mensaje enviado al administrador. Tienes un límite de 1 mensaje cada 7 días.");
+            } else {
+                alert(res.data.message || "Aún no puedes enviar otro mensaje. Deben pasar 7 días.");
+            }
+            btn.disabled = false;
+            btn.innerText = 'Enviar Mensaje';
+        });
+    }
+
+    // ==========================================
+    // 4. LÓGICA EXCLUSIVA DE RECUPERAR.JSP
+    // ==========================================
+    if (window.location.pathname.includes('recuperar.jsp')) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        if (token) {
+            (async () => {
+                const res = await api.verificarTokenPassword(token);
+                document.getElementById('loadingRecuperacion').style.display = 'none';
+                document.getElementById('textoRecuperacion').style.display = 'none';
+
+                if (res.ok && res.data.valido) {
+                    document.getElementById('nombreUsuarioRestablecer').innerText = res.data.nombreUsuario;
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalRestablecerPassword')).show();
+                } else {
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalEnlaceInvalido')).show();
+                }
+            })();
+        }
     }
 
     // REGISTRO
