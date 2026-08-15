@@ -13,13 +13,5 @@ public class TestEmail {
         System.out.println(">>> [PRUEBA] Iniciando envío de correo vía Hostinger...");
 
         // 2. Ejecutamos el servicio de correo
-        boolean exito = EmailService.enviarCorreoVerificacion(miCorreoPersonal, "TOKEN_PRUEBA_ABC123");
-
-        if (exito) {
-            System.out.println("\n✅ ¡PRUEBA EXITOSA! Revisa tu bandeja de entrada (y la carpeta de SPAM por si acaso).");
-        } else {
-            System.out.println("\n❌ ¡FALLÓ LA PRUEBA! Revisa los mensajes en rojo de la consola para ver el error.");
-        }
-        System.out.println("=========================================");
     }
 }

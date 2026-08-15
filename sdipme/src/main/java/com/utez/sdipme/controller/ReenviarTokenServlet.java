@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-// Endpoint exposed for resending the activation token.
 @WebServlet("/api/auth/reenviar-token")
 public class ReenviarTokenServlet extends HttpServlet {
 
@@ -18,7 +17,6 @@ public class ReenviarTokenServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -26,7 +24,12 @@ public class ReenviarTokenServlet extends HttpServlet {
         JsonObject jsonResponse = new JsonObject();
 
         try {
-            // Parse incoming JSON request containing the email.
+            // 1. Construir la URL base dinámica
+            String baseUrl = request.getScheme() + "://" + request.getServerName() +
+                    (("http".equals(request.getScheme()) && request.getServerPort() == 80) ||
+                            ("https".equals(request.getScheme()) && request.getServerPort() == 443) ? "" : ":" + request.getServerPort()) +
+                    request.getContextPath();
+
             JsonObject jsonRequest = gson.fromJson(request.getReader(), JsonObject.class);
 
             if (jsonRequest == null || !jsonRequest.has("correo")) {
@@ -39,8 +42,8 @@ public class ReenviarTokenServlet extends HttpServlet {
 
             String correo = jsonRequest.get("correo").getAsString();
 
-            // Delegate logic to Service layer.
-            String resultado = usuarioService.reenviarTokenActivacion(correo);
+            // 2. Pasar el baseUrl al método
+            String resultado = usuarioService.reenviarTokenActivacion(correo, baseUrl);
 
             if ("EXITO".equals(resultado)) {
                 response.setStatus(HttpServletResponse.SC_OK);
@@ -55,7 +58,6 @@ public class ReenviarTokenServlet extends HttpServlet {
             response.getWriter().write(jsonResponse.toString());
 
         } catch (Exception e) {
-            e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             jsonResponse.addProperty("status", "error");
             jsonResponse.addProperty("message", "Error interno en el servidor.");

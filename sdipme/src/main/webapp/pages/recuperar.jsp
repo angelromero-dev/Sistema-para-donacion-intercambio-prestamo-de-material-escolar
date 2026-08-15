@@ -115,6 +115,54 @@
       </div>
     </div>
 
+    <!-- Modal Contraseña Actualizada (Éxito) -->
+    <div
+      class="modal fade modal-scale"
+      id="modalPasswordActualizada"
+      tabindex="-1"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow text-center p-4">
+          <i
+            class="bx bx-shield-quarter text-success mb-2"
+            style="font-size: 3.5rem"
+          ></i>
+          <h5 class="fw-bold mb-2">¡Acceso Restaurado!</h5>
+          <p class="text-muted small mb-3">
+            Tu contraseña ha sido actualizada y tu cuenta está desbloqueada.
+          </p>
+          <a href="login.jsp" class="btn auth-btn w-100">Ir a Iniciar Sesión</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Error Restablecer -->
+    <div
+      class="modal fade modal-scale"
+      id="modalErrorRestablecer"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow text-center p-4">
+          <i class="bx bx-error text-danger mb-2" style="font-size: 3.5rem"></i>
+          <h5 class="fw-bold mb-2">No se pudo actualizar</h5>
+          <p class="text-muted small mb-3" id="errorRestablecerMensaje">
+            Ocurrió un error al procesar tu solicitud.
+          </p>
+          <button
+            type="button"
+            class="btn btn-outline-secondary w-100"
+            data-bs-dismiss="modal"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/service/api.js"></script>
     <script src="../js/main.js"></script>

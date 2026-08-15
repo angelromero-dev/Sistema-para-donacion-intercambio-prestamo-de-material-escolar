@@ -5,7 +5,6 @@ import com.utez.sdipme.model.Usuario;
 import com.utez.sdipme.util.PasswordUtil;
 import java.util.UUID;
 
-// Business logic layer for User operations.
 public class UsuarioService {
 
     private final UsuarioDao usuarioDao;
@@ -14,17 +13,14 @@ public class UsuarioService {
         this.usuarioDao = new UsuarioDao();
     }
 
-    // Handles user registration and business rules validation.
-    public String registrarUsuario(String matricula, String correo, String nombre, String apellidos, String telefono, int idCarrera, String passwordPlana, String tokenActivacion) {
-
+    // Registro
+    public String registrarUsuario(String matricula, String correo, String nombre, String apellidos, String telefono, int idCarrera, String passwordPlana, String tokenActivacion, String baseUrl) {
         if (matricula == null || matricula.isEmpty() || correo == null || correo.isEmpty() || nombre == null || nombre.isEmpty() || apellidos == null || apellidos.isEmpty() || telefono == null || telefono.isEmpty() || idCarrera <= 0) {
             return "Error: Todos los campos del perfil y la carrera son obligatorios.";
         }
-
         if (!correo.toLowerCase().endsWith("@utez.edu.mx")) {
             return "Error: Solo se permiten correos institucionales de la UTEZ (@utez.edu.mx).";
         }
-
         if (passwordPlana == null || passwordPlana.length() < 6 || passwordPlana.length() > 20) {
             return "Error: La contraseña debe tener entre 6 y 20 caracteres.";
         }
@@ -39,11 +35,15 @@ public class UsuarioService {
         Usuario nuevoUsuario = new Usuario(matricula, correo, nombre, apellidos, telefono, idCarrera, hash);
 
         boolean exito = usuarioDao.insert(nuevoUsuario, tokenActivacion);
+        if (exito) {
+            // Aquí pasamos el baseUrl correctamente
+            EmailService.enviarCorreoVerificacion(correo, tokenActivacion, baseUrl);
+        }
         return exito ? "EXITO" : "Error al registrar el usuario. El correo o matrícula ya existen.";
     }
 
-    // Generates a new token and resends the activation email.
-    public String reenviarTokenActivacion(String correo) {
+    // Reenviar Activación
+    public String reenviarTokenActivacion(String correo, String baseUrl) {
         if (correo == null || correo.trim().isEmpty()) return "El correo es obligatorio.";
 
         String nuevoToken = UUID.randomUUID().toString();
@@ -51,13 +51,12 @@ public class UsuarioService {
 
         if (!actualizado) return "El correo no está registrado o la cuenta ya está activa.";
 
-        boolean correoEnviado = EmailService.enviarCorreoVerificacion(correo, nuevoToken);
+        // Aquí pasamos el baseUrl correctamente
+        boolean correoEnviado = EmailService.enviarCorreoVerificacion(correo, nuevoToken, baseUrl);
         return correoEnviado ? "EXITO" : "Error al enviar el correo de activación.";
     }
 
-    // ==========================================
-    // LÓGICA DE LOGIN (Manejo de Casos 2 y 3)
-    // ==========================================
+    // Autenticación (Login)
     public String autenticarUsuario(String correo, String passwordPlana) {
         if (correo == null || correo.isEmpty() || passwordPlana == null || passwordPlana.isEmpty()) {
             return "Error: El correo y la contraseña son obligatorios.";
@@ -69,11 +68,9 @@ public class UsuarioService {
         if (usuario.getBloqueadoPorAdmin() == 1) {
             return "CUENTA_BANEADA";
         }
-
         if ("SUSPENDIDO".equals(usuario.getEstado()) || "BLOQUEADO".equals(usuario.getEstado())) {
             return "CUENTA_SUSPENDIDA";
         }
-
         if ("INACTIVO".equals(usuario.getEstado())) {
             return "Error: La cuenta no ha sido activada. Revisa tu correo institucional.";
         }
@@ -94,10 +91,8 @@ public class UsuarioService {
         return "EXITO";
     }
 
-    // ==========================================
-    // LÓGICA DE RECUPERACIÓN (Caso 1 y 2)
-    // ==========================================
-    public String solicitarRecuperacionPassword(String correo) {
+    // Recuperación de Contraseña
+    public String solicitarRecuperacionPassword(String correo, String baseUrl) {
         if (correo == null || correo.trim().isEmpty()) return "El correo es obligatorio.";
 
         Usuario usuario = usuarioDao.findByCorreo(correo);
@@ -105,7 +100,6 @@ public class UsuarioService {
         if (usuario == null) {
             return "EXITO";
         }
-
         if (usuario.getBloqueadoPorAdmin() == 1) {
             return "Cuenta restringida permanentemente. Comunícate con el administrador.";
         }
@@ -114,15 +108,14 @@ public class UsuarioService {
         boolean guardado = usuarioDao.guardarTokenRecuperacion(correo, token);
 
         if (guardado) {
-            boolean correoEnviado = EmailService.enviarCorreoRecuperacion(correo, token);
+            // Aquí pasamos el baseUrl correctamente
+            boolean correoEnviado = EmailService.enviarCorreoRecuperacion(correo, token, baseUrl);
             return correoEnviado ? "EXITO" : "Error al enviar el correo de recuperación.";
         }
         return "Error interno al procesar la solicitud.";
     }
 
-    // ==========================================
-    // RESTABLECER CONTRASEÑA
-    // ==========================================
+    // Restablecer Contraseña
     public String restablecerPassword(String token, String nuevaPasswordPlana) {
         if (token == null || token.trim().isEmpty()) return "Token inválido o expirado.";
 
@@ -147,27 +140,23 @@ public class UsuarioService {
         if (nombre == null || nombre.trim().isEmpty() || apellidos == null || apellidos.trim().isEmpty()) {
             return "El nombre y los apellidos son obligatorios.";
         }
-        boolean exito = usuarioDao.actualizarNombres(idUsuario, nombre, apellidos);
-        return exito ? "EXITO" : "Error al actualizar la información personal.";
+        return usuarioDao.actualizarNombres(idUsuario, nombre, apellidos) ? "EXITO" : "Error al actualizar la información personal.";
     }
 
     public String actualizarTelefono(int idUsuario, String telefono) {
         if (telefono == null || !telefono.matches("\\d{10}")) {
             return "El número de teléfono debe contener exactamente 10 dígitos.";
         }
-        boolean exito = usuarioDao.actualizarTelefono(idUsuario, telefono);
-        return exito ? "EXITO" : "Error al actualizar el teléfono.";
+        return usuarioDao.actualizarTelefono(idUsuario, telefono) ? "EXITO" : "Error al actualizar el teléfono.";
     }
 
     public String actualizarCarrera(int idUsuario, int idCarrera) {
         if (idCarrera <= 0) return "Carrera inválida.";
-        boolean exito = usuarioDao.actualizarCarrera(idUsuario, idCarrera);
-        return exito ? "EXITO" : "Error al actualizar la carrera.";
+        return usuarioDao.actualizarCarrera(idUsuario, idCarrera) ? "EXITO" : "Error al actualizar la carrera.";
     }
 
     public String suspenderCuenta(int idUsuario) {
-        boolean exito = usuarioDao.suspenderCuenta(idUsuario);
-        return exito ? "EXITO" : "Error al suspender la cuenta.";
+        return usuarioDao.suspenderCuenta(idUsuario) ? "EXITO" : "Error al suspender la cuenta.";
     }
 
     public String cambiarPasswordSeguro(int idUsuario, String correo, String passwordActual, String passwordNueva) {
@@ -181,8 +170,7 @@ public class UsuarioService {
         }
 
         String nuevoHash = PasswordUtil.hashPassword(passwordNueva);
-        boolean exito = usuarioDao.cambiarPassword(idUsuario, nuevoHash);
-        return exito ? "EXITO" : "Error al actualizar la contraseña.";
+        return usuarioDao.cambiarPassword(idUsuario, nuevoHash) ? "EXITO" : "Error al actualizar la contraseña.";
     }
 
     public String eliminarCuentaPermanente(int idUsuario, String correo, String passwordConfirmacion) {
@@ -192,13 +180,11 @@ public class UsuarioService {
             return "Contraseña incorrecta. Acción denegada.";
         }
 
-        boolean exito = usuarioDao.eliminarCuentaPermanente(idUsuario);
-        return exito ? "EXITO" : "Error crítico al intentar eliminar la cuenta.";
+        return usuarioDao.eliminarCuentaPermanente(idUsuario) ? "EXITO" : "Error crítico al intentar eliminar la cuenta.";
     }
 
     public String actualizarFotoPerfil(int idUsuario, String fotoUrl) {
         if (fotoUrl == null || fotoUrl.trim().isEmpty()) return "URL de imagen inválida.";
-        boolean exito = usuarioDao.actualizarFotoPerfil(idUsuario, fotoUrl);
-        return exito ? "EXITO" : "Error al actualizar la foto de perfil.";
+        return usuarioDao.actualizarFotoPerfil(idUsuario, fotoUrl) ? "EXITO" : "Error al actualizar la foto de perfil.";
     }
 }

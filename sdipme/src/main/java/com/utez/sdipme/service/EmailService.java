@@ -49,8 +49,8 @@ public class EmailService {
         }
     }
 
-    public static boolean enviarCorreoVerificacion(String destinatario, String token) {
-        String linkActivacion = "http://www.sdipme.online/pages/login.jsp?token=" + token;
+    public static boolean enviarCorreoVerificacion(String destinatario, String token, String baseUrl) {
+        String linkActivacion = baseUrl + "/pages/login.jsp?token=" + token;
         String asunto = "SDIPME - Activa tu cuenta universitaria";
 
         String templateHtml = """
@@ -138,8 +138,8 @@ public class EmailService {
         return enviarCorreo(destinatario, asunto, contenidoHtml);
     }
 
-    public static boolean enviarCorreoRecuperacion(String destinatario, String token) {
-        String enlaceRecuperacion = "http://127.0.0.1:8080/sdipme/restablecer-password.html?token=" + token;
+    public static boolean enviarCorreoRecuperacion(String destinatario, String token, String baseUrl) {
+        String enlaceRecuperacion = baseUrl + "/pages/recuperar.jsp?token=" + token;
         String asunto = "SDIPME - Recuperacion de Contraseña o Desbloqueo";
 
         String templateHtml = """

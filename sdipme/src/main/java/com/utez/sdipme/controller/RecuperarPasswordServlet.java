@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-// Endpoint for requesting a password recovery email.
 @WebServlet("/api/auth/recuperar-password")
 public class RecuperarPasswordServlet extends HttpServlet {
 
@@ -24,10 +23,17 @@ public class RecuperarPasswordServlet extends HttpServlet {
 
         JsonObject jsonResponse = new JsonObject();
         try {
+            // 1. Construir la URL base dinámica
+            String baseUrl = request.getScheme() + "://" + request.getServerName() +
+                    (("http".equals(request.getScheme()) && request.getServerPort() == 80) ||
+                            ("https".equals(request.getScheme()) && request.getServerPort() == 443) ? "" : ":" + request.getServerPort()) +
+                    request.getContextPath();
+
             JsonObject jsonRequest = gson.fromJson(request.getReader(), JsonObject.class);
             String correo = jsonRequest.get("correo").getAsString();
 
-            String resultado = usuarioService.solicitarRecuperacionPassword(correo);
+            // 2. Pasar el baseUrl al método
+            String resultado = usuarioService.solicitarRecuperacionPassword(correo, baseUrl);
 
             if ("EXITO".equals(resultado)) {
                 response.setStatus(HttpServletResponse.SC_OK);

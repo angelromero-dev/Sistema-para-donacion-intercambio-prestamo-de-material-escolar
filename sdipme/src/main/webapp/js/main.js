@@ -5,126 +5,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // LOGIN
-const loginForm = document.getElementById('form-login');
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const btnLogin = document.getElementById('btn-login');
-            const usuarioInput = document.getElementById('usuario');
-            const passwordInput = document.getElementById('password');
-
-            btnLogin.disabled = true;
-            btnLogin.innerText = 'Iniciando...';
-            usuarioInput.classList.remove('is-invalid');
-            passwordInput.classList.remove('is-invalid');
-
-            const response = await api.login(usuarioInput.value, passwordInput.value);
-
-            if (response.ok) {
-                window.location.href = "dashboard.jsp";
-            } else {
-                const estado = response.data.estadoCuenta; 
-                const baneadoAdmin = response.data.bloqueadoPorAdmin; 
-
-                if (baneadoAdmin === true) {
-                    // CASO 3: Bloqueado por Superusuario
-                    document.getElementById('idUsuarioBaneado').value = response.data.idUsuario;
-                    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalBaneado')).show();
-                } 
-                else if (estado === 'SUSPENDIDO' || estado === 'BLOQUEADO') {
-                    // CASO 2: Suspendido por el usuario o bloqueado por intentos
-                    document.getElementById('correoReactivacionOculto').value = usuarioInput.value;
-                    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCuentaSuspendida')).show();
-                } 
-                else {
-                    // Credenciales incorrectas estándar
-                    usuarioInput.classList.add('is-invalid');
-                    passwordInput.classList.add('is-invalid');
-                    alert(response.data.message || "Credenciales incorrectas");
-                }
-            }
-
-            btnLogin.disabled = false;
-            btnLogin.innerText = 'Iniciar';
-        });
-    }
-
-    // ==========================================
-    // 2. CASO 1: OLVIDÉ MI CONTRASEÑA
-    // ==========================================
-    const formOlvide = document.getElementById('form-olvide-password');
-    if (formOlvide) {
-        formOlvide.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const correo = document.getElementById('correoRecuperacion').value;
-            const btn = document.getElementById('btn-enviar-recuperacion');
-            btn.disabled = true;
-
-            await api.solicitarRecuperacion(correo);
-            
-            bootstrap.Modal.getInstance(document.getElementById('modalOlvidePassword')).hide();
-            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalRevisaCorreo')).show();
-            
-            btn.disabled = false;
-        });
-    }
-
-    // ==========================================
-    // 3. CASO 2: REACTIVAR CUENTA SUSPENDIDA
-    // ==========================================
-    const formReactivar = document.getElementById('form-reactivar-cuenta');
-    if (formReactivar) {
-        formReactivar.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const correo = document.getElementById('correoReactivacionOculto').value;
-            const btn = document.getElementById('btn-reactivar-cuenta');
-            btn.disabled = true;
-
-            // Se reutiliza el flujo de recuperación para desbloquear la cuenta
-            await api.solicitarRecuperacion(correo);
-            
-            bootstrap.Modal.getInstance(document.getElementById('modalCuentaSuspendida')).hide();
-            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalRevisaCorreo')).show();
-            
-            btn.disabled = false;
-        });
-    }
-
-    // ==========================================
-    // 4. CASO 3: APELACIÓN AL ADMINISTRADOR
-    // ==========================================
-    const formMensajeAdmin = document.getElementById('form-mensaje-admin');
-    if (formMensajeAdmin) {
-        formMensajeAdmin.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const idUsuario = document.getElementById('idUsuarioBaneado').value;
-            const mensaje = document.getElementById('mensajeAdminTexto').value.trim();
-            const btn = document.getElementById('btn-enviar-admin');
-
-            if (mensaje.length === 0 || mensaje.length > 255) return;
-
-            btn.disabled = true;
-            btn.innerText = 'Enviando...';
-
-            const res = await api.enviarMensajeAdmin(idUsuario, mensaje);
-            
-            if(res.ok) {
-                bootstrap.Modal.getInstance(document.getElementById('modalBaneado')).hide();
-                alert("Mensaje enviado al administrador. Tienes un límite de 1 mensaje cada 7 días.");
-            } else {
-                alert(res.data.message || "Aún no puedes enviar otro mensaje. Deben pasar 7 días.");
-            }
-            btn.disabled = false;
-            btn.innerText = 'Enviar Apelación';
-        });
-    }
-
-    // ==========================================
-    // 5. LÓGICA EXCLUSIVA DE RECUPERAR.JSP
-    // ==========================================
-    if (window.location.pathname.includes('recuperar.jsp')) {
+if (window.location.pathname.includes('recuperar.jsp')) {
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
 
@@ -136,14 +17,78 @@ const loginForm = document.getElementById('form-login');
 
                 if (res.ok && res.data.valido) {
                     document.getElementById('nombreUsuarioRestablecer').innerText = res.data.nombreUsuario;
+                    // Abre el modal para nueva contraseña sin pedir la anterior
                     bootstrap.Modal.getOrCreateInstance(document.getElementById('modalRestablecerPassword')).show();
                 } else {
                     bootstrap.Modal.getOrCreateInstance(document.getElementById('modalEnlaceInvalido')).show();
                 }
+                
+                // Limpia la URL
+                window.history.replaceState({}, document.title, window.location.pathname);
             })();
+        }
+
+        const formRestablecer = document.getElementById('form-restablecer-password');
+        if (formRestablecer) {
+            formRestablecer.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const nueva = document.getElementById('nuevaPassword').value;
+                const confirmar = document.getElementById('confirmarPassword').value;
+                const btn = document.getElementById('btn-restablecer-password');
+
+                if (nueva !== confirmar) {
+                    document.getElementById('errorRestablecerMensaje').innerText = "Las contraseñas no coinciden.";
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalErrorRestablecer')).show();
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerText = 'Actualizando...';
+
+                const response = await api.restablecerPassword(token, nueva);
+
+                bootstrap.Modal.getInstance(document.getElementById('modalRestablecerPassword')).hide();
+
+                if (response.ok) {
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalPasswordActualizada')).show();
+                } else {
+                    document.getElementById('errorRestablecerMensaje').innerText = response.data.message || 'No se pudo actualizar tu contraseña.';
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalErrorRestablecer')).show();
+                }
+                
+                btn.disabled = false;
+                btn.innerText = 'Guardar Contraseña';
+            });
         }
     }
 
+    // ==========================================
+    // DETECCIÓN DE TOKEN EN LOGIN.JSP (Activación de Cuenta Nueva)
+    // ==========================================
+    if (window.location.pathname.includes('login.jsp') || window.location.pathname === '/' || window.location.pathname.endsWith('sdipme_war_exploded/')) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokenActivacion = urlParams.get('token');
+
+        if (tokenActivacion) {
+            (async () => {
+                // Se elimina el alert() y se usa el modal de Bootstrap
+                const response = await api.activarCuenta(tokenActivacion);
+
+                if (response.ok && response.data.status === 'success') {
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalActivacionExito')).show();
+                } else {
+                    const errorMsgEl = document.getElementById('activacionErrorMsg');
+                    if(errorMsgEl) errorMsgEl.innerText = response.data.message || "El token no es válido o ya fue utilizado.";
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalActivacionError')).show();
+                }
+
+                // Limpiar el parámetro token de la barra de direcciones
+                window.history.replaceState({}, document.title, window.location.pathname);
+            })();
+        }
+    }
+    
     // REGISTRO
     const registerForm = document.getElementById('form-register');
 

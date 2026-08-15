@@ -3,7 +3,6 @@ package com.utez.sdipme.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.utez.sdipme.service.UsuarioService;
-import com.utez.sdipme.service.EmailService;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,10 +30,8 @@ public class AuthServlet extends HttpServlet {
         System.out.println("\n>>> [CAPA 3 - SERVLET] Petición POST recibida en /api/auth/registro");
         try {
 
-            // Parse incoming JSON payload from the Frontend containing profile data
             JsonObject jsonRequest = gson.fromJson(request.getReader(), JsonObject.class);
             System.out.println(">>> [CAPA 3 - SERVLET] Payload recibido del Frontend: " + jsonRequest.toString());
-
 
             String matricula = jsonRequest.has("matricula") ? jsonRequest.get("matricula").getAsString() : "";
             String correo = jsonRequest.has("correo") ? jsonRequest.get("correo").getAsString().toLowerCase().trim() : "";
@@ -44,23 +41,23 @@ public class AuthServlet extends HttpServlet {
             int idCarrera = jsonRequest.has("idCarrera") ? jsonRequest.get("idCarrera").getAsInt() : 0;
             String password = jsonRequest.has("password") ? jsonRequest.get("password").getAsString() : "";
 
-            // Generate a secure unique token for email verification
             String tokenActivacion = UUID.randomUUID().toString();
 
-            // Delegate registration logic to Service layer
-            String resultado = usuarioService.registrarUsuario(matricula, correo, nombre, apellidos, telefono, idCarrera, password, tokenActivacion);
-            System.out.println(">>> [CAPA 3 - SERVLET] Respuesta generada por el Service: " + resultado);
-            if ("EXITO".equals(resultado)) {
-                boolean correoEnviado = EmailService.enviarCorreoVerificacion(correo, tokenActivacion);
+            // Construcción dinámica de la URL
+            String baseUrl = request.getScheme() + "://" + request.getServerName() +
+                    (("http".equals(request.getScheme()) && request.getServerPort() == 80) ||
+                            ("https".equals(request.getScheme()) && request.getServerPort() == 443) ? "" : ":" + request.getServerPort()) +
+                    request.getContextPath();
 
+            // Se envía la baseUrl al Service. El Service se encargará de guardar en BD y enviar el correo.
+            String resultado = usuarioService.registrarUsuario(matricula, correo, nombre, apellidos, telefono, idCarrera, password, tokenActivacion, baseUrl);
+
+            System.out.println(">>> [CAPA 3 - SERVLET] Respuesta generada por el Service: " + resultado);
+
+            if ("EXITO".equals(resultado)) {
                 response.setStatus(HttpServletResponse.SC_CREATED);
                 jsonResponse.addProperty("status", "success");
-
-                if (correoEnviado) {
-                    jsonResponse.addProperty("message", "Usuario registrado. Revisa tu correo institucional para activar tu cuenta.");
-                } else {
-                    jsonResponse.addProperty("message", "Usuario registrado, pero hubo un problema al enviar el correo de activación. Contacta soporte.");
-                }
+                jsonResponse.addProperty("message", "Usuario registrado. Revisa tu correo institucional para activar tu cuenta.");
             } else {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 jsonResponse.addProperty("status", "error");

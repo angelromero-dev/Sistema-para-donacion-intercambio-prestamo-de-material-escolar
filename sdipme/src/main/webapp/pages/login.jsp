@@ -273,6 +273,63 @@
       </div>
     </div>
 
+    <!-- Modal Activación Exitosa (Usuario Nuevo) -->
+    <div
+      class="modal fade modal-scale"
+      id="modalActivacionExito"
+      tabindex="-1"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow text-center p-4">
+          <i
+            class="bx bx-check-circle text-success mb-2"
+            style="font-size: 3.5rem"
+          ></i>
+          <h5 class="fw-bold mb-2">¡Cuenta Activada!</h5>
+          <p class="text-muted small mb-3">
+            Tu cuenta ha sido validada exitosamente. Ya puedes iniciar sesión.
+          </p>
+          <button
+            type="button"
+            class="btn auth-btn w-100"
+            data-bs-dismiss="modal"
+          >
+            Ir al Login
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Activación Error -->
+    <div
+      class="modal fade modal-scale"
+      id="modalActivacionError"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow text-center p-4">
+          <i
+            class="bx bx-x-circle text-danger mb-2"
+            style="font-size: 3.5rem"
+          ></i>
+          <h5 class="fw-bold mb-2">Error de activación</h5>
+          <p class="text-muted small mb-3" id="activacionErrorMsg">
+            El enlace es inválido o la cuenta ya fue activada.
+          </p>
+          <button
+            type="button"
+            class="btn btn-outline-secondary w-100"
+            data-bs-dismiss="modal"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/service/api.js"></script>
     <script src="../js/main.js"></script>
