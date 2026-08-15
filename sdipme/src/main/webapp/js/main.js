@@ -5,7 +5,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // LOGIN
-    const loginForm = document.getElementById('form-login');
+const loginForm = document.getElementById('form-login');
 
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -25,9 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 window.location.href = "dashboard.jsp";
             } else {
-                // Analizar la respuesta del backend
-                const estado = response.data.estadoCuenta; // Ej: 'SUSPENDIDO', 'BLOQUEADO'
-                const baneadoAdmin = response.data.bloqueadoPorAdmin; // true o false
+                const estado = response.data.estadoCuenta; 
+                const baneadoAdmin = response.data.bloqueadoPorAdmin; 
 
                 if (baneadoAdmin === true) {
                     // CASO 3: Bloqueado por Superusuario
@@ -35,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     bootstrap.Modal.getOrCreateInstance(document.getElementById('modalBaneado')).show();
                 } 
                 else if (estado === 'SUSPENDIDO' || estado === 'BLOQUEADO') {
-                    // CASO 2: Sin intentos o suspendido por el mismo usuario
+                    // CASO 2: Suspendido por el usuario o bloqueado por intentos
                     document.getElementById('correoReactivacionOculto').value = usuarioInput.value;
                     bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCuentaSuspendida')).show();
                 } 
@@ -65,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             await api.solicitarRecuperacion(correo);
             
-            // Cierra el modal de pedir correo y abre el de avisar que revise su bandeja
             bootstrap.Modal.getInstance(document.getElementById('modalOlvidePassword')).hide();
             bootstrap.Modal.getOrCreateInstance(document.getElementById('modalRevisaCorreo')).show();
             
@@ -74,7 +72,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 3. ENVÍO DE MENSAJE AL ADMIN (CASO 3)
+    // 3. CASO 2: REACTIVAR CUENTA SUSPENDIDA
+    // ==========================================
+    const formReactivar = document.getElementById('form-reactivar-cuenta');
+    if (formReactivar) {
+        formReactivar.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const correo = document.getElementById('correoReactivacionOculto').value;
+            const btn = document.getElementById('btn-reactivar-cuenta');
+            btn.disabled = true;
+
+            // Se reutiliza el flujo de recuperación para desbloquear la cuenta
+            await api.solicitarRecuperacion(correo);
+            
+            bootstrap.Modal.getInstance(document.getElementById('modalCuentaSuspendida')).hide();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalRevisaCorreo')).show();
+            
+            btn.disabled = false;
+        });
+    }
+
+    // ==========================================
+    // 4. CASO 3: APELACIÓN AL ADMINISTRADOR
     // ==========================================
     const formMensajeAdmin = document.getElementById('form-mensaje-admin');
     if (formMensajeAdmin) {
@@ -98,12 +117,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert(res.data.message || "Aún no puedes enviar otro mensaje. Deben pasar 7 días.");
             }
             btn.disabled = false;
-            btn.innerText = 'Enviar Mensaje';
+            btn.innerText = 'Enviar Apelación';
         });
     }
 
     // ==========================================
-    // 4. LÓGICA EXCLUSIVA DE RECUPERAR.JSP
+    // 5. LÓGICA EXCLUSIVA DE RECUPERAR.JSP
     // ==========================================
     if (window.location.pathname.includes('recuperar.jsp')) {
         const urlParams = new URLSearchParams(window.location.search);
