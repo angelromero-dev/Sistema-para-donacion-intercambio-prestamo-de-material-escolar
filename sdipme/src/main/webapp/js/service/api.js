@@ -2,7 +2,7 @@
  * Connect API
  */
 
-const API_BASE_URL = '/sdipme_war_exploded/api';
+const API_BASE_URL = '/api';
 
 const api = {
    // Login request

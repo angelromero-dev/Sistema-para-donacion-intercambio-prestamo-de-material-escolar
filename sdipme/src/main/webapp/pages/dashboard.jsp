@@ -132,7 +132,30 @@
       </div>
     </nav>
 
-    <!-- Searcher -->
+    <!-- Searcher and Filters -->
+    <section class="l-container mt-4">
+      <div class="smart-filter-wrapper">
+        <div class="smart-search">
+          <i class="bx bx-search"></i>
+          <input
+            type="text"
+            id="searchInput"
+            class="smart-search__input"
+            placeholder="Buscar prototipo por título o matrícula..."
+            autocomplete="off"
+          />
+        </div>
+        <!-- Contenedor dinámico de etiquetas -->
+        <div class="smart-filter__tags" id="filterContainer">
+          <button
+            class="smart-filter__btn smart-filter__btn--active"
+            data-tag="all"
+          >
+            Todos
+          </button>
+        </div>
+      </div>
+    </section>
 
     <!-- Cards section -->
     <main class="l-container my-4">
