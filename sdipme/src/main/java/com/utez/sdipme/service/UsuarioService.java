@@ -2,8 +2,8 @@ package com.utez.sdipme.service;
 
 import com.utez.sdipme.dao.UsuarioDao;
 import com.utez.sdipme.model.Usuario;
-import com.utez.sdipme.service.EmailService;
 import com.utez.sdipme.util.PasswordUtil;
+import java.util.UUID;
 
 // Business logic layer for User operations.
 public class UsuarioService {
@@ -46,7 +46,7 @@ public class UsuarioService {
     public String reenviarTokenActivacion(String correo) {
         if (correo == null || correo.trim().isEmpty()) return "El correo es obligatorio.";
 
-        String nuevoToken = java.util.UUID.randomUUID().toString();
+        String nuevoToken = UUID.randomUUID().toString();
         boolean actualizado = usuarioDao.actualizarTokenActivacion(correo, nuevoToken);
 
         if (!actualizado) return "El correo no está registrado o la cuenta ya está activa.";
@@ -55,7 +55,9 @@ public class UsuarioService {
         return correoEnviado ? "EXITO" : "Error al enviar el correo de activación.";
     }
 
-    // Authenticates user and manages brute-force lock mechanism.
+    // ==========================================
+    // LÓGICA DE LOGIN (Manejo de Casos 2 y 3)
+    // ==========================================
     public String autenticarUsuario(String correo, String passwordPlana) {
         if (correo == null || correo.isEmpty() || passwordPlana == null || passwordPlana.isEmpty()) {
             return "Error: El correo y la contraseña son obligatorios.";
@@ -64,11 +66,16 @@ public class UsuarioService {
         Usuario usuario = usuarioDao.findByCorreo(correo);
         if (usuario == null) return "Error: Credenciales incorrectas o cuenta inexistente.";
 
+        if (usuario.getBloqueadoPorAdmin() == 1) {
+            return "CUENTA_BANEADA";
+        }
+
+        if ("SUSPENDIDO".equals(usuario.getEstado()) || "BLOQUEADO".equals(usuario.getEstado())) {
+            return "CUENTA_SUSPENDIDA";
+        }
+
         if ("INACTIVO".equals(usuario.getEstado())) {
             return "Error: La cuenta no ha sido activada. Revisa tu correo institucional.";
-        }
-        if ("BLOQUEADO".equals(usuario.getEstado())) {
-            return "Error: La cuenta ha sido BLOQUEADA. Solicita recuperar contraseña para desbloquearla.";
         }
 
         boolean passwordValid = PasswordUtil.checkPassword(passwordPlana, usuario.getPasswordHash());
@@ -76,7 +83,7 @@ public class UsuarioService {
         if (!passwordValid) {
             int intentos = usuarioDao.registrarIntentoFallido(correo);
             if (intentos >= 3) {
-                return "Error: Has acumulado 3 intentos fallidos. Tu cuenta ha sido BLOQUEADA.";
+                return "CUENTA_SUSPENDIDA";
             } else {
                 int restantes = 3 - intentos;
                 return "Error: Credenciales incorrectas. Te quedan " + restantes + " intento(s).";
@@ -87,14 +94,23 @@ public class UsuarioService {
         return "EXITO";
     }
 
-    // Initiates password recovery process.
+    // ==========================================
+    // LÓGICA DE RECUPERACIÓN (Caso 1 y 2)
+    // ==========================================
     public String solicitarRecuperacionPassword(String correo) {
         if (correo == null || correo.trim().isEmpty()) return "El correo es obligatorio.";
 
         Usuario usuario = usuarioDao.findByCorreo(correo);
-        if (usuario == null) return "Error: Correo no encontrado en la base de datos.";
 
-        String token = java.util.UUID.randomUUID().toString();
+        if (usuario == null) {
+            return "EXITO";
+        }
+
+        if (usuario.getBloqueadoPorAdmin() == 1) {
+            return "Cuenta restringida permanentemente. Comunícate con el administrador.";
+        }
+
+        String token = UUID.randomUUID().toString();
         boolean guardado = usuarioDao.guardarTokenRecuperacion(correo, token);
 
         if (guardado) {
@@ -104,9 +120,12 @@ public class UsuarioService {
         return "Error interno al procesar la solicitud.";
     }
 
-    // Verifies token and updates user password.
+    // ==========================================
+    // RESTABLECER CONTRASEÑA
+    // ==========================================
     public String restablecerPassword(String token, String nuevaPasswordPlana) {
         if (token == null || token.trim().isEmpty()) return "Token inválido o expirado.";
+
         if (nuevaPasswordPlana == null || nuevaPasswordPlana.length() < 6 || nuevaPasswordPlana.length() > 20) {
             return "Error: La contraseña debe tener entre 6 y 20 caracteres.";
         }
@@ -117,7 +136,7 @@ public class UsuarioService {
         String nuevoHash = PasswordUtil.hashPassword(nuevaPasswordPlana);
         boolean exito = usuarioDao.restablecerPasswordConToken(token, nuevoHash);
 
-        return exito ? "EXITO" : "Error: El enlace de recuperación es inválido o ya fue utilizado.";
+        return exito ? "EXITO" : "El enlace de recuperación es inválido o ya ha expirado.";
     }
 
     public com.utez.sdipme.dto.UsuarioPerfilDTO obtenerPerfil(int idUsuario) {
@@ -151,9 +170,6 @@ public class UsuarioService {
         return exito ? "EXITO" : "Error al suspender la cuenta.";
     }
 
-    /**
-     * Validates current password before changing to a new one.
-     */
     public String cambiarPasswordSeguro(int idUsuario, String correo, String passwordActual, String passwordNueva) {
         Usuario usuario = usuarioDao.findByCorreo(correo);
 
@@ -169,9 +185,6 @@ public class UsuarioService {
         return exito ? "EXITO" : "Error al actualizar la contraseña.";
     }
 
-    /**
-     * Enforces password verification before permanently deleting the account.
-     */
     public String eliminarCuentaPermanente(int idUsuario, String correo, String passwordConfirmacion) {
         Usuario usuario = usuarioDao.findByCorreo(correo);
 
