@@ -29,18 +29,7 @@
   <body
     class="auth-layout d-flex justify-content-center align-items-center vh-100"
   >
-    <div class="text-center">
-      <div
-        class="spinner-border text-primary"
-        role="status"
-        id="loadingRecuperacion"
-      ></div>
-      <p class="mt-3 text-muted" id="textoRecuperacion">
-        Validando enlace seguro...
-      </p>
-    </div>
-
-    <!-- Modal Restablecer Contraseña -->
+    <!-- Modal Restablecer Contraseña (Se abre en automático) -->
     <div
       class="modal fade modal-scale"
       id="modalRestablecerPassword"
@@ -55,90 +44,67 @@
           </div>
           <div class="modal-body p-4">
             <p class="text-muted small mb-3">
-              Ingresa tu nueva contraseña para
-              <span id="nombreUsuarioRestablecer" class="fw-bold"></span>.
+              Hola
+              <span class="fw-bold"
+                ><%= session.getAttribute("nombreUsuario") != null ?
+                session.getAttribute("nombreUsuario") : "" %></span
+              >, ingresa tu nueva contraseña. (Opcional, ya estás logueado y tu
+              cuenta está desbloqueada).
             </p>
             <form id="form-restablecer-password">
               <div class="mb-3">
                 <label class="form-label">Nueva Contraseña</label>
-                <input
-                  type="password"
-                  id="nuevaPassword"
-                  class="form-control"
-                  required
-                />
+                <div class="password-wrapper position-relative">
+                  <input
+                    type="password"
+                    id="nuevaPassword"
+                    class="form-control auth-input"
+                    placeholder="Min. 6 caracteres, 1 mayúscula"
+                    required
+                  />
+                  <i
+                    class="bx bx-hide password-toggle position-absolute top-50 end-0 translate-middle-y me-3"
+                    data-target="nuevaPassword"
+                    style="cursor: pointer; color: var(--color-text-hint)"
+                  ></i>
+                </div>
               </div>
               <div class="mb-3">
                 <label class="form-label">Confirmar Contraseña</label>
-                <input
-                  type="password"
-                  id="confirmarPassword"
-                  class="form-control"
-                  required
-                />
+                <div class="password-wrapper position-relative">
+                  <input
+                    type="password"
+                    id="confirmarPassword"
+                    class="form-control auth-input"
+                    placeholder="Repite tu contraseña"
+                    required
+                  />
+                  <i
+                    class="bx bx-hide password-toggle position-absolute top-50 end-0 translate-middle-y me-3"
+                    data-target="confirmarPassword"
+                    style="cursor: pointer; color: var(--color-text-hint)"
+                  ></i>
+                </div>
               </div>
-              <button
-                type="submit"
-                id="btn-restablecer-password"
-                class="btn auth-btn w-100"
-              >
-                Guardar Contraseña
-              </button>
+              <div class="d-flex gap-2">
+                <a href="dashboard.jsp" class="btn btn-outline-secondary w-50"
+                  >Omitir</a
+                >
+                <button
+                  type="submit"
+                  id="btn-restablecer-password"
+                  class="btn auth-btn w-50"
+                >
+                  Guardar
+                </button>
+              </div>
             </form>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Modal Enlace Inválido -->
-    <div
-      class="modal fade modal-scale"
-      id="modalEnlaceInvalido"
-      tabindex="-1"
-      aria-hidden="true"
-      data-bs-backdrop="static"
-    >
-      <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow text-center p-4">
-          <i
-            class="bx bx-x-circle text-danger mb-2"
-            style="font-size: 3.5rem"
-          ></i>
-          <h5 class="fw-bold mb-2">Enlace inválido</h5>
-          <p class="text-muted small mb-3">
-            Este enlace ha expirado o ya fue utilizado.
-          </p>
-          <a href="login.jsp" class="btn btn-outline-secondary w-100"
-            >Volver al Login</a
-          >
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal Contraseña Actualizada (Éxito) -->
-    <div
-      class="modal fade modal-scale"
-      id="modalPasswordActualizada"
-      tabindex="-1"
-      aria-hidden="true"
-      data-bs-backdrop="static"
-    >
-      <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow text-center p-4">
-          <i
-            class="bx bx-shield-quarter text-success mb-2"
-            style="font-size: 3.5rem"
-          ></i>
-          <h5 class="fw-bold mb-2">¡Acceso Restaurado!</h5>
-          <p class="text-muted small mb-3">
-            Tu contraseña ha sido actualizada y tu cuenta está desbloqueada.
-          </p>
-          <a href="login.jsp" class="btn auth-btn w-100">Ir a Iniciar Sesión</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal Error Restablecer -->
+    <!-- Modal Error -->
     <div
       class="modal fade modal-scale"
       id="modalErrorRestablecer"

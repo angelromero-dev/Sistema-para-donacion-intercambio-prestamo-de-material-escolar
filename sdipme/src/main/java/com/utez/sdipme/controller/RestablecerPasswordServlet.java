@@ -7,9 +7,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
-// Endpoint for applying the new password via secure token.
 @WebServlet("/api/auth/restablecer-password")
 public class RestablecerPasswordServlet extends HttpServlet {
 
@@ -24,11 +24,22 @@ public class RestablecerPasswordServlet extends HttpServlet {
 
         JsonObject jsonResponse = new JsonObject();
         try {
+            // Protección: Validar que existe la sesión generada por el enlace
+            HttpSession session = request.getSession(false);
+            if (session == null || session.getAttribute("idUsuario") == null) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                jsonResponse.addProperty("status", "error");
+                jsonResponse.addProperty("message", "Acceso denegado. No tienes una sesión activa verificada por token.");
+                response.getWriter().write(jsonResponse.toString());
+                return;
+            }
+
+            int idUsuario = (int) session.getAttribute("idUsuario");
+
             JsonObject jsonRequest = gson.fromJson(request.getReader(), JsonObject.class);
-            String token = jsonRequest.get("token").getAsString();
             String nuevaPassword = jsonRequest.get("password").getAsString();
 
-            String resultado = usuarioService.restablecerPassword(token, nuevaPassword);
+            String resultado = usuarioService.restablecerPasswordConSesion(idUsuario, nuevaPassword);
 
             if ("EXITO".equals(resultado)) {
                 response.setStatus(HttpServletResponse.SC_OK);

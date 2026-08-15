@@ -397,4 +397,98 @@ public class UsuarioDao {
             return false;
         }
     }
+
+    // =========================================================
+    // NUEVOS MÉTODOS: Flujo de recuperación con sesión temporal
+    // =========================================================
+
+    public Usuario buscarPorToken(String token) {
+        String sql = "SELECT id_usuario, correo, nombre, apellidos, rol, estado_cuenta FROM usuarios WHERE token_verificacion = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, token);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Usuario u = new Usuario();
+                    u.setIdUsuario(rs.getInt("id_usuario"));
+                    u.setCorreo(rs.getString("correo"));
+                    u.setNombre(rs.getString("nombre"));
+                    u.setApellidos(rs.getString("apellidos"));
+                    u.setRol(rs.getString("rol"));
+                    u.setEstado(rs.getString("estado_cuenta"));
+                    return u;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void activarCuentaSuspendida(int idUsuario) {
+        String sql = "UPDATE usuarios SET estado_cuenta = 'ACTIVO', intentos_fallidos = 0 WHERE id_usuario = ? AND estado_cuenta IN ('SUSPENDIDO', 'BLOQUEADO')";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idUsuario);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean actualizarPasswordPorId(int idUsuario, String nuevoHash) {
+        String sqlOld = "UPDATE historial_contrasenas SET es_actual = 0 WHERE id_usuario = ?";
+        String sqlNew = "INSERT INTO historial_contrasenas (id_usuario, hash_password, es_actual) VALUES (?, ?, 1)";
+        String sqlClearToken = "UPDATE usuarios SET token_verificacion = NULL WHERE id_usuario = ?";
+
+        try (Connection con = DatabaseConnection.getConnection()) {
+            con.setAutoCommit(false);
+            try (PreparedStatement ps1 = con.prepareStatement(sqlOld);
+                 PreparedStatement ps2 = con.prepareStatement(sqlNew);
+                 PreparedStatement ps3 = con.prepareStatement(sqlClearToken)) {
+
+                ps1.setInt(1, idUsuario);
+                ps1.executeUpdate();
+
+                ps2.setInt(1, idUsuario);
+                ps2.setString(2, nuevoHash);
+                ps2.executeUpdate();
+
+                ps3.setInt(1, idUsuario);
+                ps3.executeUpdate();
+
+                con.commit();
+                return true;
+            } catch (SQLException ex) {
+                con.rollback();
+                throw ex;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Usuario getUsuarioByToken(String token) {
+        String sql = "SELECT id_usuario, correo, nombre, apellidos, rol, id_carrera FROM usuarios WHERE token_verificacion = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, token);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Usuario u = new Usuario();
+                    u.setIdUsuario(rs.getInt("id_usuario"));
+                    u.setCorreo(rs.getString("correo"));
+                    u.setNombre(rs.getString("nombre"));
+                    u.setApellidos(rs.getString("apellidos"));
+                    u.setRol(rs.getString("rol"));
+                    u.setIdCarrera(rs.getInt("id_carrera"));
+                    return u;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

@@ -1,46 +1,40 @@
 package com.utez.sdipme.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.utez.sdipme.dao.UsuarioDao;
+import com.utez.sdipme.model.Usuario;
+import com.utez.sdipme.service.UsuarioService;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
 @WebServlet("/api/auth/verificar-token-password")
 public class VerificarTokenPasswordServlet extends HttpServlet {
 
-    private final UsuarioDao usuarioDao = new UsuarioDao();
+    private final UsuarioService usuarioService = new UsuarioService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType("application/json; charset=UTF-8");
-        JsonObject jsonResponse = new JsonObject();
         String token = request.getParameter("token");
 
         if (token == null || token.trim().isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            jsonResponse.addProperty("valido", false);
-            response.getWriter().write(jsonResponse.toString());
+            response.sendRedirect(request.getContextPath() + "/pages/login.jsp");
             return;
         }
 
-        String nombreUsuario = usuarioDao.obtenerNombrePorToken(token);
+        Usuario user = usuarioService.procesarTokenRecuperacion(token);
 
-        if (nombreUsuario != null) {
-            response.setStatus(HttpServletResponse.SC_OK);
-            JsonObject data = new JsonObject();
-            data.addProperty("valido", true);
-            data.addProperty("nombreUsuario", nombreUsuario);
-            jsonResponse.add("data", data);
-            jsonResponse.addProperty("status", "success");
+        if (user != null) {
+            HttpSession session = request.getSession(true);
+            session.setAttribute("idUsuario", user.getIdUsuario());
+            session.setAttribute("correoUsuario", user.getCorreo());
+            session.setAttribute("rol", user.getRol());
+            session.setAttribute("nombreUsuario", user.getNombre());
+
+            response.sendRedirect(request.getContextPath() + "/pages/recuperar.jsp");
         } else {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            jsonResponse.addProperty("valido", false);
+            response.sendRedirect(request.getContextPath() + "/pages/login.jsp");
         }
-
-        response.getWriter().write(jsonResponse.toString());
     }
 }

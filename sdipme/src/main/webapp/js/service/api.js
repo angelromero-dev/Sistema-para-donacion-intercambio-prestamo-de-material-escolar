@@ -400,5 +400,19 @@ getMisPendientes: async () => {
         } catch (error) {
             return { ok: false, data: { message: "Error de red" } };
         }
-    }
+    },
+
+    restablecerPassword: async (password) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/restablecer-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            });
+            const data = await response.json();
+            return { ok: response.ok, data };
+        } catch (error) {
+            return { ok: false, data: { message: "Error de red al conectar con el servidor." } };
+        }
+    },
 };

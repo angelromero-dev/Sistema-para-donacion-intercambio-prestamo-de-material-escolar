@@ -139,7 +139,7 @@ public class EmailService {
     }
 
     public static boolean enviarCorreoRecuperacion(String destinatario, String token, String baseUrl) {
-        String enlaceRecuperacion = baseUrl + "/pages/recuperar.jsp?token=" + token;
+        String enlaceRecuperacion = baseUrl + "/api/auth/verificar-token-password?token=" + token;
         String asunto = "SDIPME - Recuperacion de Contraseña o Desbloqueo";
 
         String templateHtml = """

@@ -136,6 +136,35 @@ public class UsuarioService {
         return usuarioDao.getPerfilCompleto(idUsuario);
     }
 
+    // =========================================================
+    // NUEVA LÓGICA: Recuperación con sesión
+    // =========================================================
+
+    public Usuario procesarTokenRecuperacion(String token) {
+        if (token == null || token.trim().isEmpty()) return null;
+
+        Usuario user = usuarioDao.buscarPorToken(token);
+        if (user != null) {
+            // Desbloquea la cuenta automáticamente si estaba bloqueada o suspendida
+            usuarioDao.activarCuentaSuspendida(user.getIdUsuario());
+        }
+        return user;
+    }
+
+    public String restablecerPasswordConSesion(int idUsuario, String nuevaPasswordPlana) {
+        if (nuevaPasswordPlana == null || nuevaPasswordPlana.length() < 6 || nuevaPasswordPlana.length() > 20) {
+            return "Error: La contraseña debe tener entre 6 y 20 caracteres.";
+        }
+        if (!nuevaPasswordPlana.matches(".*[A-Z].*")) {
+            return "Error: La contraseña debe contener al menos una letra mayúscula.";
+        }
+
+        String nuevoHash = PasswordUtil.hashPassword(nuevaPasswordPlana);
+        boolean exito = usuarioDao.actualizarPasswordPorId(idUsuario, nuevoHash);
+
+        return exito ? "EXITO" : "Error crítico al guardar la nueva contraseña.";
+    }
+
     public String actualizarPerfilBasico(int idUsuario, String nombre, String apellidos) {
         if (nombre == null || nombre.trim().isEmpty() || apellidos == null || apellidos.trim().isEmpty()) {
             return "El nombre y los apellidos son obligatorios.";
