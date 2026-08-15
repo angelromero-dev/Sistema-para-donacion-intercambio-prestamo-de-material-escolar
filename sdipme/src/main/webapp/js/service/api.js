@@ -362,5 +362,43 @@ getMisPendientes: async () => {
             console.error(">>> [API ERROR] Error de red al activar cuenta:", error);
             return { ok: false, data: { message: "Error de red al intentar activar la cuenta." } };
         }
+    },
+
+    solicitarRecuperacion: async (correo) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/recuperar-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ correo })
+            });
+            const data = await response.json();
+            return { ok: response.ok, data };
+        } catch (error) {
+            return { ok: false, data: { message: "Error de red" } };
+        }
+    },
+
+    verificarTokenPassword: async (token) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/verificar-token-password?token=${token}`);
+            const data = await response.json();
+            return { ok: response.ok, data };
+        } catch (error) {
+            return { ok: false, data: { message: "Error de red" } };
+        }
+    },
+
+    enviarMensajeAdmin: async (idUsuario, mensaje) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/mensaje-admin`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idUsuario, mensaje })
+            });
+            const data = await response.json();
+            return { ok: response.ok, data };
+        } catch (error) {
+            return { ok: false, data: { message: "Error de red" } };
+        }
     }
 };
