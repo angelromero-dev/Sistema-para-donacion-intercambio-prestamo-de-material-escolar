@@ -14,11 +14,11 @@ public class Usuario {
     private String estado;
     private double reputacion;
     private String ultimoAcceso;
+    private String rol;
+    private int bloqueadoPorAdmin;
 
-    // 1. Default constructor required by DAO for fetching records
     public Usuario() {}
 
-    // 2. Parameterized constructor for new user registration
     public Usuario(String matricula, String correo, String nombre, String apellidos, String telefono, int idCarrera, String passwordHash) {
         this.matricula = matricula;
         this.correo = correo;
@@ -29,10 +29,10 @@ public class Usuario {
         this.passwordHash = passwordHash;
         this.estado = "INACTIVO";
         this.intentosFallidos = 0;
-        this.reputacion = 5.0; // Default value matching DB schema
+        this.reputacion = 5.0;
+        this.rol = "ALUMNO";
+        this.bloqueadoPorAdmin = 0;
     }
-
-    // --- GETTERS & SETTERS ---
 
     public int getIdUsuario() { return idUsuario; }
     public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
@@ -69,4 +69,10 @@ public class Usuario {
 
     public String getUltimoAcceso() { return ultimoAcceso; }
     public void setUltimoAcceso(String ultimoAcceso) { this.ultimoAcceso = ultimoAcceso; }
+
+    public String getRol() { return rol; }
+    public void setRol(String rol) { this.rol = rol; }
+
+    public int getBloqueadoPorAdmin() { return bloqueadoPorAdmin; }
+    public void setBloqueadoPorAdmin(int bloqueadoPorAdmin) { this.bloqueadoPorAdmin = bloqueadoPorAdmin; }
 }

@@ -8,18 +8,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-// DAO pattern implementation for User database operations.
 public class UsuarioDao {
 
-    // Persists a new user in the database safely for Oracle JDBC.
     public boolean insert(Usuario usuario, String tokenActivacion) {
-        String sqlUsuario = "INSERT INTO usuarios (matricula, correo, nombre, apellidos, telefono, id_carrera, estado_cuenta, token_verificacion, intentos_fallidos) VALUES (?, ?, ?, ?, ?, ?, 'INACTIVO', ?, 0)";
+        String sqlUsuario = "INSERT INTO usuarios (matricula, correo, nombre, apellidos, telefono, id_carrera, estado_cuenta, token_verificacion, intentos_fallidos, rol, bloqueado_por_admin) VALUES (?, ?, ?, ?, ?, ?, 'INACTIVO', ?, 0, 'ALUMNO', 0)";
         String sqlId = "SELECT id_usuario FROM usuarios WHERE correo = ?";
         String sqlPass = "INSERT INTO historial_contrasenas (id_usuario, hash_password, es_actual) VALUES (?, ?, 1)";
 
         try (Connection con = DatabaseConnection.getConnection()) {
-
-            // Execute user insertion with profile details and career foreign key
             try (PreparedStatement psUser = con.prepareStatement(sqlUsuario)) {
                 psUser.setString(1, usuario.getMatricula());
                 psUser.setString(2, usuario.getCorreo());
@@ -29,18 +25,14 @@ public class UsuarioDao {
                 psUser.setInt(6, usuario.getIdCarrera());
                 psUser.setString(7, tokenActivacion);
 
-                int affectedRows = psUser.executeUpdate();
-                if (affectedRows == 0) return false;
+                if (psUser.executeUpdate() == 0) return false;
             }
 
-            // Safely retrieve the generated ID to insert initial password hash
             int userId = -1;
             try (PreparedStatement psId = con.prepareStatement(sqlId)) {
                 psId.setString(1, usuario.getCorreo());
                 try (ResultSet rs = psId.executeQuery()) {
-                    if (rs.next()) {
-                        userId = rs.getInt("id_usuario");
-                    }
+                    if (rs.next()) userId = rs.getInt("id_usuario");
                 }
             }
 
@@ -55,48 +47,13 @@ public class UsuarioDao {
             return true;
 
         } catch (SQLException e) {
-            System.err.println("\n>>> [CAPA 2 - DAO ERROR] EXPLOSIÓN AL INSERTAR USUARIO <<<");
-            System.err.println("    - Matrícula intentada: " + usuario.getMatricula());
-            System.err.println("    - Código de Oracle: ORA-" + e.getErrorCode());
-            System.err.println("    - Causa real: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
-    // Activates user account and clears token.
-    public boolean activarCuenta(String token) {
-        String sql = "UPDATE usuarios SET estado_cuenta = 'ACTIVO', token_verificacion = NULL, intentos_fallidos = 0 WHERE token_verificacion = ?";
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, token);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // Updates the activation token for an inactive user.
-    public boolean actualizarTokenActivacion(String correo, String nuevoToken) {
-        String sql = "UPDATE usuarios SET token_verificacion = ? WHERE correo = ? AND estado_cuenta = 'INACTIVO'";
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, nuevoToken);
-            ps.setString(2, correo);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // Retrieves a user by their email for authentication purposes.
     public Usuario findByCorreo(String correo) {
-        // Updated SQL query: replaced obsolete 'carrera' column with 'id_carrera'
-        String sql = "SELECT u.id_usuario, u.matricula, u.correo, u.nombre, u.apellidos, u.telefono, u.id_carrera, u.intentos_fallidos, u.estado_cuenta, h.hash_password " +
+        String sql = "SELECT u.id_usuario, u.matricula, u.correo, u.nombre, u.apellidos, u.telefono, u.id_carrera, u.intentos_fallidos, u.estado_cuenta, u.rol, u.bloqueado_por_admin, h.hash_password " +
                 "FROM usuarios u " +
                 "INNER JOIN historial_contrasenas h ON u.id_usuario = h.id_usuario " +
                 "WHERE u.correo = ? AND h.es_actual = 1";
@@ -116,22 +73,61 @@ public class UsuarioDao {
                     usuario.setNombre(rs.getString("nombre"));
                     usuario.setApellidos(rs.getString("apellidos"));
                     usuario.setTelefono(rs.getString("telefono"));
-                    usuario.setIdCarrera(rs.getInt("id_carrera")); // Mapped to integer foreign key
+                    usuario.setIdCarrera(rs.getInt("id_carrera"));
                     usuario.setIntentosFallidos(rs.getInt("intentos_fallidos"));
                     usuario.setEstado(rs.getString("estado_cuenta"));
+                    usuario.setRol(rs.getString("rol"));
+                    usuario.setBloqueadoPorAdmin(rs.getInt("bloqueado_por_admin"));
                     usuario.setPasswordHash(rs.getString("hash_password"));
                 }
             }
         } catch (SQLException e) {
-            System.err.println(">>> [DAO ERROR - UsuarioDao.java] Failed to find user by email: " + e.getMessage());
             e.printStackTrace();
         }
         return usuario;
     }
 
-    // --- SECURITY METHODS ---
+    public String obtenerNombrePorToken(String token) {
+        String sql = "SELECT nombre, apellidos FROM usuarios WHERE token_verificacion = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, token);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("nombre") + " " + rs.getString("apellidos");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-    // Increments failed attempts and blocks account if limit is reached.
+    public boolean activarCuenta(String token) {
+        String sql = "UPDATE usuarios SET estado_cuenta = 'ACTIVO', token_verificacion = NULL, intentos_fallidos = 0 WHERE token_verificacion = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, token);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean actualizarTokenActivacion(String correo, String nuevoToken) {
+        String sql = "UPDATE usuarios SET token_verificacion = ? WHERE correo = ? AND estado_cuenta = 'INACTIVO'";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, nuevoToken);
+            ps.setString(2, correo);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public int registrarIntentoFallido(String correo) {
         String sqlIncrementar = "UPDATE usuarios SET intentos_fallidos = intentos_fallidos + 1 WHERE correo = ?";
         String sqlBloquear = "UPDATE usuarios SET estado_cuenta = 'BLOQUEADO' WHERE correo = ? AND intentos_fallidos >= 3";
@@ -158,7 +154,6 @@ public class UsuarioDao {
         return 0;
     }
 
-    // Resets failed attempts counter upon successful login.
     public void resetearIntentosFallidos(String correo) {
         String sql = "UPDATE usuarios SET intentos_fallidos = 0 WHERE correo = ?";
         try (Connection con = DatabaseConnection.getConnection();
@@ -170,7 +165,6 @@ public class UsuarioDao {
         }
     }
 
-    // Saves recovery token for password reset.
     public boolean guardarTokenRecuperacion(String correo, String token) {
         String sql = "UPDATE usuarios SET token_verificacion = ? WHERE correo = ?";
         try (Connection con = DatabaseConnection.getConnection();
@@ -184,7 +178,6 @@ public class UsuarioDao {
         }
     }
 
-    // Resets password, clears token, and unblocks account via transaction.
     public boolean restablecerPasswordConToken(String token, String nuevoPasswordHash) {
         String sqlUserId = "SELECT id_usuario FROM usuarios WHERE token_verificacion = ?";
         String sqlUpdateHistorialOld = "UPDATE historial_contrasenas SET es_actual = 0 WHERE id_usuario = ?";
@@ -229,7 +222,7 @@ public class UsuarioDao {
     }
 
     public com.utez.sdipme.dto.UsuarioPerfilDTO getPerfilCompleto(int idUsuario) {
-        String sql = "SELECT u.id_usuario, u.nombre, u.apellidos, u.telefono, u.matricula, u.correo, u.foto_perfil, u.reputacion, c.id_carrera, c.nombre AS nombre_carrera " +
+        String sql = "SELECT u.id_usuario, u.nombre, u.apellidos, u.telefono, u.matricula, u.correo, u.foto_perfil, u.reputacion, c.id_carrera, c.nombre AS nombre_carrera, u.rol " +
                 "FROM usuarios u " +
                 "INNER JOIN cat_carreras c ON u.id_carrera = c.id_carrera " +
                 "WHERE u.id_usuario = ?";
@@ -240,7 +233,7 @@ public class UsuarioDao {
             ps.setInt(1, idUsuario);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    boolean isRoot = "root@utez.edu.mx".equals(rs.getString("correo"));
+                    boolean isRoot = "ADMIN".equals(rs.getString("rol"));
 
                     return new com.utez.sdipme.dto.UsuarioPerfilDTO(
                             rs.getInt("id_usuario"),
@@ -387,7 +380,6 @@ public class UsuarioDao {
                 throw ex;
             }
         } catch (SQLException e) {
-            System.err.println(">>> [DAO ERROR] Fallo al eliminar cuenta permanentemente: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
