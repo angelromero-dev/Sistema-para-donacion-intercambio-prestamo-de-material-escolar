@@ -46,7 +46,6 @@ public class PrototipoDAO {
         System.out.println(">>>   [DAO GET] Ejecutando SELECT con INNER JOINs ampliado...");
         StringBuilder json = new StringBuilder("[");
 
-        // Añadimos u.reputacion y p.descripcion_larga a la consulta
         String sql = "SELECT p.id_prototipo, p.titulo, p.descripcion_corta, p.descripcion_larga, p.url_imagen, p.tipo_transaccion, " +
                 "u.matricula, u.reputacion, div.acronimo AS division, cat.nombre AS categoria, car.nombre AS carrera " +
                 "FROM prototipos p " +
@@ -54,7 +53,7 @@ public class PrototipoDAO {
                 "INNER JOIN cat_carreras car ON p.id_carrera = car.id_carrera " +
                 "INNER JOIN cat_divisiones div ON car.id_division = div.id_division " +
                 "INNER JOIN cat_categorias cat ON p.id_categoria = cat.id_categoria " +
-                "WHERE p.estado_publicacion = 'ACTIVA'";
+                "WHERE p.estado_publicacion = 'ACTIVA' AND u.estado_cuenta = 'ACTIVO'";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
