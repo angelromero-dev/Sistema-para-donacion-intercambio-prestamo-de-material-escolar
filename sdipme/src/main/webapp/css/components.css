@@ -2369,3 +2369,89 @@
   gap: 0.75rem;
   margin-top: 1.5rem;
 }
+
+/*
+* COMPONENT: Recuadro del ofertante en modal
+*/
+.proto-offerer-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--color-surface-base-card);
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-base);
+}
+.proto-offerer-avatar {
+  width: 46px;
+  min-width: 46px; /* Bloquea el ancho contra flex-shrink */
+  height: 46px;
+  min-height: 46px; /* Bloquea el alto */
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #cbd5e1;
+  flex-shrink: 0;
+  border: 2px solid var(--color-text-inverse);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.proto-offerer-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Centra y recorta la imagen proporcionalmente */
+  object-position: center;
+}
+
+.proto-offerer-info {
+  flex-grow: 1;
+}
+
+.proto-offerer-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  background-color: var(--color-surface-base);
+  padding: 4px 8px;
+  border-radius: 20px;
+}
+
+/*
+* COMPONENT: Ajustes de Tarjeta para 2 columnas en Móvil
+*/
+@media (max-width: 767.98px) {
+  .prototype-card__media {
+    height: 130px; 
+  }
+  .prototype-card__body {
+    padding: 0.85rem;
+  }
+  .prototype-card__title {
+    font-size: 0.95rem;
+    margin-bottom: 0.35rem;
+  }
+  .prototype-card__description {
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .prototype-card__tags {
+    gap: 4px;
+    margin-bottom: 0.5rem;
+  }
+  .badge-tag {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+  .prototype-card__matricula {
+    font-size: 0.75rem;
+  }
+  .prototype-card__rating i {
+    font-size: 0.9rem;
+  }
+  .prototype-card__score {
+    font-size: 0.8rem;
+  }
+}

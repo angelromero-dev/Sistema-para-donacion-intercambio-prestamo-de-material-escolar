@@ -47,7 +47,7 @@ public class PrototipoDAO {
         StringBuilder json = new StringBuilder("[");
 
         String sql = "SELECT p.id_prototipo, p.titulo, p.descripcion_corta, p.descripcion_larga, p.url_imagen, p.tipo_transaccion, " +
-                "u.matricula, u.reputacion, div.acronimo AS division, cat.nombre AS categoria, car.nombre AS carrera " +
+                "u.matricula, u.reputacion, u.foto_perfil, div.acronimo AS division, cat.nombre AS categoria, car.nombre AS carrera " +
                 "FROM prototipos p " +
                 "INNER JOIN usuarios u ON p.id_usuario = u.id_usuario " +
                 "INNER JOIN cat_carreras car ON p.id_carrera = car.id_carrera " +
@@ -60,14 +60,18 @@ public class PrototipoDAO {
              ResultSet rs = ps.executeQuery()) {
 
             boolean first = true;
-            int contador = 0;
             while (rs.next()) {
                 if (!first) json.append(",");
+
+                String fotoPerfil = rs.getString("foto_perfil");
+                if (fotoPerfil == null) fotoPerfil = "";
+
                 json.append("{")
                         .append("\"id\":").append(rs.getInt("id_prototipo")).append(",")
                         .append("\"titulo\":\"").append(rs.getString("titulo")).append("\",")
                         .append("\"matriculaOferente\":\"").append(rs.getString("matricula")).append("\",")
                         .append("\"reputacion\":").append(rs.getDouble("reputacion")).append(",")
+                        .append("\"fotoPerfil\":\"").append(fotoPerfil).append("\",")
                         .append("\"descripcionCorta\":\"").append(rs.getString("descripcion_corta")).append("\",")
                         .append("\"descripcionLarga\":\"").append(rs.getString("descripcion_larga")).append("\",")
                         .append("\"urlImagen\":\"").append(rs.getString("url_imagen")).append("\",")
@@ -79,9 +83,7 @@ public class PrototipoDAO {
                         .append("]")
                         .append("}");
                 first = false;
-                contador++;
             }
-            System.out.println(">>>   [DAO GET] Lectura exitosa. Prototipos encontrados: " + contador);
         } catch (SQLException e) {
             System.err.println(">>>   [DAO GET ERROR SQL] Fallo al consultar prototipos: " + e.getMessage());
         }

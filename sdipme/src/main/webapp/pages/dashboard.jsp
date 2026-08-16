@@ -279,23 +279,38 @@
               <div class="proto-detail-info">
                 <div class="proto-detail-info__media">
                   <img
-                    src="../assets/svg/logo.svg"
+                    src="../assets/images/NoImage.png"
                     id="modalProtoImg"
                     alt="Prototipo"
                     class="proto-detail-info__img"
                   />
                 </div>
 
-                <div
-                  class="d-flex justify-content-between align-items-center mt-3 pb-2 border-bottom"
-                >
-                  <div>
-                    <span class="text-muted small d-block">Publicado por:</span>
-                    <strong class="text-primary fs-6" id="modalProtoOferente"
+                <div class="proto-offerer-box mt-3 mb-2">
+                  <div class="proto-offerer-avatar">
+                    <img
+                      id="modalProtoFoto"
+                      src="../assets/images/NoImage.png"
+                      alt=""
+                    />
+                  </div>
+                  <div class="proto-offerer-info">
+                    <span class="text-muted small d-block lh-1 mb-1"
+                      >Ofertante:</span
+                    >
+                    <strong
+                      class="text-primary fs-6 d-block lh-1"
+                      id="modalProtoOferente"
                       >Matrícula</strong
                     >
+                    <span
+                      class="text-muted small d-block mt-1"
+                      id="modalProtoCarrera"
+                      style="font-size: 0.75rem"
+                      >Carrera</span
+                    >
                   </div>
-                  <div class="prototype-card__rating">
+                  <div class="proto-offerer-rating">
                     <i class="bx bxs-star prototype-card__star-icon fs-5"></i>
                     <span
                       class="prototype-card__score fs-6"

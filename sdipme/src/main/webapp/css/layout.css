@@ -65,27 +65,36 @@
  * CATALOG GRID LAYOUT
  */
 
-/* Responsive catalog grid container */
+/* Contenedor base (Móviles: 2 columnas) */
 .l-catalog-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.75rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
   width: 100%;
   padding: 1.5rem 0;
   justify-items: center;
 }
 
-/* Screen adjustments */
+/* Tablets (3 columnas) */
 @media (min-width: 768px) {
   .l-catalog-grid {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Escritorio (4 columnas) */
+@media (min-width: 1024px) {
+  .l-catalog-grid {
+    grid-template-columns: repeat(4, 1fr);
     gap: 2rem;
   }
 }
 
-@media (min-width: 1200px) {
+/* Pantallas ultrawide (5 columnas opcional para aprovechar espacio) */
+@media (min-width: 1400px) {
   .l-catalog-grid {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 2.25rem;
   }
 }

@@ -2,7 +2,7 @@
  * Connect API
  */
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = '/sdipme_war_exploded/api';
 
 const api = {
    // Login request
@@ -66,12 +66,12 @@ const api = {
             return { ok: false, data: { message: "Error de red al comunicarse con el servidor." } };
         }
     },
-
-    // Fetch prototypes catalog
-getPrototipos: async () => {
+// Fetch prototypes catalog
+    getPrototipos: async () => {
         console.log(">>> [API GET] Iniciando petición a /api/prototipos...");
         try {
-            const response = await fetch(`${API_BASE_URL}/prototipos`, {
+            // El parámetro ?t= fuerza al navegador a ignorar la caché y pedir el JSON real a Java
+            const response = await fetch(`${API_BASE_URL}/prototipos?t=${new Date().getTime()}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

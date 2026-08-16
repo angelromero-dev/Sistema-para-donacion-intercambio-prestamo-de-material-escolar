@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTitle = document.getElementById('modalProtoTitulo');
     const modalImg = document.getElementById('modalProtoImg');
     const modalOferente = document.getElementById('modalProtoOferente');
+    const modalCarrera = document.getElementById('modalProtoCarrera'); // <- FALTABA ESTO
+    const modalFoto = document.getElementById('modalProtoFoto');       // <- FALTABA ESTO
     const modalScore = document.getElementById('modalProtoScore');
     const modalTags = document.getElementById('modalProtoTags');
     const modalDescLarga = document.getElementById('modalProtoDescLarga');
@@ -60,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    gridPrototipos.addEventListener('click', async (e) => {
+gridPrototipos.addEventListener('click', async (e) => {
         const card = e.target.closest('.prototype-card');
         if (!card) return;
 
@@ -73,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const protoId = card.dataset.id;
         currentPrototipoId = parseInt(protoId);
 
+        // Pedimos los datos frescos (ahora sí ignorará la caché gracias al cambio en api.js)
         const response = await api.getPrototipos();
         if (!response.ok || !response.data) return;
 
@@ -81,8 +84,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         modalTitle.innerText = prototipo.titulo;
         modalImg.src = prototipo.urlImagen || '../assets/svg/logo.svg';
-        modalOferente.innerText = prototipo.matriculaOferente || 'Estudiante';
-        modalScore.innerText = prototipo.reputacion ? Number(prototipo.reputacion).toFixed(1) : '5.0';
+        
+        // Extracción directa del JSON (más seguro que leer el DOM)
+        const matriculaJSON = prototipo.matriculaOferente || prototipo.matricula || card.dataset.matricula || 'Estudiante';
+        const carreraJSON = prototipo.carrera || card.dataset.carrera || 'Carrera no especificada';
+        const reputacionJSON = prototipo.reputacion ? Number(prototipo.reputacion).toFixed(1) : '5.0';
+        const fotoJSON = prototipo.fotoPerfil || prototipo.foto_perfil || '';
+
+        // Inyección en el recuadro del ofertante
+        if (modalOferente) modalOferente.innerText = matriculaJSON;
+        if (modalCarrera) modalCarrera.innerText = carreraJSON;
+        if (modalScore) modalScore.innerText = reputacionJSON;
+        
+        if (modalFoto) {
+            if (fotoJSON && fotoJSON.trim() !== '' && fotoJSON !== 'null' && fotoJSON !== 'undefined') {
+                modalFoto.src = fotoJSON;
+            } else {
+                modalFoto.src = '../assets/images/default-avatar.png';
+            }
+        }
+
         modalDescLarga.innerText = prototipo.descripcionLarga || prototipo.descripcionCorta || 'Sin descripción adicional.';
 
         let tagsHTML = '';
