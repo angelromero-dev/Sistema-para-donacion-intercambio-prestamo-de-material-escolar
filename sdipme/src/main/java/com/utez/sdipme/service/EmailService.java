@@ -179,7 +179,7 @@ public class EmailService {
                               </td>
                             </tr>
                           </table>
-                          <p style="margin:22px 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:13px;letter-spacing:1.5px;color:#d9ece7;text-transform:uppercase;">Sistema Docente e Institucional</p>
+                          <p style="margin:22px 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:13px;letter-spacing:1.5px;color:#d9ece7;text-transform:uppercase;">Sistema para donacion, intercambio y prestamo de material escolar</p>
                           <h1 class="title-text" style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:26px;line-height:1.3;font-weight:800;color:#ffffff;text-transform:uppercase;">¡Restablecer contraseña!</h1>
                         </td>
                       </tr>
@@ -223,5 +223,52 @@ public class EmailService {
                 .replace("URL_DE_RESTABLECIMIENTO_AQUI", enlaceRecuperacion);
 
         return enviarCorreo(destinatario, asunto, contenidoHtml);
+    }
+
+    public static void enviarNotificacionGeneralAsync(String destinatario, String tituloCabecera, String mensajeCuerpo, String baseUrl) {
+        new Thread(() -> {
+            String linkPlataforma = baseUrl + "/pages/login.jsp";
+            String asunto = "SDIPME - " + tituloCabecera;
+
+            String templateHtml = """
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                  body { margin: 0; padding: 0; width: 100%; background-color: #eef1f3; font-family: Arial, sans-serif; }
+                  .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 24px rgba(15,45,70,0.12); }
+                  .header { background-image: linear-gradient(135deg,#1a8f6f 0%,#0f3d5c 100%); padding: 40px 30px; text-align: center; color: #ffffff; }
+                  .header img { width: 60px; margin-bottom: 15px; }
+                  .content { padding: 40px; color: #484848; line-height: 1.6; font-size: 16px; text-align: center; }
+                  .btn { display: inline-block; padding: 14px 32px; background-image: linear-gradient(135deg,#f2a051 0%,#e8872d 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 20px; }
+                  .footer { background-color: #e5e5e5; padding: 20px; text-align: center; font-size: 12px; color: #767676; }
+                </style>
+                </head>
+                <body>
+                  <div class="container">
+                    <div class="header">
+                      <img src="%LOGO_URL%" alt="SDIPME">
+                      <h2 style="margin:0;">%TITULO%</h2>
+                    </div>
+                    <div class="content">
+                      <p>%MENSAJE%</p>
+                      <a href="%LINK%" class="btn">Abrir SDIPME</a>
+                    </div>
+                    <div class="footer">Este es un aviso automático de SDIPME. No respondas a este correo.</div>
+                  </div>
+                </body>
+                </html>
+                """;
+
+            String contenidoHtml = templateHtml
+                    .replace("%LOGO_URL%", LOGO_URL)
+                    .replace("%TITULO%", tituloCabecera)
+                    .replace("%MENSAJE%", mensajeCuerpo)
+                    .replace("%LINK%", linkPlataforma);
+
+            enviarCorreo(destinatario, asunto, contenidoHtml);
+        }).start();
     }
 }

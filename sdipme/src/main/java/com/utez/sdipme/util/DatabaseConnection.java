@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class DatabaseConnection {
 
     private static final String TNS_ALIAS = "";
-    private static final String TNS_ADMIN = "";
+    private static final String TNS_ADMIN = "C:/Oracle/Wallet_MIDB";
 
     private static final String URL = "jdbc:oracle:thin:@" + TNS_ALIAS + "?TNS_ADMIN=" + TNS_ADMIN;
     private static final String USER = "ADMIN";

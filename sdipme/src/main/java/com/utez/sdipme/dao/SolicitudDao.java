@@ -120,4 +120,28 @@ public class SolicitudDao {
         }
         return lista;
     }
+
+    public String obtenerCorreoDuenoPorPrototipo(int idPrototipo) {
+        String sql = "SELECT u.correo FROM prototipos p INNER JOIN usuarios u ON p.id_usuario = u.id_usuario WHERE p.id_prototipo = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPrototipo);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString("correo");
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return null;
+    }
+
+    public String obtenerCorreoSolicitante(int idSolicitud) {
+        String sql = "SELECT u.correo FROM solicitudes s INNER JOIN usuarios u ON s.id_solicitante = u.id_usuario WHERE s.id_solicitud = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idSolicitud);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString("correo");
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return null;
+    }
 }

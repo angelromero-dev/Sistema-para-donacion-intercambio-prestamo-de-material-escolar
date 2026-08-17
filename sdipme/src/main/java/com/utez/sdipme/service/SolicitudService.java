@@ -8,52 +8,46 @@ public class SolicitudService {
 
     private final SolicitudDao solicitudDao = new SolicitudDao();
 
-    public String procesarNuevaSolicitud(Solicitud solicitud) {
-        System.out.println(">>> [SERVICE] Iniciando procesamiento de solicitud para el prototipo ID: " + solicitud.getIdPrototipo());
-
+    public String procesarNuevaSolicitud(Solicitud solicitud, String baseUrl) {
         try {
             boolean disponible = solicitudDao.esPrototipoDisponible(solicitud.getIdPrototipo());
-            if (!disponible) {
-                System.err.println(">>> [SERVICE WARN] El prototipo ya está ocupado.");
-                return "ERROR_OCUPADO";
-            }
-
-            if (solicitudDao.usuarioYaSolicito(solicitud.getIdPrototipo(), solicitud.getIdSolicitante())) {
-                System.err.println(">>> [SERVICE WARN] El usuario ya tiene una solicitud pendiente para este prototipo.");
-                return "ERROR_DUPLICADO";
-            }
-
-            if (solicitudDao.contarSolicitudesActivasUsuario(solicitud.getIdSolicitante()) >= 5) {
-                System.err.println(">>> [SERVICE WARN] El usuario ha alcanzado el límite de 5 solicitudes activas.");
-                return "ERROR_LIMITE_ALCANZADO";
-            }
+            if (!disponible) return "ERROR_OCUPADO";
+            if (solicitudDao.usuarioYaSolicito(solicitud.getIdPrototipo(), solicitud.getIdSolicitante())) return "ERROR_DUPLICADO";
+            if (solicitudDao.contarSolicitudesActivasUsuario(solicitud.getIdSolicitante()) >= 5) return "ERROR_LIMITE_ALCANZADO";
 
             boolean exito = solicitudDao.registrarSolicitud(solicitud);
-
             if (exito) {
-                System.out.println(">>> [SERVICE OK] Solicitud registrada correctamente.");
+                String correoDueno = solicitudDao.obtenerCorreoDuenoPorPrototipo(solicitud.getIdPrototipo());
+                if (correoDueno != null) {
+                    EmailService.enviarNotificacionGeneralAsync(correoDueno,
+                            "Nueva solicitud recibida",
+                            "Alguien ha solicitado ofertado por uno de tus prototipos. Inicia sesión para revisar los detalles y responder.",
+                            baseUrl);
+                }
                 return "EXITO";
             } else {
-                System.err.println(">>> [SERVICE ERROR] El DAO devolvió false al intentar insertar.");
                 return "ERROR_BD";
             }
-
         } catch (Exception e) {
-            System.err.println(">>> [SERVICE FATAL] Excepción no controlada: " + e.getMessage());
             e.printStackTrace();
             return "ERROR_INTERNO";
         }
     }
 
-    public boolean cambiarEstadoSolicitud(int idSolicitud, String nuevoEstado) {
-        System.out.println(">>> [SERVICE] Intentando cambiar solicitud ID " + idSolicitud + " a estado: " + nuevoEstado);
+    public boolean cambiarEstadoSolicitud(int idSolicitud, String nuevoEstado, String baseUrl) {
         boolean exito = solicitudDao.actualizarEstado(idSolicitud, nuevoEstado);
 
         if (exito && "ACEPTADA".equals(nuevoEstado)) {
             solicitudDao.marcarPrototipoOcupadoPorSolicitud(idSolicitud);
-            System.out.println(">>> [SERVICE] Prototipo marcado como OCUPADO con éxito.");
-        }
 
+            String correoSol = solicitudDao.obtenerCorreoSolicitante(idSolicitud);
+            if (correoSol != null) {
+                EmailService.enviarNotificacionGeneralAsync(correoSol,
+                        "¡Solicitud Aprobada!",
+                        "El dueño del prototipo ha aceptado tu solicitud. Inicia sesión en SDIPME para ver sus datos de contacto y coordinar la entrega.",
+                        baseUrl);
+            }
+        }
         return exito;
     }
 

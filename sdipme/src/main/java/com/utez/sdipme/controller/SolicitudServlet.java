@@ -88,7 +88,8 @@ public class SolicitudServlet extends HttpServlet {
                 nuevaSolicitud.setFotoIntercambio(jsonRequest.get("fotoIntercambio").getAsString());
             }
 
-            String resultado = solicitudService.procesarNuevaSolicitud(nuevaSolicitud);
+            String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+            String resultado = solicitudService.procesarNuevaSolicitud(nuevaSolicitud, baseUrl);
 
             if ("EXITO".equals(resultado)) {
                 response.setStatus(HttpServletResponse.SC_CREATED);
@@ -137,8 +138,8 @@ public class SolicitudServlet extends HttpServlet {
             int idSolicitud = jsonRequest.get("idSolicitud").getAsInt();
             String nuevoEstado = jsonRequest.get("estado").getAsString().toUpperCase();
 
-            boolean exito = solicitudService.cambiarEstadoSolicitud(idSolicitud, nuevoEstado);
-
+            String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+            boolean exito = solicitudService.cambiarEstadoSolicitud(idSolicitud, nuevoEstado, baseUrl);
             if (exito) {
                 response.setStatus(HttpServletResponse.SC_OK);
                 jsonResponse.addProperty("status", "success");
