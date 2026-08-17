@@ -213,16 +213,12 @@
                     <div>
                       <p class="settings-field__label">Carrera</p>
                       <p class="settings-field__value" id="viewCarrera">--</p>
+                      <p class="settings-field__hint">no editable</p>
                     </div>
                     <div class="settings-field__action">
-                      <button
-                        type="button"
-                        class="settings-btn-edit"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modalEditarCarrera"
+                      <span class="settings-badge-lock"
+                        ><i class="bx bx-lock-alt"></i> Solo lectura</span
                       >
-                        <i class="bx bx-edit-alt"></i> Editar
-                      </button>
                     </div>
                   </div>
                 </div>

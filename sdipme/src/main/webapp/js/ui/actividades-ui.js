@@ -56,11 +56,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     function generarHTMLSolicitud(sol, esHistorial) {
         let statusBadge = '';
         let btnContactoSol = ''; 
+        const esAceptada = sol.estado === 'ACEPTADA';
 
         if (!esHistorial) {
             statusBadge = `<span class="badge-status badge-status--pending"><i class='bx bx-time-five'></i> Pendiente</span>`;
         } else {
-            if (sol.estado === 'ACEPTADA') {
+            if (esAceptada) {
                 statusBadge = `<span class="badge-status badge-status--accepted"><i class='bx bx-check-circle'></i> Aceptada</span>`;
                 btnContactoSol = `
                     <button class="btn btn-success btn-sm mt-2 w-100 btn-ver-contacto-sol" 
@@ -108,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <h3 class="notif-card__title">Prototipo: "${sol.prototipoTitulo}"</h3>
                         ${statusBadge}
                     </div>
-                    <p class="notif-card__text mt-1">Solicitante: <b>${sol.solicitanteMatricula}</b> (${sol.solicitanteNombre})</p>
+                    <p class="notif-card__text mt-1">Solicitante: <b>${sol.solicitanteMatricula}</b></p>
                     <p class="text-muted small fst-italic mt-1 mb-0">"${sol.mensaje}"</p>
                     ${detailBox}
                     ${actionButtons}
@@ -210,7 +211,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // 6.3 View Requester Contact (NUEVO)
+        // 6.3 View Requester Contact
         const btnContactoSol = e.target.closest('.btn-ver-contacto-sol');
         if (btnContactoSol && contactModal) {
             document.getElementById('solNombre').innerText = btnContactoSol.dataset.nombre;

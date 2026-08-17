@@ -136,6 +136,51 @@
       </div>
     </div>
 
+    <!-- Modal Confirmar Cancelación de Solicitud -->
+    <div
+      class="modal fade"
+      id="modalConfirmCancelarMiSolicitud"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-body text-center p-4">
+            <i class="bx bx-trash text-danger" style="font-size: 3.5rem"></i>
+            <h5 class="fw-bold mt-2">¿Cancelar solicitud?</h5>
+            <p class="text-muted small">
+              El dueño del prototipo será notificado y perderás tu lugar de
+              espera.
+            </p>
+            <input type="hidden" id="hiddenIdSolicitudCancelar" />
+            <div class="d-flex gap-2 justify-content-center mt-3">
+              <button
+                type="button"
+                class="btn btn-light btn-sm px-3"
+                data-bs-dismiss="modal"
+              >
+                Atrás
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger btn-sm px-3"
+                id="btnEjecutarCancelarSolicitud"
+              >
+                Sí, cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast para reemplazar los alert() del navegador -->
+    <div class="toast-alert" id="actionToast">
+      <i class="bx bx-info-circle fs-5" id="toastIcon"></i>
+      <span id="toastMessage" style="font-weight: 500; font-size: 0.9rem"
+        >Acción realizada</span
+      >
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/service/api.js"></script>
     <script src="../js/ui/mis-solicitudes-ui.js"></script>
