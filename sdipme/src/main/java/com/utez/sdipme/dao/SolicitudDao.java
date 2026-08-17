@@ -144,4 +144,37 @@ public class SolicitudDao {
         } catch (SQLException e) { e.printStackTrace(); }
         return null;
     }
+
+    public String obtenerTituloPrototipo(int idPrototipo) {
+        String sql = "SELECT titulo FROM prototipos WHERE id_prototipo = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPrototipo);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString("titulo");
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return "un prototipo";
+    }
+
+    public String[] obtenerDatosParaCorreo(int idSolicitud) {
+        // Retorna: [0]=Titulo, [1]=Dias, [2]=Oferta
+        String sql = "SELECT p.titulo, s.dias_prestamo, s.oferta_intercambio " +
+                "FROM solicitudes s INNER JOIN prototipos p ON s.id_prototipo = p.id_prototipo " +
+                "WHERE s.id_solicitud = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idSolicitud);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new String[]{
+                            rs.getString("titulo"),
+                            rs.getString("dias_prestamo"),
+                            rs.getString("oferta_intercambio")
+                    };
+                }
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return new String[]{"un prototipo", null, null};
+    }
 }

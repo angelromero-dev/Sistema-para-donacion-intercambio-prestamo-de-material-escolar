@@ -19,9 +19,20 @@ public class SolicitudService {
             if (exito) {
                 String correoDueno = solicitudDao.obtenerCorreoDuenoPorPrototipo(solicitud.getIdPrototipo());
                 if (correoDueno != null) {
+                    String titulo = solicitudDao.obtenerTituloPrototipo(solicitud.getIdPrototipo());
+                    String accionDetalle = "";
+
+                    if (solicitud.getDiasPrestamo() != null) {
+                        accionDetalle = "pedirte prestado '" + titulo + "' por " + solicitud.getDiasPrestamo() + " días";
+                    } else if (solicitud.getOfertaIntercambio() != null && !solicitud.getOfertaIntercambio().isEmpty()) {
+                        accionDetalle = "ofrecerte '" + solicitud.getOfertaIntercambio() + "' a cambio de tu '" + titulo + "'";
+                    } else {
+                        accionDetalle = "solicitar la donación de '" + titulo + "'";
+                    }
+
                     EmailService.enviarNotificacionGeneralAsync(correoDueno,
-                            "Nueva solicitud recibida",
-                            "Alguien ha solicitado ofertado por uno de tus prototipos. Inicia sesión para revisar los detalles y responder.",
+                            "Nueva solicitud en tu catálogo",
+                            "Alguien quiere " + accionDetalle + ". Inicia sesión en SDIPME para revisar los detalles y aceptar o rechazar la petición.",
                             baseUrl);
                 }
                 return "EXITO";
@@ -37,15 +48,31 @@ public class SolicitudService {
     public boolean cambiarEstadoSolicitud(int idSolicitud, String nuevoEstado, String baseUrl) {
         boolean exito = solicitudDao.actualizarEstado(idSolicitud, nuevoEstado);
 
-        if (exito && "ACEPTADA".equals(nuevoEstado)) {
-            solicitudDao.marcarPrototipoOcupadoPorSolicitud(idSolicitud);
+        if (exito) {
+            String[] datos = solicitudDao.obtenerDatosParaCorreo(idSolicitud);
+            String titulo = datos[0];
+            String dias = datos[1];
+            String oferta = datos[2];
 
-            String correoSol = solicitudDao.obtenerCorreoSolicitante(idSolicitud);
-            if (correoSol != null) {
-                EmailService.enviarNotificacionGeneralAsync(correoSol,
-                        "¡Solicitud Aprobada!",
-                        "El dueño del prototipo ha aceptado tu solicitud. Inicia sesión en SDIPME para ver sus datos de contacto y coordinar la entrega.",
-                        baseUrl);
+            String tipoTransaccion = (dias != null) ? "préstamo" : (oferta != null ? "intercambio" : "donación");
+
+            if ("ACEPTADA".equals(nuevoEstado)) {
+                solicitudDao.marcarPrototipoOcupadoPorSolicitud(idSolicitud);
+                String correoSol = solicitudDao.obtenerCorreoSolicitante(idSolicitud);
+                if (correoSol != null) {
+                    EmailService.enviarNotificacionGeneralAsync(correoSol,
+                            "¡Solicitud Aprobada!",
+                            "Tu solicitud de " + tipoTransaccion + " para '" + titulo + "' ha sido aceptada. Inicia sesión en SDIPME para ver los datos del contacto.",
+                            baseUrl);
+                }
+            } else if ("RECHAZADA".equals(nuevoEstado)) {
+                String correoSol = solicitudDao.obtenerCorreoSolicitante(idSolicitud);
+                if (correoSol != null) {
+                    EmailService.enviarNotificacionGeneralAsync(correoSol,
+                            "Solicitud Rechazada",
+                            "El dueño ha rechazado tu petición de " + tipoTransaccion + " para '" + titulo + "'. Puedes buscar otras opciones en el catálogo.",
+                            baseUrl);
+                }
             }
         }
         return exito;
