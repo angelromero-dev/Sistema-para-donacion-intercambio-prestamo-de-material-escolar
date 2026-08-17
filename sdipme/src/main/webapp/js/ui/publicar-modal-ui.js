@@ -37,12 +37,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const DEFAULT_IMG = '../assets/images/NoImage.png';
 
-async function inicializarDatosReales() {
-        console.log(">>> Solicitando catálogos al Backend...");
+    async function inicializarDatosReales() {
+        console.log(">>> Solicitando catálogos y perfil al Backend...");
         
-        const resCat = await api.getCatalogos();
+        // Ejecutamos ambas peticiones en paralelo para no perder tiempo
+        const [resCat, resPerfil] = await Promise.all([
+            api.getCatalogos(),
+            api.obtenerPerfil()
+        ]);
         
         if (resCat.ok && resCat.data) {
+            // Llenar categorías normalmente
             if (selectCategoria && resCat.data.categorias) {
                 selectCategoria.innerHTML = '<option value="" disabled selected>Selecciona una categoría...</option>';
                 resCat.data.categorias.forEach(cat => {
@@ -50,15 +55,24 @@ async function inicializarDatosReales() {
                 });
             }
             
-            if (selectCarrera && resCat.data.carreras) {
-                selectCarrera.innerHTML = '<option value="" disabled selected>Selecciona tu carrera...</option>';
-                resCat.data.carreras.forEach(car => {
-                    selectCarrera.innerHTML += `<option value="${car.id}">${car.nombre}</option>`;
-                });
+            // Asignar y bloquear la carrera del usuario
+            if (selectCarrera && resCat.data.carreras && resPerfil.ok && resPerfil.data) {
+                const miIdCarrera = resPerfil.data.idCarrera;
+                const miCarreraObj = resCat.data.carreras.find(c => c.id === miIdCarrera || c.idCarrera === miIdCarrera);
+
+                if (miCarreraObj) {
+                    selectCarrera.innerHTML = `<option value="${miIdCarrera}" selected>${miCarreraObj.nombre}</option>`;
+                    selectCarrera.disabled = true;
+                    selectCarrera.style.backgroundColor = "var(--color-surface-mixed, #eef2f7)";
+                    selectCarrera.style.cursor = "not-allowed";
+                } else {
+                    selectCarrera.innerHTML = '<option value="" disabled selected>Error: Carrera no encontrada</option>';
+                }
             }
-            console.log(">>> Catálogos cargados exitosamente.");
+            console.log(">>> Catálogos y perfil cargados exitosamente.");
+            updateLivePreview(); // Actualizar vista previa inicial
         } else {
-            console.error(">>> Error al cargar los catálogos. Verifica tu conexión a Tomcat/Oracle.");
+            console.error(">>> Error al cargar los catálogos o el perfil de usuario. Verifica tu conexión.");
         }
     }
 
@@ -116,7 +130,7 @@ async function inicializarDatosReales() {
     [inputTitulo, inputDescCorta, inputDescLarga].forEach(input => {
         if (input) input.addEventListener('input', () => { updateCounters(); updateLivePreview(); });
     });
-    [selectCategoria, selectCarrera].forEach(select => {
+    [selectCategoria].forEach(select => { // Quitamos selectCarrera de los listeners porque ya no cambiará
         if (select) select.addEventListener('change', updateLivePreview);
     });
     checkboxesTransaccion.forEach(cb => {
@@ -165,7 +179,7 @@ async function inicializarDatosReales() {
         if (selectedTransactions.length === 0) { showValidationToast("Selecciona al menos un tipo de transacción.", "error"); return; }
         
         if (selectCategoria.value === "") { showValidationToast("Selecciona una categoría.", "error"); selectCategoria.focus(); return; }
-        if (selectCarrera.value === "") { showValidationToast("Selecciona la carrera.", "error"); selectCarrera.focus(); return; }
+        if (selectCarrera.value === "") { showValidationToast("Falta cargar tu carrera.", "error"); return; } // Bloqueado, no se le da focus
         
         if (!selectedImageFile) { 
             showValidationToast("La imagen del prototipo es obligatoria.", "error"); 
@@ -196,7 +210,7 @@ async function inicializarDatosReales() {
                 descripcionCorta: inputDescCorta.value.trim(),
                 descripcionLarga: inputDescLarga.value.trim(),
                 urlImagen: cloudResponse.url,
-                idCarrera: parseInt(selectCarrera.value),
+                idCarrera: parseInt(selectCarrera.value), // Lee el valor aunque el select esté disabled
                 idCategoria: parseInt(selectCategoria.value),
                 tipoTransaccion: Array.from(checkboxesTransaccion).filter(cb => cb.checked).map(cb => cb.value).join(', ')
             };
@@ -215,7 +229,9 @@ async function inicializarDatosReales() {
                 if (dropZone) dropZone.classList.remove('success');
                 if (dragDropText) dragDropText.innerHTML = `Arrastra y suelta tu imagen aquí`;
                 if (previewImg) previewImg.src = DEFAULT_IMG;
-                updateLivePreview();
+                
+                // Recargar para mantener el valor fijo de la carrera tras el reset
+                inicializarDatosReales(); 
             } else {
                 showValidationToast(javaResponse.data.message || "Error al registrar en la base de datos.", "error");
             }

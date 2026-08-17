@@ -85,12 +85,16 @@
           </button>
           <button
             type="button"
-            class="settings-nav__link settings-nav__link--disabled"
+            class="settings-nav__link"
             id="btnPrivacidadDatos"
           >
-            <i class="bx bx-lock-alt"></i>
-            <span>Privacidad y Datos</span>
-            <span class="settings-nav__badge">Pronto</span>
+            <a
+              href="legales.html#privacidad"
+              class="settings-nav__link text-decoration-none"
+            >
+              <i class="bx bx-lock-alt"></i>
+              <span>Privacidad y Datos</span>
+            </a>
           </button>
         </nav>
 
