@@ -1,4 +1,3 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!doctype html>
 <html lang="es">
   <head>
@@ -71,13 +70,20 @@
 
         <!-- Social links -->
         <div class="header-socials">
-          <a href="#" class="header-socials__link"
+          <a
+            href="https://www.tiktok.com/@utezoficial"
+            class="header-socials__link"
             ><i class="bx bxl-tiktok"></i
           ></a>
-          <a href="#" class="header-socials__link"
+          <a
+            href="https://www.instagram.com/utezoficial/"
+            class="header-socials__link"
             ><i class="bx bxl-instagram"></i
           ></a>
-          <a href="#" class="header-socials__link d-flex align-items-center">
+          <a
+            href="https://x.com/utezoficial"
+            class="header-socials__link d-flex align-items-center"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -91,10 +97,14 @@
               />
             </svg>
           </a>
-          <a href="#" class="header-socials__link"
+          <a
+            href="https://www.facebook.com/utezoficial/"
+            class="header-socials__link"
             ><i class="bx bxl-facebook-circle"></i
           ></a>
-          <a href="#" class="header-socials__link"
+          <a
+            href="https://www.youtube.com/@utezoficial"
+            class="header-socials__link"
             ><i class="bx bxl-youtube"></i
           ></a>
         </div>
@@ -196,7 +206,7 @@
             <div class="footer-actions d-flex">
               <a href="#" class="footer-actions__link">
                 <i class="bx bx-box"></i>
-                <span>Buzón de sugerencias y<br />quejas</span>
+                <span>Soporte</span>
               </a>
               <a href="#" class="footer-actions__link">
                 <i class="bx bx-envelope"></i>
@@ -206,26 +216,22 @@
                 <i class="bx bx-lock-alt"></i>
                 <span>Avisos de privacidad</span>
               </a>
-              <a href="#" class="footer-actions__link">
-                <i class="bx bx-dollar-circle"></i>
-                <span>Políticas de pago en<br />línea</span>
-              </a>
-              <a href="#" class="footer-actions__link">
-                <i class="bx bx-file"></i>
-                <span>Políticas de entrega<br />producto/servicio</span>
-              </a>
             </div>
 
             <!-- Social Links -->
             <div class="footer-socials d-flex">
-              <a href="#" class="footer-socials__link"
+              <a
+                href="https://www.tiktok.com/@utezoficial"
+                class="footer-socials__link"
                 ><i class="bx bxl-tiktok"></i
               ></a>
-              <a href="#" class="footer-socials__link"
+              <a
+                href="https://www.instagram.com/utezoficial/"
+                class="footer-socials__link"
                 ><i class="bx bxl-instagram"></i
               ></a>
               <a
-                href="#"
+                href="https://x.com/utezoficial"
                 class="footer-socials__link d-flex align-items-center"
               >
                 <!-- Icons -->
@@ -241,10 +247,14 @@
                   />
                 </svg>
               </a>
-              <a href="#" class="footer-socials__link"
+              <a
+                href="https://www.facebook.com/utezoficial/"
+                class="footer-socials__link"
                 ><i class="bx bxl-facebook-circle"></i
               ></a>
-              <a href="#" class="footer-socials__link"
+              <a
+                href="https://www.youtube.com/@utezoficial"
+                class="footer-socials__link"
                 ><i class="bx bxl-youtube"></i
               ></a>
             </div>

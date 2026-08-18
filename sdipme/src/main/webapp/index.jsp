@@ -67,13 +67,20 @@
 
         <!-- Social links -->
         <div class="header-socials">
-          <a href="#" class="header-socials__link"
+          <a
+            href="https://www.tiktok.com/@utezoficial"
+            class="header-socials__link"
             ><i class="bx bxl-tiktok"></i
           ></a>
-          <a href="#" class="header-socials__link"
+          <a
+            href="https://www.instagram.com/utezoficial/"
+            class="header-socials__link"
             ><i class="bx bxl-instagram"></i
           ></a>
-          <a href="#" class="header-socials__link d-flex align-items-center">
+          <a
+            href="https://x.com/utezoficial"
+            class="header-socials__link d-flex align-items-center"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -87,10 +94,14 @@
               />
             </svg>
           </a>
-          <a href="#" class="header-socials__link"
+          <a
+            href="https://www.facebook.com/utezoficial/"
+            class="header-socials__link"
             ><i class="bx bxl-facebook-circle"></i
           ></a>
-          <a href="#" class="header-socials__link"
+          <a
+            href="https://www.youtube.com/@utezoficial"
+            class="header-socials__link"
             ><i class="bx bxl-youtube"></i
           ></a>
         </div>

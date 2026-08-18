@@ -177,4 +177,47 @@ public class SolicitudDao {
         } catch (SQLException e) { e.printStackTrace(); }
         return new String[]{"un prototipo", null, null};
     }
+
+    public int obtenerIdPrototipoPorSolicitud(int idSolicitud) {
+        String sql = "SELECT id_prototipo FROM solicitudes WHERE id_solicitud = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idSolicitud);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("id_prototipo");
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return -1;
+    }
+
+    public List<String> rechazarOtrasYObtenerCorreos(int idSolicitudAceptada, int idPrototipo) {
+        List<String> correos = new ArrayList<>();
+        String sqlSelect = "SELECT u.correo FROM solicitudes s INNER JOIN usuarios u ON s.id_solicitante = u.id_usuario WHERE s.id_prototipo = ? AND s.id_solicitud != ? AND s.estado = 'PENDIENTE'";
+        String sqlUpdate = "UPDATE solicitudes SET estado = 'RECHAZADA' WHERE id_prototipo = ? AND id_solicitud != ? AND estado = 'PENDIENTE'";
+
+        try (Connection con = DatabaseConnection.getConnection()) {
+            con.setAutoCommit(false);
+
+            // 1. Extraer correos de los perdedores antes de cambiarles el estado
+            try (PreparedStatement psSel = con.prepareStatement(sqlSelect)) {
+                psSel.setInt(1, idPrototipo);
+                psSel.setInt(2, idSolicitudAceptada);
+                try (ResultSet rs = psSel.executeQuery()) {
+                    while (rs.next()) correos.add(rs.getString("correo"));
+                }
+            }
+
+            // 2. Ejecutar el rechazo masivo
+            try (PreparedStatement psUpd = con.prepareStatement(sqlUpdate)) {
+                psUpd.setInt(1, idPrototipo);
+                psUpd.setInt(2, idSolicitudAceptada);
+                psUpd.executeUpdate();
+            }
+
+            con.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return correos;
+    }
 }

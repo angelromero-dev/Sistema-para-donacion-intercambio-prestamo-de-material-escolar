@@ -58,6 +58,20 @@ public class SolicitudService {
 
             if ("ACEPTADA".equals(nuevoEstado)) {
                 solicitudDao.marcarPrototipoOcupadoPorSolicitud(idSolicitud);
+
+                // === LÓGICA NUEVA: Rechazar a la competencia y avisarles ===
+                int idPrototipo = solicitudDao.obtenerIdPrototipoPorSolicitud(idSolicitud);
+                if (idPrototipo != -1) {
+                    List<String> correosRechazados = solicitudDao.rechazarOtrasYObtenerCorreos(idSolicitud, idPrototipo);
+                    for (String correoPerdedor : correosRechazados) {
+                        EmailService.enviarNotificacionGeneralAsync(correoPerdedor,
+                                "Solicitud Rechazada Automáticamente",
+                                "El dueño ya ha elegido otra petición para el material '" + titulo + "'. Tu solicitud ha sido descartada.",
+                                baseUrl);
+                    }
+                }
+
+                // Avisar al ganador
                 String correoSol = solicitudDao.obtenerCorreoSolicitante(idSolicitud);
                 if (correoSol != null) {
                     EmailService.enviarNotificacionGeneralAsync(correoSol,
@@ -65,19 +79,20 @@ public class SolicitudService {
                             "Tu solicitud de " + tipoTransaccion + " para '" + titulo + "' ha sido aceptada. Inicia sesión en SDIPME para ver los datos del contacto.",
                             baseUrl);
                 }
+
             } else if ("RECHAZADA".equals(nuevoEstado)) {
+                // Rechazo manual directo del dueño
                 String correoSol = solicitudDao.obtenerCorreoSolicitante(idSolicitud);
                 if (correoSol != null) {
                     EmailService.enviarNotificacionGeneralAsync(correoSol,
                             "Solicitud Rechazada",
-                            "El dueño ha rechazado tu petición de " + tipoTransaccion + " para '" + titulo + "'. Puedes buscar otras opciones en el catálogo.",
+                            "El dueño ha rechazado tu petición de " + tipoTransaccion + " para '" + titulo + "'.",
                             baseUrl);
                 }
             }
         }
         return exito;
     }
-
     public List<Integer> obtenerPrototiposPendientes(int idSolicitante) {
         return solicitudDao.obtenerPrototiposPendientes(idSolicitante);
     }
