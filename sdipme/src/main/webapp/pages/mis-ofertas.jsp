@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta
       name="description"
-      content="Plataforma institucional de la UTEZ para préstamo, intercambio y donación de prototipos."
+      content="Plataforma institucional de la UTEZ para préstamo, intercambio y donación de Materiales."
     />
     <meta name="author" content="Equipo 4" />
 
@@ -17,7 +17,7 @@
       href="../assets/svg/logo.svg"
       type="image/x-icon"
     />
-    <title>SDIPME-Mis Ofertas</title>
+    <title>SDIPME-Mis publicaciones</title>
 
     <!-- External fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -57,7 +57,7 @@
         data-bs-toggle="modal"
         data-bs-target="#modalPublicarPrototipo"
       >
-        <i class="bx bx-plus-circle"></i> Publicar Prototipo
+        <i class="bx bx-plus-circle"></i> Publicar Material
       </button>
     </header>
 
@@ -288,7 +288,7 @@
             <i class="bx bx-trash text-danger" style="font-size: 3.5rem"></i>
             <h5 class="fw-bold mt-2">¿Cancelar publicación?</h5>
             <p class="text-muted small">
-              Tu prototipo ya no estará disponible en el catálogo general.
+              Tu Material ya no estará disponible en el catálogo general.
             </p>
             <div class="d-flex gap-2 justify-content-center mt-3">
               <button
@@ -341,7 +341,7 @@
               <form id="formPublicarPrototipo" class="publish-form">
                 <div>
                   <label for="pubTitulo" class="publish-form__label">
-                    Título del Prototipo *
+                    Título del Material *
                     <span class="publish-form__char-counter" id="counterTitulo"
                       >0/100</span
                     >
@@ -350,7 +350,7 @@
                     type="text"
                     id="pubTitulo"
                     class="publish-form__input"
-                    placeholder="Ej. Kit Arduino Uno Rev3 con Sensores"
+                    placeholder="Ej. Memoria USB de 32GB "
                     maxlength="100"
                   />
                 </div>
@@ -405,7 +405,7 @@
                     >
                     <select id="pubCarrera" class="publish-form__select">
                       <option value="" disabled selected>
-                        Cargando carreras...
+                        Obteniendo tu carrera...
                       </option>
                     </select>
                   </div>
@@ -413,7 +413,7 @@
 
                 <div>
                   <label class="publish-form__label"
-                    >Fotografía del Prototipo *</label
+                    >Fotografía del Material *</label
                   >
                   <div class="drag-drop-zone" id="dragDropZone">
                     <input
@@ -476,7 +476,7 @@
                     id="btnSubmitPublicar"
                     class="btn auth-btn w-100 py-2"
                   >
-                    <i class="bx bx-check-circle me-1"></i> Publicar Prototipo
+                    <i class="bx bx-check-circle me-1"></i> Publicar Material
                   </button>
                 </div>
               </form>
@@ -501,11 +501,11 @@
                       <span class="badge-tag badge-tag--category">General</span>
                     </div>
                     <h3 class="prototype-card__title" id="prevTitle">
-                      Título del Prototipo
+                      Título del Material
                     </h3>
                     <p class="prototype-card__description" id="prevDesc">
-                      Descripción corta del prototipo que aparecerá en la
-                      tarjeta del catálogo.
+                      Descripción corta del Material que aparecerá en la tarjeta
+                      del catálogo.
                     </p>
                     <div class="prototype-card__footer">
                       <span class="prototype-card__matricula" id="prevMatricula"
@@ -540,9 +540,9 @@
               class="bx bx-cloud-upload text-primary"
               style="font-size: 3.5rem"
             ></i>
-            <h5 class="fw-bold mt-2">¿Publicar prototipo?</h5>
+            <h5 class="fw-bold mt-2">¿Publicar Material?</h5>
             <p class="text-muted small">
-              Tu prototipo será visible para toda la comunidad UTEZ.
+              Tu Material será visible para toda la comunidad UTEZ.
             </p>
             <div class="d-flex gap-2 justify-content-center mt-3">
               <button

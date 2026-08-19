@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!doctype html>
 <html lang="es">
   <head>
@@ -7,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta
       name="description"
-      content="Plataforma institucional de la UTEZ para préstamo, intercambio y donación de prototipos."
+      content="Plataforma institucional de la UTEZ para préstamo, intercambio y donación de Materiales."
     />
     <meta name="author" content="Equipo 4" />
 
@@ -126,21 +127,109 @@
 
           <!-- Items -->
           <li class="nav-menu__item">
-            <a href="mis-ofertas.jsp" class="nav-menu__link"> Mis ofertas </a>
+            <a href="mis-ofertas.jsp" class="nav-menu__link">
+              Mis publicaciones
+            </a>
           </li>
           <li class="nav-menu__item">
             <a href="mis-solicitudes.jsp" class="nav-menu__link">
-              mis solicitudes
+              Mis solicitudes
             </a>
           </li>
           <li class="nav-menu__item">
             <a href="configuracion.jsp" class="nav-menu__link">
-              configuración
+              Configuración
             </a>
           </li>
         </ul>
       </div>
     </nav>
+
+    <!-- Hero de Bienvenida -->
+    <hero>
+      <section
+        class="l-hero animate__animated animate__fadeIn"
+        id="dashboard-hero"
+      >
+        <div class="hero-bg-mask"></div>
+        <div class="l-container">
+          <div
+            class="hero-content d-flex flex-column align-items-start text-left"
+          >
+            <h1 class="hero-content__title animate__animated animate__fadeInUp">
+              ¡Bienvenido!
+            </h1>
+            <p
+              class="hero-content__text animate__animated animate__fadeInUp animate__delay-1s"
+            >
+              Explora el catálogo de publicaciones para encontrar lo que
+              necesitas o dale una segunda vida a los materiales que ya no uses.
+            </p>
+          </div>
+        </div>
+      </section>
+    </hero>
+
+    <!-- Contenedores de Incentivo -->
+    <section class="l-container">
+      <div class="dashboard-incentives">
+        <!-- Tarjeta 1: Publicar -->
+        <div class="incentive-card">
+          <i class="bx bx-layer-plus incentive-deco-icon"></i>
+          <div class="incentive-card__content">
+            <h3 class="incentive-card__title">
+              <i class="bx bx-rocket"></i> Dale vida a tu material
+            </h3>
+            <p class="incentive-card__text">
+              ¿Tienes componentes, libros o herramientas que ya no usas?
+              Publícalos en el catálogo. Ayuda a otros compañeros donando o
+              pidiendo un intercambio justo.
+            </p>
+            <a href="mis-ofertas.jsp" class="incentive-card__action">
+              <i class="bx bx-plus-circle"></i> Publicar prototipo
+            </a>
+          </div>
+        </div>
+
+        <!-- Tarjeta 2: Notificaciones y Correos -->
+        <div class="incentive-card">
+          <i class="bx bx-bell incentive-deco-icon"></i>
+          <div class="incentive-card__content">
+            <h3 class="incentive-card__title">
+              <i class="bx bx-envelope-open"></i> Revisa tus respuestas
+            </h3>
+            <p class="incentive-card__text mb-0">
+              Mantente al tanto de tus peticiones. Recuerda que el sistema
+              también te avisa directamente a tu bandeja institucional.
+            </p>
+
+            <!-- Captura de correo simulada -->
+            <div class="email-mockup">
+              <div class="email-mockup__icon">
+                <i class="bx bx-check-shield"></i>
+              </div>
+              <div class="email-mockup__lines">
+                <div></div>
+                <div></div>
+              </div>
+              <span
+                style="
+                  margin-left: auto;
+                  font-size: 0.7rem;
+                  font-weight: 700;
+                  color: #128970;
+                "
+                >¡Aprobada!</span
+              >
+            </div>
+
+            <a href="mis-solicitudes.jsp" class="incentive-card__action mt-3">
+              <i class="bx bx-history"></i> Ver mis solicitudes
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Searcher and Filters -->
     <section class="l-container mt-4">
@@ -151,7 +240,7 @@
             type="text"
             id="searchInput"
             class="smart-search__input"
-            placeholder="Buscar prototipo por título o matrícula..."
+            placeholder="Buscar material por título o matrícula..."
             autocomplete="off"
           />
         </div>
@@ -203,18 +292,27 @@
             class="footer-bottom d-flex justify-content-between align-items-center flex-wrap"
           >
             <!-- Action Links -->
-            <div class="footer-actions d-flex">
-              <a href="#" class="footer-actions__link">
-                <i class="bx bx-box"></i>
-                <span>Soporte</span>
+            <div
+              class="footer-actions d-flex"
+              style="gap: 5rem; justify-content: center"
+            >
+              <a
+                href="#"
+                class="footer-actions__link"
+                data-bs-toggle="modal"
+                data-bs-target="#modalSoporte"
+              >
+                <i class="bx bx-support"></i>
+                <span>Soporte y Ayuda</span>
               </a>
-              <a href="#" class="footer-actions__link">
+              <a
+                href="#"
+                class="footer-actions__link"
+                data-bs-toggle="modal"
+                data-bs-target="#modalCorreo"
+              >
                 <i class="bx bx-envelope"></i>
-                <span>Correo electrónico</span>
-              </a>
-              <a href="#" class="footer-actions__link">
-                <i class="bx bx-lock-alt"></i>
-                <span>Avisos de privacidad</span>
+                <span>Correo de Contacto</span>
               </a>
             </div>
 
@@ -263,6 +361,68 @@
       </div>
     </footer>
 
+    <!-- Modal Soporte -->
+    <div class="modal fade" id="modalSoporte" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-body text-center p-4">
+            <i class="bx bx-support text-primary" style="font-size: 3.5rem"></i>
+            <h5 class="fw-bold mt-2">Soporte y Ayuda</h5>
+            <p class="text-muted small">
+              Para reportar fallas en el sistema, publicaciones
+              malintencionadas, conflictos con algún usuario o cualquier otro
+              problema técnico, comunícate con nosotros:
+            </p>
+            <a
+              href="mailto:support@sdipme.online"
+              class="fw-bold text-primary text-decoration-none"
+              style="font-size: 1.1rem"
+              >support@sdipme.online</a
+            >
+            <button
+              type="button"
+              class="btn btn-light btn-sm w-100 mt-4"
+              data-bs-dismiss="modal"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Correo -->
+    <div class="modal fade" id="modalCorreo" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-body text-center p-4">
+            <i
+              class="bx bx-envelope text-primary"
+              style="font-size: 3.5rem"
+            ></i>
+            <h5 class="fw-bold mt-2">Contacto Oficial</h5>
+            <p class="text-muted small">
+              Para dudas generales, sugerencias, convenios o consultas de
+              carácter administrativo, escríbenos a nuestro correo principal:
+            </p>
+            <a
+              href="mailto:contacto@sdipme.online"
+              class="fw-bold text-primary text-decoration-none"
+              style="font-size: 1.1rem"
+              >contacto@sdipme.online</a
+            >
+            <button
+              type="button"
+              class="btn btn-light btn-sm w-100 mt-4"
+              data-bs-dismiss="modal"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- details modal -->
     <div
       class="modal fade modal-publish"
@@ -274,7 +434,7 @@
         <div class="modal-content modal-publish__content">
           <div class="modal-header modal-publish__header">
             <h5 class="modal-publish__title" id="modalProtoTitulo">
-              Detalles del Prototipo
+              Detalles del
             </h5>
             <button
               type="button"
@@ -336,7 +496,7 @@
                 ></div>
 
                 <div class="mt-3">
-                  <h6 class="fw-bold mb-1">Descripción del Prototipo</h6>
+                  <h6 class="fw-bold mb-1">Descripción del Material</h6>
                   <p class="text-muted small lh-sm" id="modalProtoDescLarga">
                     Cargando descripción...
                   </p>
@@ -540,8 +700,8 @@
             ></i>
             <h5 class="fw-bold mt-2">¿Enviar solicitud?</h5>
             <p class="text-muted small">
-              El dueño del material recibirá tu petición y podrá contactarte si
-              la acepta.
+              El dueño del material recibirá tu petición y si acepta, podra ver
+              tus datos de contacto.
             </p>
             <div class="d-flex gap-2 justify-content-center mt-3">
               <button
@@ -584,7 +744,7 @@
             <h5 class="fw-bold mt-2">En espera</h5>
             <p class="text-muted small">
               Ya solicitaste este material. Debes esperar a que el dueño
-              responda tu petición en la sección "Mis Actividades".
+              responda tu petición en la sección "Mis Solicitudes".
             </p>
             <button
               type="button"
@@ -640,5 +800,6 @@
     <script src="../js/ui/prototipo-detalle-ui.js"></script>
     <script src="../js/main.js"></script>
     <script src="../js/service/api.js"></script>
+    <script src="../js/ui/hero.js"></script>
   </body>
 </html>
