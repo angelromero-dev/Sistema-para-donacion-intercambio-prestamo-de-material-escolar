@@ -563,81 +563,201 @@
 /*
 * COMPONENT: Smart Filters (Dashboard)
 */
-.smart-filter-wrapper {
-  background-color: var(--color-surface-base-card);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  margin-bottom: 1.5rem;
+
+.smart-dashboard-toolbar {
+  background: var(--color-text-inverse);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 66, 114, 0.06);
+  border: 1px solid var(--color-border-base);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transition: box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.smart-search {
+.smart-dashboard-toolbar:focus-within {
+  box-shadow: 0 12px 32px rgba(0, 66, 114, 0.12);
+}
+
+/* --- Search Box Modernizada --- */
+.smart-search-box {
   position: relative;
   width: 100%;
+  display: flex;
+  align-items: center;
 }
 
-.smart-search i {
+.search-icon {
   position: absolute;
-  top: 50%;
-  left: 1rem;
-  transform: translateY(-50%);
-  font-size: 1.5rem;
+  left: 1.2rem;
+  font-size: 1.4rem;
   color: var(--color-text-hint);
-  pointer-events: none;
+  transition: color 0.3s ease, transform 0.3s ease;
+  z-index: 2;
 }
 
-.smart-search__input {
+.smart-search-box__input {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 3.2rem;
-  border-radius: 8px;
-  border: 1px solid var(--color-border-base);
+  background: var(--color-surface-base-card);
+  border: 1px solid transparent;
+  padding: 1rem 1rem 1rem 3.2rem;
+  border-radius: 12px;
   font-family: var(--font-body);
   font-size: 0.95rem;
+  font-weight: 500;
   color: var(--color-text-primary);
-  background-color: #ffffff;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
-.smart-search__input:focus {
-  border-color: var(--color-brand-primary);
-  box-shadow: 0 0 0 3px rgba(0, 66, 114, 0.12);
+.smart-search-box__input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+/* Animación de Focus en el Input */
+.search-focus-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--color-brand-primary);
+  transition: width 0.4s ease, left 0.4s ease;
+  border-radius: 2px;
+  z-index: 2;
+}
+
+.smart-search-box__input:focus {
   outline: none;
+  background: var(--color-text-inverse);
+  box-shadow: 0 4px 15px rgba(0, 66, 114, 0.08);
 }
 
-.smart-filter__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1.2rem;
+.smart-search-box__input:focus ~ .search-icon {
+  color: var(--color-brand-primary);
+  transform: scale(1.1);
 }
 
-.smart-filter__btn {
-  background-color: transparent;
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border-base);
-  padding: 0.45rem 1.1rem;
-  border-radius: 20px;
+.smart-search-box__input:focus ~ .search-focus-indicator {
+  width: calc(100% - 2rem);
+  left: 1rem;
+}
+
+/* --- Dynamic Filter Tags Modernizados --- */
+.smart-filter-scroll {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 0.5rem; /* Para que no se corte la sombra */
+  /* Ocultar barra de scroll en navegadores modernos */
+  scrollbar-width: none; 
+  -ms-overflow-style: none;
+}
+
+.smart-filter-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.smart-filter-tags {
+  display: inline-flex;
+  gap: 0.6rem;
+  padding: 0.2rem 0;
+}
+
+/* Los botones que inyecta JS (Cambiamos el nombre de clase en CSS pero JS no se entera) */
+.smart-filter__btn,
+.smart-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--color-surface-base);
+  color: var(--color-text-hint);
+  border: 1px solid transparent;
+  padding: 0.55rem 1.1rem;
+  border-radius: 30px;
   font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
-.smart-filter__btn:hover {
-  border-color: var(--color-brand-primary);
+.smart-filter__btn:hover,
+.smart-tag:hover {
+  background: var(--color-surface-base-card);
   color: var(--color-brand-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 66, 114, 0.08);
 }
 
-.smart-filter__btn--active {
-  background-color: var(--color-brand-primary);
+.smart-filter__btn--active,
+.smart-tag--active {
+  background: var(--color-brand-primary);
   color: var(--color-text-inverse);
   border-color: var(--color-brand-primary);
+  box-shadow: 0 4px 12px rgba(0, 66, 114, 0.2);
 }
 
-.smart-filter__btn--active:hover {
-  background-color: var(--color-grad-primary-start);
+.smart-filter__btn--active:hover,
+.smart-tag--active:hover {
+  background: var(--color-grad-primary-start);
   color: var(--color-text-inverse);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 66, 114, 0.25);
+}
+
+/* --- Animaciones Constantes para Buscador y Filtros --- */
+
+@keyframes searchWiggle {
+  0%, 85%, 100% { transform: scale(1) rotate(0deg); }
+  88% { transform: scale(1.2) rotate(-15deg); color: var(--color-brand-primary); }
+  91% { transform: scale(1.2) rotate(10deg); color: var(--color-brand-primary); }
+  94% { transform: scale(1.2) rotate(-10deg); color: var(--color-brand-primary); }
+  97% { transform: scale(1.2) rotate(5deg); color: var(--color-brand-primary); }
+}
+
+@keyframes filterShake {
+  0%, 90%, 100% { transform: translateX(0); }
+  92% { transform: translateX(-3px); }
+  94% { transform: translateX(3px); }
+  96% { transform: translateX(-2px); }
+  98% { transform: translateX(2px); }
+}
+
+/* Reemplaza la clase .search-icon que pegaste antes con esta: */
+.search-icon {
+  position: absolute;
+  left: 1.2rem;
+  font-size: 1.4rem;
+  color: var(--color-text-hint);
+  transition: color 0.3s ease, transform 0.3s ease;
+  z-index: 2;
+  animation: searchWiggle 6s infinite; /* Llama a la animación aquí */
+}
+
+/* Pausa la animación si el usuario ya está interactuando con el input */
+.smart-search-box__input:focus ~ .search-icon {
+  animation: none;
+  color: var(--color-brand-primary);
+  transform: scale(1.1);
+}
+
+/* Reemplaza la clase .smart-filter-tags que pegaste antes con esta: */
+.smart-filter-tags {
+  display: inline-flex;
+  gap: 0.6rem;
+  padding: 0.2rem 0;
+  animation: filterShake 8s infinite ease-in-out; /* Llama a la animación aquí */
+}
+
+/* Pausa el temblor de los filtros si el usuario pasa el cursor por encima */
+.smart-filter-tags:hover {
+  animation-play-state: paused;
 }
 
 

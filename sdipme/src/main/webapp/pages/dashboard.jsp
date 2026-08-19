@@ -232,26 +232,29 @@
     </section>
 
     <!-- Searcher and Filters -->
-    <section class="l-container mt-4">
-      <div class="smart-filter-wrapper">
-        <div class="smart-search">
-          <i class="bx bx-search"></i>
+    <section class="l-container mt-4 mb-4">
+      <div class="smart-dashboard-toolbar animate__animated animate__fadeInUp">
+        <!-- Search Input -->
+        <div class="smart-search-box">
+          <i class="bx bx-search search-icon"></i>
           <input
             type="text"
             id="searchInput"
-            class="smart-search__input"
+            class="smart-search-box__input"
             placeholder="Buscar material por título o matrícula..."
             autocomplete="off"
           />
+          <div class="search-focus-indicator"></div>
         </div>
-        <!-- Contenedor dinámico de etiquetas -->
-        <div class="smart-filter__tags" id="filterContainer">
-          <button
-            class="smart-filter__btn smart-filter__btn--active"
-            data-tag="all"
-          >
-            Todos
-          </button>
+
+        <!-- Dynamic Filter Tags -->
+        <div class="smart-filter-scroll">
+          <div class="smart-filter-tags" id="filterContainer">
+            <button class="smart-tag smart-tag--active" data-tag="all">
+              <i class="bx bx-grid-alt"></i> Todos
+            </button>
+            <!-- JS inyectará el resto aquí manteniendo las clases smart-tag -->
+          </div>
         </div>
       </div>
     </section>

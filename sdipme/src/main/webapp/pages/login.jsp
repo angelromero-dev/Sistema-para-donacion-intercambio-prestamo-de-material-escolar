@@ -75,12 +75,6 @@
           <div
             class="d-flex justify-content-between align-items-center mb-4 auth-options"
           >
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="recuerdame" />
-              <label class="form-check-label text-muted" for="recuerdame"
-                >Recuérdame</label
-              >
-            </div>
             <!-- CASO 1: Disparador del modal de recuperación -->
             <a
               href="#"
